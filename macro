@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: macro,v 1.12 1999/09/01 21:39:24 root Exp $
+# $Id: macro,v 1.14 1999/09/07 20:08:10 root Exp $
 
 # Copyright (c) 1999 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
@@ -11,75 +11,35 @@ use Getopt::Long ;
 use Macro ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.01' ;
+$VERSION = '1.10' ;
 
 my %Opt ;
 
 &getoptions ;
 
-my $Macro = new Macro( -file => $Opt{'file'}, -comment => $Opt{'comment'} ) ;
+my $Macro = new Macro( 
+                -file       => $Opt{'file'}, 
+                -comment    => $Opt{'comment'}, 
+                -opendelim  => $Opt{'opendelim'},
+                -closedelim => $Opt{'closedelim'},
+                -embedded   => $Opt{'embedded'},
+                ) ;
 
 if( $Opt{'macro'} or $Opt{'script'} or $Opt{'variable'} ) {
     $Macro->list( -macro,    $Opt{'name'} ) if $Opt{'macro'} ;
     $Macro->list( -script,   $Opt{'name'} ) if $Opt{'script'} ;
     $Macro->list( -variable, $Opt{'name'} ) if $Opt{'variable'} ;
 }
-elsif( $Opt{'emacro'} ) {
-    my $od  = $Opt{'opendelim'} ;
-    my $cd  = $Opt{'closedelim'} ;
-    my $lod = length( $od ) ;
-    my $lcd = length( $cd ) ;
-
-    my $in  = 0 ;
-
-    PROCESS:
-    while( <> ) {
-        if( not $in and /^$od$/o ) {
-            $in = 1 ;
-        }
-        elsif( $in and /^$cd$/o ) {
-            $in = 0 ;
-        }
-        elsif( not $in ) {
-            my $pos = index( $_, $od ) ;
-            if( $pos > -1 ) {
-                print substr( $_, 0, $pos ) if $pos > 0 ;
-                my $start = $pos + $lod ;
-                my $end   = index( $_, $cd, $start ) ;
-                if( $end > -1 ) {
-                    print $Macro->expand( 
-                        substr( $_, $start, $end - $start ), $ARGV ) ;
-                    $_ = substr( $_, $end + $lcd ) ;
-                    redo PROCESS ;
-                }
-                else {
-                    print $Macro->expand( substr( $_, $start ), $ARGV ) ;
-                    $in = 1 ;
-                }
-            }
-            else {
-                print ;
-            }
-        }
-        else {
-            my $end = index( $_, $cd ) ;
-            if( $end > -1 ) {
-                print $Macro->expand( substr( $_, 0, $end ), $ARGV ) ;
-                $in = 0 ;
-                $_  = substr( $_, $end + $lcd ) ;
-                redo PROCESS ;
-            }
-            else {
-                print $Macro->expand( $_, $ARGV ) ;
-            }
-        }
-    }
-}
 else {
     while( <> ) {
         # Adding $ARGV (i.e. filename) is optional, but helps with error
         # messages.
-        print $Macro->expand( $_, $ARGV ) if $_ ;
+        if( $Opt{'embedded'} ) {
+            print $Macro->expand_embedded( $_, $ARGV ) if $_ ;
+        }
+        else {
+            print $Macro->expand( $_, $ARGV ) if $_ ;
+        }
     }
 }
 
@@ -87,13 +47,13 @@ else {
 sub getoptions {
 
     # Defaults.
-    $Opt{'closedelim'} = ':>' ;
+    $Opt{'closedelim'} = '' ;
     $Opt{'comment'}    = 0 ;
     $Opt{'emacro'}     = $0 =~ /emacro$/ ? 1 : 0 ;
     $Opt{'files'}      = [] ;
     $Opt{'macro'}      = 0 ;
     $Opt{'name'}       = 0 ;
-    $Opt{'opendelim'}  = '<:' ;
+    $Opt{'opendelim'}  = '' ;
     $Opt{'script'}     = 0 ;
     $Opt{'variable'}   = 0 ;
 
@@ -121,16 +81,12 @@ sub getoptions {
         $Opt{'variable'} = 1 ;
     }
 
-    if( $Opt{'emacro'} ) {
-        die "Opening delimiter must be specified for embedded operation" 
-        unless $Opt{'opendelim'} ;
+    # Don't die if no delimiters are specified - Macro.pm will default
+    # them to <: and :> if needed.
 
-        die "Closing delimiter must be specified for embedded operation" 
-        unless $Opt{'closedelim'} ;
-
-        warn "Identical opening and closing delimeters are not recommended"
-        if $Opt{'opendelim'} eq $Opt{'closedelim'} ;
-    }
+    $Opt{'opendelim'}  = undef unless $Opt{'opendelim'} ;
+    $Opt{'closedelim'} = undef unless $Opt{'closedelim'} ;
+    $Opt{'embedded'}   = $Opt{'emacro'} ;
 }
 
 
@@ -242,17 +198,17 @@ Thus, in the body of a file we may have, for example:
     We are writing to complain to the &B about the shoddy work they did.
 
 Or, in the case of using the C<-e> option (or calling as C<emacro>) for
-embedded style processing our files would look like this:
+embedded style processing our files might look like this:
 
     <:
     %CASE[0]
     We keep our definitions etc as embedded commands - they will be
     instantiated but not output.
     %END_CASE
-    %DEFINE &B [Billericky Rickety Builders]
+    %DEFINE BB [Billericky Rickety Builders]
     :>
     Some arbitrary text.
-    We are writing to complain to the <:&B:> about the shoddy work they did.
+    We are writing to complain to the <:BB:> about the shoddy work they did.
 
 Note how we must enclose the definition in the body text between embedded
 delimiters, C<<:> and C<:>> (these are user-definable). Processing using this
@@ -412,10 +368,9 @@ Macro names can be any length and consist of any characters (including
 non-printable which is probably only useful within code), except [, although ]
 is not recommended.
 
-Here's a simple date-stamp in `embedded perl' style, but actually using the
-macro approach:
+Here's a simple date-stamp using the macro approach:
 
-    %DEFINE_SCRIPT <:DATESTAMP:>
+    %DEFINE_SCRIPT *DATESTAMP
     {
         my( $d, $m, $y ) = (localtime( time ))[3..5] ;
         $m++ ;
@@ -431,14 +386,14 @@ Here's (a somewhat contrived example of) how the above would be used:
     <HTML>
     <HEAD><TITLE>Test Page</TITLE></HEAD>
     <BODY>
-    <:DATESTAMP:>[Last Updated]<P>
-    This page is up-to-date and will remain valid until <:DATESTAMP:>[midnight]
+    *DATESTAMP[Last Updated]<P>
+    This page is up-to-date and will remain valid until *DATESTAMP[midnight]
     </BODY>
     </HTML>
 
 Thus we could have a file, C<test.html.m> containing:
 
-    %DEFINE_SCRIPT <:DATESTAMP:>
+    %DEFINE_SCRIPT *DATESTAMP
     {
         my( $d, $m, $y ) = (localtime( time ))[3..5] ;
         $m++ ;
@@ -451,8 +406,8 @@ Thus we could have a file, C<test.html.m> containing:
     <HTML>
     <HEAD><TITLE>Test Page</TITLE></HEAD>
     <BODY>
-    <:DATESTAMP:>[Last Updated]<P>
-    This page is up-to-date and will remain valid until <:DATESTAMP:>[midnight]
+    *DATESTAMP[Last Updated]<P>
+    This page is up-to-date and will remain valid until *DATESTAMP[midnight]
     </BODY>
     </HTML>
 
@@ -478,8 +433,9 @@ or a real embedded perl file, C<test.html.e>:
     <HTML>
     <HEAD><TITLE>Test Page</TITLE></HEAD>
     <BODY>
-    <:DATESTAMP:>[Last Updated]<P>
-    This page is up-to-date and will remain valid until <:DATESTAMP:>[midnight]
+    <!-- Note how the parameter must be within the delimiters. -->
+    <:DATESTAMP[Last Updated]:><P>
+    This page is up-to-date and will remain valid until <:DATESTAMP[midnight]:>
     </BODY>
     </HTML>
 
@@ -551,8 +507,8 @@ the point it appears in the text file:
     <HTML>
     <HEAD><TITLE>Test Page Again</TITLE></HEAD>
     <BODY>
-    <:DATESTAMP:>[Last Updated]<P>
-    This page will remain valid until <:DATESTAMP:>[midnight]
+    *DATESTAMP[Last Updated]<P>
+    This page will remain valid until *DATESTAMP[midnight]
     </BODY>
     </HTML>
 
@@ -709,7 +665,7 @@ as normal.
 Macros and scripts may be undefined in files:
 
     %UNDEFINE *P
-    %UNDEFINE_SCRIPT <:DATESTAMP:>
+    %UNDEFINE_SCRIPT *DATESTAMP
     %UNDEFINE_VARIABLE &*!
 
 All macros, scripts and variables can be undefined:
@@ -794,6 +750,8 @@ Lousy error reporting for embedded perl in most cases.
 
 1999/09/01  Minor documentation corrections. 
 
+1999/09/07  Took out embedded processing code - this is now taken care of by
+            Macro.pm, so we just need to call that with the right options.
 
 =head1 AUTHOR
 

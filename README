@@ -6,7 +6,7 @@ Macro - A macro pre-processor with embedded perl capability
 
     use Macro ;
 
-    # new()
+    # new() for macro processing
 
     my $Macro = new Macro ;
     while( <> ) {
@@ -18,6 +18,16 @@ Macro - A macro pre-processor with embedded perl capability
     while( <> ) {
         print $Macro->expand( $_, $ARGV ) if $_ ;
     }
+
+    # new() for embedded macro processing
+
+    my $Macro = new Macro( -embedded => 1 ) ; # Delimiters default to <: and :>
+    # or
+    my $Macro = new Macro( -opendelim => '[[', -closedelim => ']]' ) ;
+    while( <> ) {
+        print $Macro->expand_delimited( $_, $ARGV ) if $_ ;
+    }
+
 
     # Create a macro object and create initial macros/scripts from the file(s)
     # given:
@@ -86,12 +96,14 @@ Macro - A macro pre-processor with embedded perl capability
     @variables = $Macro->list( -variable, -namesonly ) ;
 
 
-    # load_file()
+    # load_file() - always treats the contents as within delimiters if we are
+    # doing embedded processing.
 
     $Macro->load_file( $filename ) ;
 
 
-    # expand_file()
+    # expand_file() - calls expand_embedded() if we are doing embedded
+    # processing otherwise calls expand().
 
     $Macro->expand_file( $filename ) ;
     @expanded = $Macro->expand_file( $filename ) ;
@@ -102,13 +114,15 @@ Macro - A macro pre-processor with embedded perl capability
     $expanded = $Macro->expand( $unexpanded ) ;
     $expanded = $Macro->expand( $unexpanded, $filename ) ;
 
+    # expand_embedded()
+
+    $expanded = $Macro->expand_embedded( $unexpanded ) ;
+    $expanded = $Macro->expand_embedded( $unexpanded, $filename ) ;
 
 This bundle also includes the C<macro> script which allows us to expand
 macros without having to use/understand C<Macro.pm>, although you will have to
 learn the handful of macro commands available and which are documented here
-and in C<macro>. C<macro> also supports an embedded perl approach (use the
-C<-e> option or create a soft link and call it as C<emacro>).
-
+and in C<macro>. C<macro> provides more documentation on the embedded approach.
 
 =head1 DESCRIPTION
 
@@ -121,10 +135,10 @@ equivalent object method so that programmers may achieve the same things in
 code as can be achieved by macro commands in texts; there are also additional
 methods which have no command equivalents.
 
-All the examples given here use the macro approach (since that is what this
-module supports directly). However this module can be used to provide an
-embedded perl approach which is what the C<macro> script offers; that approach
-is documented in the C<macro> script.
+Most the examples given here use the macro approach. However this module now
+directly supports an embedded approach and this is now documented. Although
+you may specify your own delimiters where shown in examples we use the default
+delimiters of C<E<gt>:> and C<:E<lt>> throughout.
 
 =head2 Summary of Commands
 
@@ -132,6 +146,10 @@ These commands may appear in separate `macro' files, and/or in the body of
 files. Wherever a macroname or scriptname is encountered it will be replaced
 by the body of the macro or the result of the evaluation of the script using
 any parameters that are given.
+
+Note that if we are using an embedded approach commands, macro names and
+script names should appear between delimiters. (Except when we C<%LOAD> since
+this assumes the whole file is `embedded'.)
 
     %DEFINE macroname [macro body]
 
@@ -184,6 +202,17 @@ Thus, in the body of a file we may have, for example:
     Some arbitrary text.
     We are writing to complain to the &B about the shoddy work they did.
 
+If we are taking the embedded approach the example above might become:
+
+    <:%DEFINE BB [Billericky Rickety Builders]:>
+    Some arbitrary text.
+    We are writing to complain to the <:BB:> about the shoddy work they did.
+
+When using an embedded approach we don't have to make the macro or script name
+unique within the text, (although each must be distinct from each other),
+since the delimiters are used to signify them. However since expansion applies
+recursively it is still wise to make names distinctive.
+
 
 =head2 Macro systems vs embedded systems
 
@@ -201,10 +230,84 @@ Essentially, embedded systems print all text until they hit an opening
 delimiter. They then execute any code up until the closing delimiter. The text
 that results replaces everything between and including the delimeters. They
 then carry on printing text until they hit an opening delimeter and so on
-until they've finished processing all the text. This module provides a macro
-approach; the C<macro> script supplied as a wrapper for C<Macro.pm> can
-operate both as a macro pre-processor I<and> as an embedded perl processor, as
-we wish.
+until they've finished processing all the text. This module now provides both
+approaches.
+
+=head2 Creating macro objects with C<new()>
+
+For macro processing:
+
+    my $Macro = new Macro ;
+
+For embedded macro processing:
+
+    my $Macro = new Macro( -embedded => 1 ) ; # Delimiters default to <: and :>
+
+Or specify your own delimiters:
+    
+    my $Macro = new Macro( -opendelim => '[[', -closedelim => ']]' ) ;
+
+Or specify one delimiter to use for both (probably not wise):
+
+    my $Macro = new Macro( -opendelim => '%%' ) ; # -closedelim defaults to %%
+ 
+
+The full list of options that may be specified at object creation:
+
+C<-comment> optional integer; 1 = create the C<%%[]> comment macro; default 0.
+
+C<-file> optional array reference of strings; read macros and scripts from the
+file(s) given - they are C<%LOAD>ed so are treated as already embedded if we
+are doing embedded processing. Default is a reference to an empty array. 
+
+C<-macro> optional array reference of macros, in the form:
+
+    my $Macro = new Macro(
+                    -macro => [
+                        ["name1"=>"body1"],
+                        ["name2"=>"body2"],
+                        ["name3"=>"body3"],
+                    ],
+                    ) ;
+
+Default is a reference to an empty array. 
+
+C<-script> optional array reference of scripts, in the form:
+
+    my $Macro = new Macro(
+                    -script => [
+                        ["name1"=>"body1"],
+                        ["name2"=>"body2"],
+                        ["name3"=>"body3"],
+                    ],
+                    ) ;
+
+Default is a reference to an empty array. 
+
+C<-variable> optional array reference of variables, in the form:
+
+    my $Macro = new Macro(
+                    -variable => [
+                        ["name1"=>"value1"],
+                        ["name2"=>"value2"],
+                        ["name3"=>"value3"],
+                    ],
+                    ) ;
+
+Default is a reference to an empty array. 
+
+C<-embedded> optional integer, 1 = use embedded processing; 0 = use macro
+processing. Default is 0. If set to 1 then the delimiters become <: and :>
+unless otherwise specified.
+
+
+C<-opendelim> optional string, default is undef unless C<-embedded> is 1 in
+which case default is <: if C<-opendelim> is undefined or the empty string.
+
+C<-closedelim> optional string, default is undef unless C<-embedded> is 1 in
+which case default is :> if C<-closedelim> is undefined or the empty string
+and C<-opendelim> is <: or C<-opendelim> if C<-opendelim> is not <:.
+
 
 =head2 Defining Macros with C<%DEFINE> and C<define()>
 
@@ -245,6 +348,12 @@ On the other hand we can use as many I<more> than we need, for example
 add a third to document: *P[Jim|Hendrix|Musician] will become `The forename is
 Jim and the surname is Hendrix', just as in the previous example; the third
 parameter, `Musician', will simply be thrown away.
+
+If we take an embedded approach we might write this example thus:
+
+    <:%DEFINE P [The forename is #0 and the surname is #1]:>
+
+and in the text, <:P[Jim|Hendrix]:> will be transformed appropriately.
 
 If we define a macro, script or variable and later define the same name the
 later definition will replace the earlier one. This is useful for making local
@@ -332,9 +441,9 @@ Macro names can be any length and consist of any characters (including
 non-printable which is probably only useful within code), except white-space
 and [, although ] is not recommended and a leading # should be avoided.
 
-Here's a simple date-stamp in `embedded perl' style:
+Here's a simple date-stamp style:
 
-    %DEFINE_SCRIPT <:DATESTAMP:>
+    %DEFINE_SCRIPT *DATESTAMP
     {
         my( $d, $m, $y ) = (localtime( time ))[3..5] ;
         $m++ ;
@@ -348,7 +457,7 @@ Here's a simple date-stamp in `embedded perl' style:
 If we wanted to add the above in code we'd have to make sure the $variables
 weren't interpolated:
 
-    $Macro->define( -script, '<:DATESTAMP:>', <<'__EOT__' ) ;
+    $Macro->define( -script, '*DATESTAMP', <<'__EOT__' ) ;
     {
         my( $d, $m, $y ) = (localtime( time ))[3..5] ;
         $m++ ;
@@ -364,14 +473,14 @@ Here's (a somewhat contrived example of) how the above would be used:
     <HTML>
     <HEAD><TITLE>Test Page</TITLE></HEAD>
     <BODY>
-    <:DATESTAMP:>[Last Updated]<P>
-    This page is up-to-date and will remain valid until <:DATESTAMP:>[midnight]
+    *DATESTAMP[Last Updated]<P>
+    This page is up-to-date and will remain valid until *DATESTAMP[midnight]
     </BODY>
     </HTML>
 
 Thus we could have a file, C<test.html.m> containing:
 
-    %DEFINE_SCRIPT <:DATESTAMP:>
+    %DEFINE_SCRIPT *DATESTAMP
     {
         my( $d, $m, $y ) = (localtime( time ))[3..5] ;
         $m++ ;
@@ -384,8 +493,8 @@ Thus we could have a file, C<test.html.m> containing:
     <HTML>
     <HEAD><TITLE>Test Page</TITLE></HEAD>
     <BODY>
-    <:DATESTAMP:>[Last Updated]<P>
-    This page is up-to-date and will remain valid until <:DATESTAMP:>[midnight]
+    *DATESTAMP[Last Updated]<P>
+    This page is up-to-date and will remain valid until *DATESTAMP[midnight]
     </BODY>
     </HTML>
 
@@ -406,6 +515,29 @@ C<test.html> will contain just this:
 
 Of course in practice we wouldn't want to define everything in-line like this.
 See C<%LOAD> later for an alternative.
+
+This example written in embedded style might be written thus:
+
+    <:
+    %DEFINE_SCRIPT DATESTAMP
+    {
+        my( $d, $m, $y ) = (localtime( time ))[3..5] ;
+        $m++ ;
+        $m = "0$m" if $m < 10 ;
+        $d = "0$d" if $d < 10 ;
+        $y += 1900 ;
+        "#0 on $y/$m/$d" ;
+    }
+    %END_DEFINE
+    :>
+    <HTML>
+    <HEAD><TITLE>Test Page</TITLE></HEAD>
+    <BODY>
+    <!-- Note how the parameter must be within the delimiters. -->
+    <:DATESTAMP[Last Updated]:><P>
+    This page is up-to-date and will remain valid until <:DATESTAMP[midnight]:>
+    </BODY>
+    </HTML>
 
 =head2 Defining Variables with C<%DEFINE_VARIABLE> and C<define()>
 
@@ -461,7 +593,9 @@ One way of achieving this is to load in the macros/scripts first and then
 process the file(s). In code this would be achieved like this:
 
     $Macro->load_file( $macro_file ) ; # Loads definitions only, ignores any
-                                       # other text.
+                                       # other text. If working in embedded
+                                       # mode the file is treated as if
+                                       # wrapped in delimiters.
     $Macro->expand_file( $file ) ;     # Expands definitions (and instantiates
                                        # any definitions that appear in the
                                        # file); output is to the current
@@ -484,8 +618,8 @@ the point it appears in the text file:
     <HTML>
     <HEAD><TITLE>Test Page Again</TITLE></HEAD>
     <BODY>
-    <:DATESTAMP:>[Last Updated]<P>
-    This page will remain valid until <:DATESTAMP:>[midnight]
+    *DATESTAMP[Last Updated]<P>
+    This page will remain valid until *DATESTAMP[midnight]
     </BODY>
     </HTML>
 
@@ -515,7 +649,9 @@ maintenance easier.
 
 C<%LOAD> loads perl scripts and macros, but ignores any other text. Thus we can
 use C<%LOAD>, or its method equivalent C<load_file()>, on I<any> file, and it
-will only ever instantiate macros and scripts and produce no output.
+will only ever instantiate macros and scripts and produce no output. When we
+are using embedded processing any file C<%LOAD>ed is treated as if wrapped in
+delimiters.
 
 If we want to include the entire contents of another file, and perform macro
 expansion on that file then use C<%INCLUDE>, e.g.
@@ -616,13 +752,13 @@ as normal.
 Macros and scripts may be undefined in files:
 
     %UNDEFINE *P
-    %UNDEFINE_SCRIPT <:DATESTAMP:>
+    %UNDEFINE_SCRIPT *DATESTAMP
     %UNDEFINE_VARIABLE &*!
 
 and in code:
 
     $Macro->undefine( -macro, '*P' ) ; 
-    $Macro->undefine( -script, '<:DATESTAMP:>' ) ; 
+    $Macro->undefine( -script, '*DATESTAMP' ) ; 
     $Macro->undefine( -variable, '&*!' ) ; 
 
 
@@ -727,6 +863,8 @@ Lousy error reporting for embedded perl in most cases.
 1999/09/02  Minor documentation corrections.
 
 1999/09/04  localised $_ before eval calls.
+
+1999/09/07  Added support for embedded processing.
 
 
 =head1 AUTHOR
