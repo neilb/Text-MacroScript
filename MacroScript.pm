@@ -1,6 +1,6 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-# $Id: MacroScript.pm,v 1.4 1999/09/19 13:38:55 root Exp root $
+# $Id: MacroScript.pm,v 1.5 1999/09/21 22:08:39 root Exp root $
 
 
 require 5.004 ;
@@ -10,7 +10,7 @@ use strict ;
 use Carp ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.20' ; 
+$VERSION = '1.21' ; 
 
 
 sub new {
@@ -556,7 +556,7 @@ sub _expand_variable {
 
 
 # This is based on the 'binary_string' function, pg 163 of Mastering
-# Algorithms with Perl.
+# Algorithms with Perl (with the errata).
 sub _find_element {
     my( $self, $array_name, $target ) = @_ ;
 
@@ -577,6 +577,10 @@ sub _find_element {
             ( $in_array_len == $target_len and
               $in_array     lt $target ) ) {
             $low  = $index + 1 ; 
+        }
+        elsif( $in_array eq $target ) { # This is more efficient than just
+            $low  = $index ;            # having the else.
+            last ;
         }
         else {
             $high = $index ;

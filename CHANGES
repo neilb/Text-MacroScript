@@ -1,3 +1,8 @@
+1999/09/21
+
+Updated the ordered array code to be more efficient (as per errata for
+the Wolf book).
+
 1999/09/19
 
 Macros and scripts are now stored in an ordered array. The tradeoffs of this
