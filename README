@@ -572,12 +572,14 @@ Variables may be modified within script C<%DEFINE>s, e.g.
     # VV eq 'Foxtrot'
     # other text
     # Here we use the #variable synax:
-    %DEFINE_SCRIPT SET_VV[#VV='Alpha']
-    # VV eq 'Alpha'
+    %DEFINE_SCRIPT VV[#VV='Alpha']
+    # VV eq 'Alpha' - note that we *must* refer to the script (as we've done
+    # on the line following) for it to execute.
     # other text
     # Here we use perl syntax:
-    %DEFINE_SCRIPT UPDATE_VV[$Var{'VV'}='Tango']
-    # VV eq 'Tango'
+    %DEFINE_SCRIPT VV[$Var{'VV'}='Tango']
+    # VV eq 'Tango' - note that we *must* refer to the script (as we've done
+    # on the line following) for it to execute.
 
 As we can see variables support the #variable syntax similarly to parameters
 which support #0 etc and ara available in scripts via the C<@Param> array.
@@ -851,31 +853,6 @@ However the easiest way to comment is to use C<%CASE>:
 =head1 BUGS
 
 Lousy error reporting for embedded perl in most cases.
-
-=head1 CHANGES
-
-1999/08/18  Created.
-
-1999/08/22  Version 1.00.
-
-1999/08/28  Minor documentation corrections.
-
-1999/08/29  Minor documentation corrections.
-
-1999/09/01  Minor documentation corrections.
-
-1999/09/02  Minor documentation corrections.
-
-1999/09/04  localised $_ before eval calls.
-
-1999/09/07  Added support for embedded processing.
-
-1999/09/10  Renamed package Text::MacroScript.pm as per John Porter's (CPAN)
-            suggestion.
-
-1999/09/11  Removed study. Treats newline as any other character so you can
-            process lines, paragraphs or entire files with identical results.
-
 
 =head1 AUTHOR
 

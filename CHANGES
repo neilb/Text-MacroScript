@@ -1,0 +1,51 @@
+1999/09/19
+
+Macros and scripts are now stored in an ordered array. The tradeoffs of this
+are: slightly slower define for new macros and scripts; faster expansion (up
+to 40%). (The implementation of variables has not been changed.) Since one
+would expect most scenarios to involve relatively few (10's, 100's) of
+definitions, but lots of expansion, (100's, 1000's or 10,000's lines) this
+should improve overall performance. For greater insertion speed we'd need to
+use either a balanced binary tree or a B*tree.
+
+1999/09/11  
+
+Removed study. Treats newline as any other character so you can process lines,
+paragraphs or entire files with identical results.
+
+1999/09/10  
+
+Renamed package Text::MacroScript.pm as per John Porter's (CPAN) suggestion.
+
+1999/09/07  
+
+Added support for embedded processing.
+
+1999/09/04  
+
+localised $_ before eval calls.
+
+1999/09/02  
+
+Minor documentation corrections.
+
+1999/09/01  
+
+Minor documentation corrections.
+
+1999/08/29  
+
+Minor documentation corrections.
+
+1999/08/28  
+
+Minor documentation corrections.
+
+1999/08/22  
+
+Version 1.00.
+
+1999/08/18  
+
+Created.
+

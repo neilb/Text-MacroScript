@@ -1,6 +1,6 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-# $Id: MacroScript.pm,v 1.2 1999/09/11 10:51:34 root Exp root $
+# $Id: MacroScript.pm,v 1.4 1999/09/19 13:38:55 root Exp root $
 
 
 require 5.004 ;
@@ -10,7 +10,7 @@ use strict ;
 use Carp ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.13' ; 
+$VERSION = '1.20' ; 
 
 
 sub new {
@@ -28,9 +28,9 @@ sub new {
         @_ 
         } ;
 
-    $self->{MACRO}    = () ; # Hash to hold the macro definitions 
-    $self->{SCRIPT}   = () ; # Hash to hold the script definitions 
-    $self->{VARIABLE} = () ; # Hash to hold the users variables
+    @{$self->{MACRO}}  = () ; # Ordered list to hold the macro definitions 
+    @{$self->{SCRIPT}} = () ; # Ordered list to hold the script definitions 
+    $self->{VARIABLE}  = () ; # Hash to hold the users variables
 
     $self->{REMOVE}   = 1 ;  # Remove definitions from the output; only an
                              # option for debugging purposes
@@ -42,7 +42,7 @@ sub new {
     $self->{IN_EMBEDDED} = 0 ;  # Are we in embedded text?
     $self->{DEFINE}      = '' ; # The multi-line macro or script we're building up
     $self->{NAME}        = '' ; # The name of the multi-line macro or script
-    $self->{LINO}        = 0 ;  # Current line number (for multi-line
+    $self->{LINO}        = 1 ;  # Current line number (for multi-line
                                 # definitions this is always the line number
                                 # of the %DEFINE line)
     $self->{OPEN_LEN}    = 0 ; 
@@ -99,7 +99,14 @@ sub define {
     croak "Invalid type"       unless $which =~ /^-(?:macro|script|variable)$/o ;
     croak "Invalid name $name" unless $name  =~ /^[^][\s]+$/o ;
 
-    $self->{uc substr( $which, 1 )}{$name} = $body ;
+    $which = uc substr( $which, 1 ) ;
+
+    if( $which eq 'VARIABLE' ) {
+        $self->{$which}{$name} = $body ;
+    }
+    else {
+        $self->_insert_element( $which, $name, $body ) ;
+    }
 }
 
 
@@ -112,10 +119,16 @@ sub undefine {
     croak "Invalid name $name" unless $name  =~ /^[^][\s]+$/o ;
    
     $which = uc substr( $which, 1 ) ;
+    my $found ;
 
-    carp "No $which called $name exists" unless exists $self->{$which}{$name} ;
+    if( $which eq 'VARIABLE' ) {
+        $found = delete $self->{$which}{$name} if exists $self->{$which}{$name} ;
+    }
+    else {
+        $found = $self->_remove_element( $which, $name ) ; 
+    }
 
-    delete $self->{$which}{$name} ;
+    carp "No $which called $name exists" unless $found ; 
 }
 
 
@@ -132,9 +145,19 @@ sub list {
     my $script = '' ;
     $script    = "_$which" unless $which eq 'MACRO' ;
 
-    foreach( sort keys %{$self->{$which}} ) {
-        my $body = $self->{$which}{$_} ; 
-        my $line = "%DEFINE$script $_" ;
+    my $array ;
+
+    if( $which eq 'VARIABLE' ) {
+        $array = [ map { [ $_, $self->{VARIABLE}{$_} ] } 
+                    keys %{$self->{VARIABLE}} ] ;
+    }
+    else {
+        $array = $self->{$which} ;
+    }
+
+    foreach( @{$array} ) {
+        my( $name, $body ) = @{$_} ;
+        my $line = "%DEFINE$script $name" ;
 
         if( $body =~ /\n/o ) {
             $line .= "\n$body%END_DEFINE\n" unless $namesonly ;
@@ -162,7 +185,14 @@ sub undefine_all {
     unless defined $which ;
     croak "Invalid type" unless $which =~ /^-(?:macro|script|variable)$/o ;
    
-    $self->{uc substr( $which, 1 )} = () ;
+    $which = uc substr( $which, 1 ) ;
+
+    if( $which eq 'VARIABLE' ) {
+        $self->{$which} = () ;
+    }
+    else {
+        @{$self->{uc substr( $which, 1 )}} = () ;
+    }
 }
 
 
@@ -276,7 +306,7 @@ sub expand {
     local $_  = shift ;
     my $file  = shift || '-' ;
 
-    $self->{LINO} = $. unless $self->{IN_MACRO} or $self->{IN_SCRIPT} ;
+    $self->{LINO} = $. || 1 unless $self->{IN_MACRO} or $self->{IN_SCRIPT} ;
     my $where     = "at $file line $self->{LINO}" ;
 
     if( /^\%((?:END_)?CASE)(?:\s*\[(.*)\])?/mso or 
@@ -312,17 +342,12 @@ sub expand {
         # End of a multi-line macro or script
         $self->{DEFINE} = $self->_expand_variable( $self->{DEFINE} ) ;
 
-        if( $self->{IN_SCRIPT} ) {
-            $self->{IN_SCRIPT}             = 0 ;
-            $self->{SCRIPT}{$self->{NAME}} = $self->{DEFINE} ;
-        }
-        else {
-            $self->{IN_MACRO}              = 0 ;
-            $self->{MACRO}{$self->{NAME}}  = $self->{DEFINE} ;
-        }
+        my $which = $self->{IN_MACRO} ? 'MACRO' : 'SCRIPT' ;
 
-        $self->{NAME}   = '' ;
-        $self->{DEFINE} = '' ;
+        $self->{"IN_$which"} = 0 ;
+        $self->_insert_element( $which, $self->{NAME}, $self->{DEFINE} ) ;
+        $self->{NAME}        = '' ;
+        $self->{DEFINE}      = '' ;
 
         $_ = '' if $self->{REMOVE} ;
     }
@@ -344,9 +369,7 @@ sub expand {
         my $which = $1 || 'MACRO' ;
 
         carp "Cannot undefine non-existent $which $2 $where" 
-        unless exists $self->{$which}{$2} ;
-
-        delete $self->{$which}{$2} ;
+        unless $self->_remove_element( $which, $2 ) ; 
  
         $_ = '' if $self->{REMOVE} ;
     }
@@ -354,7 +377,7 @@ sub expand {
         # Undefining all macros or scripts
         my $which = $1 || 'MACRO' ;
 
-        $self->{$which} = () ;
+        @{$self->{$which}} = () ;
 
         $_ = '' if $self->{REMOVE} ;
     }
@@ -362,7 +385,7 @@ sub expand {
         # Defining a single-line macro, script or variable
         my $which = $1 || 'MACRO' ;
 
-        $self->{$which}{$2} = $self->_expand_variable( $3 || '' ) ;
+        $self->_insert_element( $which, $2, $self->_expand_variable( $3 || '' ) ) ;
 
         $_ = '' if $self->{REMOVE} ;
     }
@@ -372,7 +395,6 @@ sub expand {
         my $which = defined $1 ? 'SCRIPT' : 'MACRO' ;
         $self->{NAME}        = $2 ;
         $self->{DEFINE}      = '' ;
-        $self->{$which}{$2}  = '' ;
         $self->{"IN_$which"} = 1 ;
 
         $_ = '' if $self->{REMOVE} ;
@@ -433,17 +455,9 @@ sub expand {
         $_ = join '', @lines ;
     }
     else {
-        # It isn't pretty or efficient - so show me how to do better! (I don't
-        # memoise because I'm not convinced that it would help in this case.)
-        # We have to re-sort every time because one could have just been
-        # defined. We choose longest first and always prefer scripts over
-        # macros of the same name. 
-        my @scripts = sort { 
-                        length( $b ) <=> length( $a ) ||
-                                $b   cmp         $a 
-                        } keys %{$self->{SCRIPT}} ;
-
-        foreach my $name ( @scripts ) {
+        # This array is already ordered by length then by ASCII.
+        foreach my $script ( @{$self->{SCRIPT}} ) {
+            my( $name, $orig_body ) = @{$script} ;
             # We substitute wherever found, including in the middle of 'words'
             # or whatever (but we can always create macro names like *MYMACRO
             # which are unlikely to occur in words). 
@@ -457,7 +471,7 @@ sub expand {
                 # We get $body fresh every time since we could have the same
                 # macro or script occur more than once in a line but of course
                 # with different parameters.
-                my $body  = $self->{SCRIPT}{$name} ;
+                my $body  = $orig_body ;
                 # Substitute any parameters in the script's body; we go from
                 # largest index to smallest to ensure that we substitute #13
                 # before #1!
@@ -479,9 +493,9 @@ sub expand {
                 eval {
                     my @Param = @param ; # Give (local)  access to params
                     no strict 'vars' ;   # Give (global) access to variables
-                    *Var      = $self->{VARIABLE} ;
+                    *Var    = $self->{VARIABLE} ;
                     local $_ ;
-                    $result   = eval $body ;
+                    $result = eval $body ;
                 } ;
                 croak "Evaluation of SCRIPT $name failed $where: $@" 
                 if $@ ;
@@ -498,18 +512,14 @@ sub expand {
              }gmsex ; 
         }
 
-        my @macros = sort { 
-                        length( $b ) <=> length( $a ) ||
-                                $b   cmp         $a 
-                        } keys %{$self->{MACRO}} ;
+        foreach my $macro ( @{$self->{MACRO}} ) {
+            my( $name, $body ) = @{$macro} ;
 
-        foreach my $name ( @macros ) {
             s{
                 \Q$name\E
                 (?:\[(.+)\])?  
              }{
                 my @param = split /\|/, $1 if defined $1 ;
-                my $body  = $self->{MACRO}{$name} ;
                 {
                     local $^W = 0 ;
                     for( my $i = $#param ; $i >= 0 ; $i-- ) {
@@ -542,6 +552,71 @@ sub _expand_variable {
     }
 
     $_ ;
+}
+
+
+# This is based on the 'binary_string' function, pg 163 of Mastering
+# Algorithms with Perl.
+sub _find_element {
+    my( $self, $array_name, $target ) = @_ ;
+
+    my $target_len    = length $target ;
+
+    my( $low, $high ) = ( 0, scalar @{$self->{$array_name}} ) ;
+
+    while( $low < $high ) {
+        use integer ;
+
+        my $index        = ( $low + $high ) / 2 ;
+
+        my $in_array     = $self->{$array_name}->[$index][0] ;
+        my $in_array_len = length $in_array ;
+
+        # Order by longest, then by ASCII.
+        if( $in_array_len > $target_len or
+            ( $in_array_len == $target_len and
+              $in_array     lt $target ) ) {
+            $low  = $index + 1 ; 
+        }
+        else {
+            $high = $index ;
+        }
+    }
+
+    $low ;
+}
+
+
+sub _insert_element {
+    my( $self, $array_name, $name, $body ) = @_ ;
+
+    my $index = $self->_find_element( $array_name, $name ) ;
+
+    if( $index < @{$self->{$array_name}} and
+        $self->{$array_name}->[$index][0] eq $name ) {
+        # Already there so replace $body.
+        $self->{$array_name}->[$index] = [ $name, $body ] ;
+    }
+    else {
+        # Not there so insert it.
+        splice( @{$self->{$array_name}}, $index, 0, [ $name, $body ] ) ;
+    }
+}
+
+
+sub _remove_element {
+    my( $self, $array_name, $name ) = @_ ;
+
+    my $index = $self->_find_element( $array_name, $name ) ;
+
+    my $element = undef ;
+
+    if( $index < @{$self->{$array_name}} and
+        $self->{$array_name}->[$index][0] eq $name ) {
+        $element = splice( @{$self->{$array_name}}, $index, 1 ) ;
+    }
+
+    $element ;
 }
 
 
@@ -1123,12 +1198,14 @@ Variables may be modified within script C<%DEFINE>s, e.g.
     # VV eq 'Foxtrot'
     # other text
     # Here we use the #variable synax:
-    %DEFINE_SCRIPT SET_VV[#VV='Alpha']
-    # VV eq 'Alpha'
+    %DEFINE_SCRIPT VV[#VV='Alpha']
+    # VV eq 'Alpha' - note that we *must* refer to the script (as we've done
+    # on the line following) for it to execute.
     # other text
     # Here we use perl syntax:
-    %DEFINE_SCRIPT UPDATE_VV[$Var{'VV'}='Tango']
-    # VV eq 'Tango'
+    %DEFINE_SCRIPT VV[$Var{'VV'}='Tango']
+    # VV eq 'Tango' - note that we *must* refer to the script (as we've done
+    # on the line following) for it to execute.
 
 As we can see variables support the #variable syntax similarly to parameters
 which support #0 etc and ara available in scripts via the C<@Param> array.
@@ -1402,31 +1479,6 @@ However the easiest way to comment is to use C<%CASE>:
 =head1 BUGS
 
 Lousy error reporting for embedded perl in most cases.
-
-=head1 CHANGES
-
-1999/08/18  Created.
-
-1999/08/22  Version 1.00.
-
-1999/08/28  Minor documentation corrections.
-
-1999/08/29  Minor documentation corrections.
-
-1999/09/01  Minor documentation corrections.
-
-1999/09/02  Minor documentation corrections.
-
-1999/09/04  localised $_ before eval calls.
-
-1999/09/07  Added support for embedded processing.
-
-1999/09/10  Renamed package Text::MacroScript.pm as per John Porter's (CPAN)
-            suggestion.
-
-1999/09/11  Removed study. Treats newline as any other character so you can
-            process lines, paragraphs or entire files with identical results.
-
 
 =head1 AUTHOR
 
