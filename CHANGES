@@ -1,3 +1,15 @@
+2000/02/18
+
+Corrected tarball so that make test will work. Additional tests to
+macroscript.t would be welcome.
+
+
+2000/02/06
+
+Wrote skeletal test program. It does hardly anything yet but at least its a
+start.
+
+
 2000/02/01
 
 Literal #s should always be escaped if they are followed by digits but need

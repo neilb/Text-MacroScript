@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: macro,v 1.24 2000/01/24 21:43:44 root Exp $
+# $Id: macro,v 1.25 2000/02/01 21:08:34 root Exp root $
 
 # Copyright (c) 1999-2000 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
@@ -11,7 +11,7 @@ use Getopt::Long ;
 use Text::MacroScript ;
 
 use vars qw( $VERSION ) ; 
-$VERSION = '1.13' ;
+$VERSION = '1.14' ;
 
 my %Opt ;
 
@@ -113,6 +113,7 @@ options: (use the short or long name followed by the parameter where req'd)
 
 b = boolean 1 = true, 0 = false; i = integer; s = string e.g. filename
 
+See macrodir for a different approach.
 __EOT__
 
     exit ; 
@@ -131,6 +132,8 @@ macro - A macro pre-processor with embedded perl capability
 =head1 DESCRIPTION
 
 See Text::MacroScript.pm for the most complete and up-to-date documentation.
+
+See macrodir for a different approach.
 
 These commands may appear in separate `macro' files, and/or in the body of
 files. Wherever a macroname or scriptname is encountered it will be replaced
@@ -185,6 +188,8 @@ approach.
     %END_CASE               # skip selected parts of the text depending on the
                             # condition. The condition is usually dependent on
                             # some previously defined variable
+
+    %REQUIRE[macroutil.pl]  # Load in the named Perl library
 
 Thus, in the body of a file we may have, for example:
 
@@ -264,6 +269,11 @@ is optional.
 Parameters are named #0, #1, etc. There is no limit, although we must use all
 those we specify. In the example above we I<must> use *P[param1|param2], e.g.
 *P[Jim|Hendrix]; if we don't C<Text::MacroScript.pm> will croak. 
+
+Because we use # to signify parameters if you require text that consists of a
+# followed by digits then you should escape the #, e.g.
+
+    %DEFINE *GRAY[<font color="\#121212">#0</font>]
 
 On the other hand we can use as many I<more> than we need, for example add a
 third to document: *P[Jim|Hendrix|Musician] will become `The forename is Jim
@@ -594,6 +604,16 @@ head up our files thus:
     %UNDEFINE_ALL UNDEFINE_ALL_SCRIPT UNDEFINE_ALL_VARIABLE LOAD[mymacros]
     text goes here
 
+=head2 Loading Perl libraries with C<%REQUIRE>
+
+We often want our scripts to have access to a bundle of functions that we have
+created or that are in other modules. This can now be achieved by:
+
+    %REQUIRE[/path/to/mylibrary.pl]
+
+An example library C<macroutil.pl> is provided with examples of usage in
+C<html.macro>.
+
 =head2 Commenting
 
 Generally the text files that we process are in formats that support
@@ -649,6 +669,8 @@ Lousy error reporting for embedded perl in most cases.
 
 1999/09/10  Renamed package Text::MacroScript.pm as per John Porter's (CPAN)
             suggestion.
+
+2000/02/01  Minor documentation updates.
 
 =head1 AUTHOR
 

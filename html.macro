@@ -1,6 +1,6 @@
 %CASE[0]
 
-$Id: macro,v 1.1 2000/01/30 18:29:42 root Exp root $
+$Id: macro,v 1.2 2000/02/05 23:07:35 root Exp root $
 
 Macros used to maintain http://www.perlpress.com
 
@@ -14,23 +14,30 @@ The bulk of their work has now been pushed into macroutil.pl.
 
 %REQUIRE[macroutil.pl]
 
-%DEFINE_VARIABLE MENU_PERLMODULE_UPDATE     [2000/02/05]
-%DEFINE_VARIABLE MENU_PERLPROGRAM_UPDATE    [2000/02/05]
-%DEFINE_VARIABLE MENU_PERLARTICLE_UPDATE    [2000/02/07]
+%DEFINE_VARIABLE MENU_PERLMODULE_UPDATE     [2000/02/15]
+%DEFINE_VARIABLE MENU_PERLPROGRAM_UPDATE    [2000/02/01]
+%DEFINE_VARIABLE MENU_PERLARTICLE_UPDATE    [2000/02/01]
+%DEFINE_VARIABLE MENU_PERLEXPERIMENT_UPDATE [2000/02/11]
 %DEFINE_VARIABLE MENU_NOBLINK_UPDATE        [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_LINUX_UPDATE  [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_MAC_UPDATE    [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_WIN_UPDATE    [2000/01/01]
+
 
 %DEFINE DOCTYPE_HTML[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">]
 %DEFINE DOCTYPE[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]
 
 %DEFINE_SCRIPT STYLESHEET
 my $root = relpath ;
-qq{<link href="${root}style.css" rel="stylesheet" type="text/css">}
+qq{<link href="${root}style.css" rel="stylesheet" type="text/css" />}
 %END_DEFINE
 
-%DEFINE_SCRIPT BANNER[qq{<!--VirtualAvenueBanner-->\n<a id="TOP" name="TOP">\n}]
+%DEFINE_SCRIPT BANNER
+<<__EOT__ ;
+<!--VirtualAvenueBanner-->
+<a id="TOP" name="TOP" /><!--#exec cgi="/cgi-bin/log.cgi" -->
+__EOT__
+%END_DEFINE
 
 %DEFINE_SCRIPT _ROOT[relpath]
 
@@ -75,10 +82,12 @@ $size =~ s/(\d+)/"$1"/go ;
 qq{<body background="$image" ${size} alt="Tile Image">} ;
 %END_DEFINE
 
-%DEFINE_SCRIPT COPYRIGHT['<h6>' . copyright('PerlPress Ltd') . '</h6>']
+%DEFINE_SCRIPT COPYRIGHT
+'<h6>' . copyright('<a href="mailto:summer@perlpress.com">PerlPress Ltd</a>') . '</h6>'
+%END_DEFINE
 
 %DEFINE_SCRIPT FRONTPAGECOPYRIGHT
-'<h6>' . copyright('PerlPress Ltd') .
+'<h6>' . copyright('<a href="mailto:summer@perlpress.com">PerlPress Ltd</a>') .
 qq{<br />We respect your <a href="privacy.html">privacy</a>.</h6>}
 %END_DEFINE
 
@@ -88,10 +97,11 @@ qq{<br />We respect your <a href="privacy.html">privacy</a>.</h6>}
 
 %DEFINE_SCRIPT MAINMENU
 my %item = (
-        perlmodule  => [ 0, "perl/modules.html",  "Perl Modules"  ],
-        perlprogram => [ 1, "perl/programs.html", "Perl Programs" ],
-        perlarticle => [ 2, "perl/articles.html", "Perl Articles" ],
-        noblink     => [ 3, "noblink/index.html", "NoBlink"       ],
+        perlmodule     => [ 0, "perl/modules.html",    "Perl Modules"     ],
+        perlprogram    => [ 1, "perl/programs.html",   "Perl Programs"    ],
+        perlexperiment => [ 2, "perl/experiment.html", "Perl Experiments" ],
+        perlarticle    => [ 3, "perl/articles.html",   "Perl Articles"    ],
+        noblink        => [ 4, "noblink/index.html",   "NoBlink"          ],
     ) ;
 
 my $thisitem = shift @Param ;
@@ -149,6 +159,50 @@ foreach my $item ( sort { $item{$a}[0] <=> $item{$b}[0] } keys %item ) {
                  qq{$item{$item}[2]</a>} . 
                  imageif( "${root}images/updated.gif", $date, 'Updated' ) .
                  "</li>\n" ;
+    }
+}
+$menu .= "</ul>\n" ;
+%END_DEFINE
+
+%DEFINE_SCRIPT ARTICLEMENU
+my %perl = (
+        perlmodule     => [ 0, "perl/modules.html",     "Perl Modules"     ],
+        perlprogram    => [ 1, "perl/programs.html",    "Perl Programs"    ],
+        perlexperiment => [ 2, "perl/experiment.html",  "Perl Experiments" ],
+        perlarticle    => [ 3, "perl/articles.html",    "Perl Articles"    ],
+    ) ;
+my %item = (
+        quickform      => [ 0, "perl/quickform.html",   "Creating Web Forms"  ],
+        perlbookreview => [ 1, "perl/bookreviews.html", "Perl Book Reviews"   ],
+    ) ;
+
+my $thisitem = shift @Param ;
+my $root     = relpath ;
+my $menu     = qq{<ul class="navigate">\n} ;
+if( $thisitem ne 'main' ) {
+    $menu .= qq{<li><a href="${root}index.html">} .
+    image( "${root}images/home.gif", 'Home' ) . "</a></li>\n" ;
+}
+foreach my $item ( sort { $perl{$a}[0] <=> $perl{$b}[0] } keys %perl ) {
+    my $date = $Var{"MENU_\U${item}_UPDATE"} ;
+    if( $item eq $thisitem ) {
+        $menu .= qq{<li style="text-color:lightgrey">$perl{$item}[2]} .
+                 imageif( "${root}images/updated.gif", $date, 'Updated' ) ;
+    }
+    else {
+        $menu .= qq{<li><a href="${root}$perl{$item}[1]">} .
+                 qq{$perl{$item}[2]</a>} . 
+                 imageif( "${root}images/updated.gif", $date, 'Updated' ) ;
+    }
+    $menu .= "</li>\n" ;
+}
+foreach my $item ( sort { $item{$a}[0] <=> $item{$b}[0] } keys %item ) {
+    if( $item eq $thisitem ) {
+        $menu .= qq{<li style="text-color:lightgrey">$item{$item}[2]</li>\n} ;
+    }
+    else {
+        $menu .= qq{<li><a href="${root}$item{$item}[1]">} .
+                 qq{$item{$item}[2]</a></li>\n} ;
     }
 }
 $menu .= "</ul>\n" ;

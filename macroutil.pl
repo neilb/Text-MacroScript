@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: macroutil.pl,v 1.2 2000/01/15 17:19:42 root Exp $
+# $Id: macroutil.pl,v 1.3 2000/02/18 22:38:52 root Exp root $
 
 # Copyright (c) Mark Summerfield 2000. All Rights Reserved.
 # May be used/distributed under the LGPL. 
@@ -10,7 +10,7 @@
 use strict ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.02' ; 
+$VERSION = '1.04' ; 
 
 use Cwd ;
 use Image::Size 'html_imgsize' ;
@@ -69,7 +69,7 @@ sub imageif {
     my( $year, $mon, $day ) = today ;
 
     if( $compare gt "$year$mon$day" ) {
-        $alt = qq{ ALT="$alt"} if $alt ;
+        $alt = qq{ alt="$alt"} if $alt ;
         my $size = lc html_imgsize( $image ) || '' ; # The || ignores errors gracefully
         $size =~ s/(\d+)/"$1"/go ; # Add quotes to sizes for XHTML.
         qq{<img src="$image" $size$alt />} ; # Close the tag for XHTML
@@ -84,7 +84,7 @@ sub image {
     my $image = shift ;
     my $alt   = shift || '' ;
 
-    $alt = qq{ ALT="$alt"} if $alt ;
+    $alt = qq{ alt="$alt"} if $alt ;
     my $size = lc html_imgsize( $image ) || '' ; # The || ignores errors gracefully
     $size =~ s/(\d+)/"$1"/go ; # Add quotes to sizes for XHTML
     qq{<img src="$image" $size$alt />} ; # Close the tag for XHTML
@@ -134,7 +134,7 @@ Functions provided:
     relpath
     today
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
 =head2 abspath()
 

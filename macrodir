@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: macrodir,v 1.10 2000/01/15 17:19:33 root Exp $
+# $Id: macrodir,v 1.11 2000/02/03 22:19:35 root Exp root $
 
 # Copyright (c) 1999-2000 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
@@ -12,10 +12,11 @@ use Getopt::Long ;
 use File::Basename ;
 use File::Find ;
 use File::Path ;
+use Symbol ;
 use Text::MacroScript ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '0.05' ;
+$VERSION = '0.06' ;
 
 my %Opt ;
 
@@ -59,10 +60,11 @@ sub wanted {
                     mkpath( $path ) ;
                 }
             }
-            open  OUT, ">$newfile" or 
+            my $fh = gensym ;
+            open  $fh, ">$newfile" or 
             die "Failed to open $newfile: $!\n" ;
-            print OUT $Macro->expand_file( $file ) ;
-            close OUT ;
+            print $fh $Macro->expand_file( $file ) ;
+            close $fh ;
         } ;
         warn $@ if $@ ;
     }

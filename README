@@ -8,36 +8,36 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     # new() for macro processing
 
-    my $Macro = new Text::MacroScript ;
+    my $Macro = Text::MacroScript->new ;
     while( <> ) {
         print $Macro->expand( $_ ) if $_ ;
     }
 
     # Canonical use (the filename improves error messages):
-    my $Macro = new Text::MacroScript ;
+    my $Macro = Text::MacroScript->new ;
     while( <> ) {
         print $Macro->expand( $_, $ARGV ) if $_ ;
     }
 
     # new() for embedded macro processing
 
-    my $Macro = new Text::MacroScript( -embedded => 1 ) ; 
+    my $Macro = Text::MacroScript->new( -embedded => 1 ) ; 
     # Delimiters default to <: and :>
     # or
-    my $Macro = new Text::MacroScript( -opendelim => '[[', -closedelim => ']]' ) ;
+    my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' ) ;
     while( <> ) {
         print $Macro->expand_delimited( $_, $ARGV ) if $_ ;
     }
 
     # Create a macro object and create initial macros/scripts from the file(s)
     # given:
-    my $Macro = new Text::MacroScript( 
+    my $Macro = Text::MacroScript->new( 
                     -file => [ 'local.macro', '~/.macro/global.macro' ] 
                     ) ;
 
     # Create a macro object and create initial macros/scripts from the
     # definition(s) given:
-    my $Macro = new Text::MacroScript(
+    my $Macro = Text::MacroScript->new(
                     -macro => [
                             [ 'MAX_INT' => '32767' ],
                         ],
@@ -53,7 +53,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     # We may of course use any combination of the options. 
 
-    my $Macro = new Text::MacroScript( -comment => 1 ) ; # Create the %%[] macro.
+    my $Macro = Text::MacroScript->new( -comment => 1 ) ; # Create the %%[] macro.
 
     # define()
 
@@ -926,7 +926,7 @@ We can add the definition in code:
 Or the macro can be added automatically for us when we create the Macro
 object:
 
-    my $Macro = new Text::MacroScript( -comment => 1 ) ; 
+    my $Macro = Text::MacroScript->new( -comment => 1 ) ; 
     # All other options may be used too of course.
 
 However the easiest way to comment is to use C<%CASE>:

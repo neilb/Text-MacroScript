@@ -6,3 +6,4 @@ macro
 macrodir
 macroutil.pl
 html.macro
+t/macroscript.t

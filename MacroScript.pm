@@ -1,6 +1,6 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-# $Id: MacroScript.pm,v 1.24 2000/02/01 20:08:38 root Exp $
+# $Id: MacroScript.pm,v 1.26 2000/02/18 22:35:23 root Exp $
 
 require 5.004 ;
 
@@ -11,7 +11,7 @@ use Cwd ;
 use Symbol ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.34' ; 
+$VERSION = '1.35' ; 
 
 
 ### Private class data and methods. 
@@ -879,36 +879,36 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     # new() for macro processing
 
-    my $Macro = new Text::MacroScript ;
+    my $Macro = Text::MacroScript->new ;
     while( <> ) {
         print $Macro->expand( $_ ) if $_ ;
     }
 
     # Canonical use (the filename improves error messages):
-    my $Macro = new Text::MacroScript ;
+    my $Macro = Text::MacroScript->new ;
     while( <> ) {
         print $Macro->expand( $_, $ARGV ) if $_ ;
     }
 
     # new() for embedded macro processing
 
-    my $Macro = new Text::MacroScript( -embedded => 1 ) ; 
+    my $Macro = Text::MacroScript->new( -embedded => 1 ) ; 
     # Delimiters default to <: and :>
     # or
-    my $Macro = new Text::MacroScript( -opendelim => '[[', -closedelim => ']]' ) ;
+    my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' ) ;
     while( <> ) {
         print $Macro->expand_delimited( $_, $ARGV ) if $_ ;
     }
 
     # Create a macro object and create initial macros/scripts from the file(s)
     # given:
-    my $Macro = new Text::MacroScript( 
+    my $Macro = Text::MacroScript->new( 
                     -file => [ 'local.macro', '~/.macro/global.macro' ] 
                     ) ;
 
     # Create a macro object and create initial macros/scripts from the
     # definition(s) given:
-    my $Macro = new Text::MacroScript(
+    my $Macro = Text::MacroScript->new(
                     -macro => [
                             [ 'MAX_INT' => '32767' ],
                         ],
@@ -924,7 +924,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     # We may of course use any combination of the options. 
 
-    my $Macro = new Text::MacroScript( -comment => 1 ) ; # Create the %%[] macro.
+    my $Macro = Text::MacroScript->new( -comment => 1 ) ; # Create the %%[] macro.
 
     # define()
 
@@ -1797,7 +1797,7 @@ We can add the definition in code:
 Or the macro can be added automatically for us when we create the Macro
 object:
 
-    my $Macro = new Text::MacroScript( -comment => 1 ) ; 
+    my $Macro = Text::MacroScript->new( -comment => 1 ) ; 
     # All other options may be used too of course.
 
 However the easiest way to comment is to use C<%CASE>:
