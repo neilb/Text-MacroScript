@@ -1,7 +1,19 @@
+1999/11/24
+
+Now croaks gracefully if it cannot open a file.
+Added --dir (target directory) option to macrodir.
+
+
+1999/11/15
+
+Added macrodir to the bundle.
+
+
 1999/09/21
 
 Updated the ordered array code to be more efficient (as per errata for
 the Wolf book).
+
 
 1999/09/19
 
@@ -13,42 +25,52 @@ definitions, but lots of expansion, (100's, 1000's or 10,000's lines) this
 should improve overall performance. For greater insertion speed we'd need to
 use either a balanced binary tree or a B*tree.
 
+
 1999/09/11  
 
 Removed study. Treats newline as any other character so you can process lines,
 paragraphs or entire files with identical results.
 
+
 1999/09/10  
 
 Renamed package Text::MacroScript.pm as per John Porter's (CPAN) suggestion.
+
 
 1999/09/07  
 
 Added support for embedded processing.
 
+
 1999/09/04  
 
 localised $_ before eval calls.
+
 
 1999/09/02  
 
 Minor documentation corrections.
 
+
 1999/09/01  
 
 Minor documentation corrections.
+
 
 1999/08/29  
 
 Minor documentation corrections.
 
+
 1999/08/28  
 
 Minor documentation corrections.
 
+
 1999/08/22  
 
 Version 1.00.
+
 
 1999/08/18  
 

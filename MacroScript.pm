@@ -1,6 +1,6 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-# $Id: MacroScript.pm,v 1.5 1999/09/21 22:08:39 root Exp root $
+# $Id: MacroScript.pm,v 1.6 1999/11/24 20:57:40 root Exp $
 
 
 require 5.004 ;
@@ -10,7 +10,7 @@ use strict ;
 use Carp ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.21' ; 
+$VERSION = '1.23' ; 
 
 
 sub new {
@@ -218,7 +218,8 @@ sub load_file {
 sub expand_file {
     my( $self, $file, $noprint ) = @_ ;
 
-    croak "Missing filename" unless $file ; 
+    croak "Missing filename"            unless $file ; 
+    croak "File `$file' does not exist" unless -e $file ;
 
     my @lines ;
     local $_ ;

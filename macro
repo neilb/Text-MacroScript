@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: macro,v 1.18 1999/09/11 11:09:35 root Exp root $
+# $Id: macro,v 1.20 1999/11/15 20:16:13 root Exp $
 
 # Copyright (c) 1999 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
@@ -86,7 +86,8 @@ sub getoptions {
 
     $Opt{'opendelim'}  = undef unless $Opt{'opendelim'} ; 
     $Opt{'closedelim'} = undef unless $Opt{'closedelim'} ; 
-    $Opt{'embedded'}   = $Opt{'emacro'} ; }
+    $Opt{'embedded'}   = $Opt{'emacro'} ; 
+}
 
 
 sub help {
@@ -120,11 +121,12 @@ __EOT__
 
 __END__
 
-=pod SCRIPT CATEGORIES
 
-Macro Pre-processor Filter
+=head1 NAME
 
-=pod DESCRIPTION
+macro - A macro pre-processor with embedded perl capability 
+
+=head1 README
 
 macro - A macro pre-processor with embedded perl capability 
 
@@ -634,24 +636,6 @@ objects in code similarly to how we can create and manipulate them through
 embedding them in files. See C<Text::MacroScript.pm>'s documentation for
 further details.
 
-=pod PREREQUISITES
-
-Pragmas:
-
-C<strict>
-
-Modules:
-
-C<Getopt::Long> C<Text::MacroScript>
-
-=pod OSNAMES
-
-Linux
-
-=pod LICENSE
-
-GPL.
-
 =head1 BUGS
 
 Lousy error reporting for embedded perl in most cases.
@@ -682,5 +666,29 @@ please include the word 'macro' in the subject line.
 Copyright (c) Mark Summerfield 1999. All Rights Reserved.
 
 This module may be used/distributed/modified under the GPL. 
+
+=head1 PREREQUISITES
+
+C<strict>
+
+C<Getopt::Long>
+C<Text::MacroScript>
+
+=head1 COREQUISITES
+
+=head1 COPYRIGHT
+
+Copyright (c) Mark Summerfield 1999. All Rights Reserved.
+May be used/distributed under the GPL.
+Email <summer@chest.ac.uk> with 'macro' in the subject line.
+
+=head1 OSNAMES
+
+any
+
+=head1 SCRIPT CATEGORIES
+
+Text-processing
+Macros
 
 =cut
