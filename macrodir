@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
-# $Id: macrodir,v 1.4 1999/11/24 21:01:00 root Exp root $
+# $Id: macrodir,v 1.10 2000/01/15 17:19:33 root Exp $
 
-# Copyright (c) 1999 Mark Summerfield. All Rights Reserved.
+# Copyright (c) 1999-2000 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
 
 use strict ;
@@ -15,7 +15,7 @@ use File::Path ;
 use Text::MacroScript ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '0.02' ;
+$VERSION = '0.05' ;
 
 my %Opt ;
 
@@ -27,7 +27,6 @@ my $Macro = Text::MacroScript->new(
                 ) ;
 
 find( \&wanted, scalar @ARGV ? @ARGV : '.' ) ;
-
 
 sub wanted {
     return unless /\.m$/o ;
@@ -67,7 +66,11 @@ sub wanted {
         } ;
         warn $@ if $@ ;
     }
+    elsif( $Opt{'verbose'} > 1 ) {
+        print STDERR "$showdir$newfile is up to date\n" 
+    }
 }
+
 
 sub getoptions {
 
@@ -87,18 +90,17 @@ sub getoptions {
         'force|f',
         'file|F=s',
         'prep|p',
-        'verbose|v',
+        'verbose|v:i',
         ) or &help ;
 
     $Opt{'dir'} .= '/' if $Opt{'dir'} and $Opt{'dir'} !~ /\/$/o ;
 }
 
-
 sub help {
 
     print STDERR <<__EOT__ ;
 
-macrodir v $VERSION. Copyright (c) Mark Summerfield 1999. 
+macrodir v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.
 
 usage: macrodir [options] <path>
@@ -114,6 +116,10 @@ usage: macrodir [options] <path>
 Loads the macros from file '$Opt{'file'}' in the current directory then expands
 macros embedded in <: and :> in every .m file in the current directory and any
 subdirectories. 
+
+Text::MacroScript now supplies a function relpath which returns the relative
+path. (See html.macro example file for usage and Text::MacroScript.pm and
+macro documentation.)
 __EOT__
     exit ;
 }

@@ -1,3 +1,73 @@
+2000/02/01
+
+Literal #s should always be escaped if they are followed by digits but need
+not be otherwise. Missing parameters now carps rather than croaks (unless you
+try to use a missing parameter in which case we croak).
+
+
+2000/01/30
+
+Literal #s will now rarely have to be escaped in script or macro bodies.
+Added new example macro which is used to produce menus on pages to html.macro. 
+
+
+2000/01/25
+
+Made the relevant macroutil.pl functions XHTML compliant.
+
+
+2000/01/24
+
+You can now have literal #s in macro and script bodies providing you escape
+them, i.e. # is signified by \#. This is thanks to Richard Bradbury who
+spotted that this is a problem for HTML work, e.g. something like 
+<font color="#121212"> as a macro body gave a missing parameter error.
+Now you can now write things like this: 
+    $Macro->define( -macro, 'GREY', '<font color="\#121212">#0</font>' ) ;
+which would be used (in embedded style) thus:
+    The text is coloured <:GREY[grey]:>.
+
+Updated the documentation to reflect this plus added some text on how to
+convert macros into scripts.
+
+Note that you can no longer have nuls in macro and script bodies. In the case
+of a macro make it a script and for a script represent a nul as chr(0).
+
+Added an image function to macroutil.pl.
+
+
+2000/01/15
+
+All the exportable functions have now been moved to a function library called
+macroutil.pl. This library has two new functions imageif which can be used to
+include images (e.g. updated) up until specified dates and copyright. 
+
+The macro language now supports %REQUIRE[yourlibrary.pl] so you can load in
+the supplied library and/or your own function libraries which is a far cleaner
+and more versatile approach than adding the functions to Text::MacroScript
+itself.
+
+
+2000/01/14
+
+Moved relpath function to Text::MacroScript.pm so it is now accessible either
+by use Text::MacroScript qw( relpath ) or by calling it at
+Text::MacroScript::relpath. 
+
+Added abspath and today importable functions.
+
+Various internal improvements, plus bug fixes to variable handling. 
+
+html.macro example now includes examples of macro, script and variable usage.
+
+
+2000/01/08
+
+Added &main::relpath function for use in macros; now supply an example macro
+file for html processing, html.macro, which includes example macros for
+inserting `new' or `updated' images up until a user-specified expiry date.
+
+
 1999/11/24
 
 Now croaks gracefully if it cannot open a file.
@@ -51,26 +121,21 @@ localised $_ before eval calls.
 
 Minor documentation corrections.
 
-
 1999/09/01  
 
 Minor documentation corrections.
-
 
 1999/08/29  
 
 Minor documentation corrections.
 
-
 1999/08/28  
 
 Minor documentation corrections.
 
-
 1999/08/22  
 
 Version 1.00.
-
 
 1999/08/18  
 

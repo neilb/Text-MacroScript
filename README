@@ -29,13 +29,11 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
         print $Macro->expand_delimited( $_, $ARGV ) if $_ ;
     }
 
-
     # Create a macro object and create initial macros/scripts from the file(s)
     # given:
     my $Macro = new Text::MacroScript( 
                     -file => [ 'local.macro', '~/.macro/global.macro' ] 
                     ) ;
-
 
     # Create a macro object and create initial macros/scripts from the
     # definition(s) given:
@@ -57,7 +55,6 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     my $Macro = new Text::MacroScript( -comment => 1 ) ; # Create the %%[] macro.
 
-
     # define()
 
     $Macro->define( -macro, $macroname, $macrobody ) ;
@@ -65,7 +62,6 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     $Macro->define( -script, $scriptname, $scriptbody ) ;
 
     $Macro->define( -variable, $variablename, $variablebody ) ;
-
 
     # undefine()
 
@@ -75,7 +71,6 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     $Macro->undefine( -variable, $variablename ) ;
 
-
     # undefine_all()
 
     $Macro->undefine( -macro ) ;
@@ -83,7 +78,6 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     $Macro->undefine( -script ) ;
 
     $Macro->undefine( -variable ) ;
-
 
     # list()
 
@@ -96,12 +90,10 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     @variables = $Macro->list( -variable ) ;
     @variables = $Macro->list( -variable, -namesonly ) ;
 
-
     # load_file() - always treats the contents as within delimiters if we are
     # doing embedded processing.
 
     $Macro->load_file( $filename ) ;
-
 
     # expand_file() - calls expand_embedded() if we are doing embedded
     # processing otherwise calls expand().
@@ -120,11 +112,15 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     $expanded = $Macro->expand_embedded( $unexpanded ) ;
     $expanded = $Macro->expand_embedded( $unexpanded, $filename ) ;
 
-This bundle also includes the C<macro> script which allows us to expand
-macros without having to use/understand C<Text::MacroScript.pm>, although you will
-have to learn the handful of macro commands available and which are documented
-here and in C<macro>. C<macro> provides more documentation on the embedded
-approach.
+
+This bundle also includes the C<macro> and C<macrodir> scripts which allows us
+to expand macros without having to use/understand C<Text::MacroScript.pm>,
+although you will have to learn the handful of macro commands available and
+which are documented here and in C<macro>. C<macro> provides more
+documentation on the embedded approach.
+
+The C<macroutil.pl> library supplied provides some functions which you may
+choose to use in HTML work for example.
 
 =head1 DESCRIPTION
 
@@ -141,6 +137,20 @@ Most the examples given here use the macro approach. However this module now
 directly supports an embedded approach and this is now documented. Although
 you may specify your own delimiters where shown in examples we use the default
 delimiters of C<E<gt>:> and C<:E<lt>> throughout.
+
+=head2 Public methods
+
+    new         class   object
+    get         class   object
+    define              object
+    undefine            object
+    list                object
+    undefine_all        object
+    load_file           object
+    expand_file         object
+    expand              object
+    expand_embedded     object
+
 
 =head2 Summary of Commands
 
@@ -165,7 +175,6 @@ this assumes the whole file is `embedded'.)
 
     %UNDEFINE_ALL   # Undefine all macros
 
-
     %DEFINE_SCRIPT scriptname [script body]
 
     %DEFINE_SCRIPT scriptname
@@ -180,13 +189,11 @@ this assumes the whole file is `embedded'.)
 
     %UNDEFINE_ALL_SCRIPT
 
-
     %DEFINE_VARIABLE variablename [variable value]
 
     %UNDEFINE variablename
 
     %UNDEFINE_ALL_VARIABLE
-
 
     %LOAD[path/filename]    # Instantiate macros/scripts/variables in this
                             # file, but discard the text
@@ -194,6 +201,9 @@ this assumes the whole file is `embedded'.)
     %INCLUDE[path/filename] # Instantiate macros/scripts/variables in this
                             # file and output the resultant text
 
+    %REQUIRE[path/filename] # Make Perl require a file e.g. of functions,
+                            # modules, etc. which can then be accessed within
+                            # scripts. 
  
     %CASE [condition]       # Provides #ifdef-type functionality
     %END_CASE
@@ -214,7 +224,6 @@ When using an embedded approach we don't have to make the macro or script name
 unique within the text, (although each must be distinct from each other),
 since the delimiters are used to signify them. However since expansion applies
 recursively it is still wise to make names distinctive.
-
 
 =head2 Macro systems vs embedded systems
 
@@ -239,20 +248,20 @@ approaches.
 
 For macro processing:
 
-    my $Macro = new Text::MacroScript ;
+    my $Macro = Text::MacroScript->new ;
 
 For embedded macro processing:
 
-    my $Macro = new Text::MacroScript( -embedded => 1 ) ; 
+    my $Macro = Text::MacroScript->new( -embedded => 1 ) ; 
     # Delimiters default to <: and :>
 
 Or specify your own delimiters:
     
-    my $Macro = new Text::MacroScript( -opendelim => '[[', -closedelim => ']]' ) ;
+    my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' ) ;
 
 Or specify one delimiter to use for both (probably not wise):
 
-    my $Macro = new Text::MacroScript( -opendelim => '%%' ) ; 
+    my $Macro = Text::MacroScript->new( -opendelim => '%%' ) ; 
     # -closedelim defaults to -opendelim, e.g. %% in this case
  
 
@@ -266,7 +275,7 @@ are doing embedded processing. Default is a reference to an empty array.
 
 C<-macro> optional array reference of macros, in the form:
 
-    my $Macro = new Text::MacroScript(
+    my $Macro = Text::MacroScript->new(
                     -macro => [
                         ["name1"=>"body1"],
                         ["name2"=>"body2"],
@@ -278,7 +287,7 @@ Default is a reference to an empty array.
 
 C<-script> optional array reference of scripts, in the form:
 
-    my $Macro = new Text::MacroScript(
+    my $Macro = Text::MacroScript->new(
                     -script => [
                         ["name1"=>"body1"],
                         ["name2"=>"body2"],
@@ -290,7 +299,7 @@ Default is a reference to an empty array.
 
 C<-variable> optional array reference of variables, in the form:
 
-    my $Macro = new Text::MacroScript(
+    my $Macro = Text::MacroScript->new(
                     -variable => [
                         ["name1"=>"value1"],
                         ["name2"=>"value2"],
@@ -304,14 +313,12 @@ C<-embedded> optional integer, 1 = use embedded processing; 0 = use macro
 processing. Default is 0. If set to 1 then the delimiters become <: and :>
 unless otherwise specified.
 
-
 C<-opendelim> optional string, default is undef unless C<-embedded> is 1 in
 which case default is <: if C<-opendelim> is undefined or the empty string.
 
 C<-closedelim> optional string, default is undef unless C<-embedded> is 1 in
 which case default is :> if C<-closedelim> is undefined or the empty string
 and C<-opendelim> is <: or C<-opendelim> if C<-opendelim> is not <:.
-
 
 =head2 Defining Macros with C<%DEFINE> and C<define()>
 
@@ -342,16 +349,22 @@ pass are `|'s since these are used to separate parameters. White-space between
 the macro name and the [ is optional in definitions but I<not allowed> in the
 source text.
 
-Parameters are named #0, #1, etc. There is no limit, although we must use all
-those we specify. In the example above we I<must> use *P[param1|param2],
-e.g. *P[Jim|Hendrix]; if we don't C<Text::MacroScript.pm> will croak. Note that macro
-names and their parameters must all be on the same line (although this is
-relaxed if you use paragraph mode). 
+Parameters are named #0, #1, etc. There is a limit of 100 parameters, i.e.
+#0..#99, and we must use all those we specify. In the example above we I<must>
+use *P[param1|param2], e.g. *P[Jim|Hendrix]; if we don't
+C<Text::MacroScript.pm> will croak. Note that macro names and their parameters
+must all be on the same line (although this is relaxed if you use paragraph
+mode). 
 
-On the other hand we can use as many I<more> than we need, for example
-add a third to document: *P[Jim|Hendrix|Musician] will become `The forename is
-Jim and the surname is Hendrix', just as in the previous example; the third
-parameter, `Musician', will simply be thrown away.
+Because we use # to signify parameters if you require text that consists of a
+# followed by digits then you should escape the #, e.g.
+
+    %DEFINE *GRAY[<font color="\#121212">#0</font>]
+
+We can use as many I<more> parameters than we need, for example add a third to
+document: *P[Jim|Hendrix|Musician] will become `The forename is Jim and the
+surname is Hendrix', just as in the previous example; the third parameter,
+`Musician', will simply be thrown away.
 
 If we take an embedded approach we might write this example thus:
 
@@ -394,6 +407,46 @@ This allows us to write the following in our lout files:
 
 which is a lot shorter than the definition.
 
+The body of a macro may not contain a literal null. If you really need one
+then use a script and represent the null as C<chr(0)>.
+
+B<Converting a macro to a script>
+
+This can be achieved very simply. For a one line macro simply enclose the
+body between qq{ and }, e.g.
+
+    %DEFINE $SURNAME [Baggins]
+
+becomes
+
+    %DEFINE_SCRIPT $SURNAME [qq{Baggins}]
+
+For a multi-line macro use a here document, e.g.
+
+    %DEFINE SCENE
+    @Section
+        @Title {#0}
+    @Begin
+    @PP
+    @Include {#1}
+    @End @Section
+    %END_DEFINE
+
+becomes
+
+    %DEFINE_SCRIPT SCENE
+    <<__EOT__
+    \@Section
+        \@Title {#0}
+    \@Begin
+    \@PP
+    \@Include {#1}
+    \@End \@Section
+    __EOT__
+    %END_DEFINE
+
+Note that the @s had to be escaped because they have a special meaning in
+perl.
 
 =head2 Defining Scripts with C<%DEFINE_SCRIPT> and C<define()>
 
@@ -440,6 +493,9 @@ using C<%DEFINE_VARIABLE> (see later). These are accessible either using
 Although we can change both C<@Param> and C<%Var> elements in our script,
 the changes to C<@Param> only apply within the script whereas changes to
 C<%Var> apply from that point on globally.
+
+Note that if you require a literal # followed by digits in a script body then
+you must escape the # like this C<\#>.
 
 Macro names can be any length and consist of any characters (including
 non-printable which is probably only useful within code), except white-space
@@ -543,6 +599,11 @@ This example written in embedded style might be written thus:
     </BODY>
     </HTML>
 
+For more (and better) HTML examples see the example file C<html.macro>.
+
+The body of a script may not contain a literal null. If you really need one
+then represent the null as C<chr(0)>.
+
 =head2 Defining Variables with C<%DEFINE_VARIABLE> and C<define()>
 
 We can also define variables:
@@ -560,12 +621,27 @@ hash:
 
     %DEFINE_SCRIPT *TEST1
     $a = '' ;
-    while( my( $k, $v ) each( %Var ) ) {
-        $a .= "$key = $v\n" ;
+    while( my( $key, $val ) each( %Var ) ) {
+        $a .= "$key = $val\n" ;
     }
     $a ;
     %END_DEFINE
 
+Here's another example:
+    
+    %DEFINE_VARIABLE XCOORD[256]
+    %DEFINE_VARIABLE YCOORD[112]
+        :
+    The X coord is *SCALE[X|16] and the Y coord is *SCALE[Y|16] 
+    
+    %DEFINE_SCRIPT *SCALE
+    my $coord = shift @Param ;
+    my $scale = shift @Param ;
+    my $val   = $Var{$coord} ;
+    $val %= scale ; # Scale it
+    $val ; 
+    %END_DEFINE
+        
 Variables may be modified within script C<%DEFINE>s, e.g.
 
     %DEFINE_VARIABLE VV[Foxtrot]
@@ -672,6 +748,20 @@ Macros and scripts are expanded in the following order:
 1. scripts (longest named first, shortest named last)
 2. macros  (longest named first, shortest named last)
 
+=head2 Requiring files using C<%REQUIRE>
+
+We often want our scripts to have access to a bundle of functions that we have
+created or that are in other modules. This can now be achieved by:
+
+    %REQUIRE[/path/to/mylibrary.pl]
+
+An example library C<macroutil.pl> is provided with examples of usage in
+C<html.macro>.
+
+There is no equivalent object method because if we're writing code we can
+`use' or `require' as needed and if we're writing macros then we use
+C<%REQUIRE>.
+
 =head2 Skipping text using C<%CASE> and C<%END_CASE> 
 
 It is possible to selectively skip parts of the text.
@@ -679,6 +769,7 @@ It is possible to selectively skip parts of the text.
     %CASE[0]
     All the text here will be discarded.
     No matter how much there is.
+    This is effectively a `comment' case.
     %END_CASE
 
 The above is useful for multi-line comments.
@@ -767,7 +858,6 @@ and in code:
     $Macro->undefine( -script, '*DATESTAMP' ) ; 
     $Macro->undefine( -variable, '&*!' ) ; 
 
-
 All macros, scripts and variables can be undefined:
 
     %UNDEFINE_ALL
@@ -846,9 +936,22 @@ However the easiest way to comment is to use C<%CASE>:
     condition is always false.
     %END_CASE
 
+=head1 IMPORTABLE FUNCTIONS
+
+In version 1.25 I introduced some useful importable functions. These have now
+been removed from the module. Instead I supply a perl library C<macroutil.pl>
+which has these functions (abspath, relpath, today) since Text::MacroScript
+can now `require' in any library file you like using the C<%REQUIRE>
+directive.
+
 =head1 EXAMPLES
 
-(See DESCRIPTION.)
+I now include a sample C<html.macro> file for use with HTML documents. It uses
+the C<macrodir> program (supplied). The macro examples include macros which
+use C<relpath> and also two macros which will include `new' and `updated'
+images up until a specified expiry date using variables.
+
+(Also see DESCRIPTION.)
 
 =head1 BUGS
 
@@ -856,12 +959,12 @@ Lousy error reporting for embedded perl in most cases.
 
 =head1 AUTHOR
 
-Mark Summerfield. I can be contacted as <summer@chest.ac.uk> -
-please include the word 'macro' in the subject line.
+Mark Summerfield. I can be contacted as <summer@perlpress.com> -
+please include the word 'macroscript' in the subject line.
 
 =head1 COPYRIGHT
 
-Copyright (c) Mark Summerfield 1999. All Rights Reserved.
+Copyright (c) Mark Summerfield 1999-2000. All Rights Reserved.
 
 This module may be used/distributed/modified under the LGPL. 
 

@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 
-# $Id: macro,v 1.20 1999/11/15 20:16:13 root Exp $
+# $Id: macro,v 1.24 2000/01/24 21:43:44 root Exp $
 
-# Copyright (c) 1999 Mark Summerfield. All Rights Reserved.
+# Copyright (c) 1999-2000 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
 
 use strict ;
@@ -11,13 +11,13 @@ use Getopt::Long ;
 use Text::MacroScript ;
 
 use vars qw( $VERSION ) ; 
-$VERSION = '1.12' ;
+$VERSION = '1.13' ;
 
 my %Opt ;
 
 &getoptions ;
 
-my $Macro = new Text::MacroScript( 
+my $Macro = Text::MacroScript->new( 
                     -file       => $Opt{'file'}, 
                     -comment    => $Opt{'comment'}, 
                     -opendelim  => $Opt{'opendelim'}, 
@@ -89,13 +89,12 @@ sub getoptions {
     $Opt{'embedded'}   = $Opt{'emacro'} ; 
 }
 
-
 sub help {
 
     print STDERR <<__EOT__ ;
 
-macro v $VERSION. Copyright (c) Mark Summerfield 1999. All rights reserved.
-May be used/distributed under the GPL.
+macro v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
+All rights reserved. May be used/distributed under the GPL.
 
 usage: macro [options] infile(s) > outfile
 
@@ -121,7 +120,6 @@ __EOT__
 
 __END__
 
-
 =head1 NAME
 
 macro - A macro pre-processor with embedded perl capability 
@@ -131,6 +129,8 @@ macro - A macro pre-processor with embedded perl capability
 macro - A macro pre-processor with embedded perl capability 
 
 =head1 DESCRIPTION
+
+See Text::MacroScript.pm for the most complete and up-to-date documentation.
 
 These commands may appear in separate `macro' files, and/or in the body of
 files. Wherever a macroname or scriptname is encountered it will be replaced
@@ -155,7 +155,6 @@ approach.
 
     %UNDEFINE_ALL   # Undefine all macros
 
-
     %DEFINE_SCRIPT scriptname [script body]
 
     %DEFINE_SCRIPT scriptname
@@ -168,13 +167,11 @@ approach.
 
     %UNDEFINE_ALL_SCRIPT
 
-
     %DEFINE_VARIABLE variablename [variable value]
 
     %UNDEFINE variablename
 
     %UNDEFINE_ALL_VARIABLE
-
 
     %LOAD[path/filename]    # Instantiate macros/scripts/variables in this
                             # file, but discard the text
@@ -314,7 +311,6 @@ If using the embedded style we must use the delimiters:
     <:SCENE[ The title of the scene | scene1.lt ]:>
 
 either of which is a lot shorter than the definition.
-
 
 =head2 Defining Scripts with C<%DEFINE_SCRIPT> 
 
@@ -582,7 +578,6 @@ We can use any other macro/script command within C<%CASE> commands, e.g.
 C<%DEFINE>s, etc., as well as have any text that will be macro/script expanded
 as normal.
 
-
 =head2 Undefining with C<%UNDEFINE> 
 
 Macros and scripts may be undefined in files:
@@ -655,15 +650,14 @@ Lousy error reporting for embedded perl in most cases.
 1999/09/10  Renamed package Text::MacroScript.pm as per John Porter's (CPAN)
             suggestion.
 
-
 =head1 AUTHOR
 
-Mark Summerfield. I can be contacted as <summer@chest.ac.uk> -
+Mark Summerfield. I can be contacted as <summer@perlpress.com> -
 please include the word 'macro' in the subject line.
 
 =head1 COPYRIGHT
 
-Copyright (c) Mark Summerfield 1999. All Rights Reserved.
+Copyright (c) Mark Summerfield 1999-2000. All Rights Reserved.
 
 This module may be used/distributed/modified under the GPL. 
 
@@ -675,12 +669,6 @@ C<Getopt::Long>
 C<Text::MacroScript>
 
 =head1 COREQUISITES
-
-=head1 COPYRIGHT
-
-Copyright (c) Mark Summerfield 1999. All Rights Reserved.
-May be used/distributed under the GPL.
-Email <summer@chest.ac.uk> with 'macro' in the subject line.
 
 =head1 OSNAMES
 
