@@ -1,6 +1,6 @@
 package Macro ; # Documented at the __END__.
 
-# $Id: Macro.pm,v 1.12 1999/08/23 23:18:35 root Exp root $
+# $Id: Macro.pm,v 1.15 1999/08/29 19:25:42 root Exp root $
 
 
 require 5.004 ;
@@ -10,7 +10,7 @@ use strict ;
 use Carp ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.00' ; 
+$VERSION = '1.02' ; 
 
 
 sub new {
@@ -29,8 +29,8 @@ sub new {
     $self->{SCRIPT}   = () ; # Hash to hold the script definitions 
     $self->{VARIABLE} = () ; # Hash to hold the users variables
 
-    $self->{REMOVE}    = 1 ;    # Remove definitions from the output; only an
-                                # option for debugging purposes
+    $self->{REMOVE}   = 1 ;  # Remove definitions from the output; only an
+                             # option for debugging purposes
 
     # Temporaries used during processing
     $self->{IN_MACRO}  = 0 ;    # Are we in a multi-line macro definition?
@@ -102,7 +102,7 @@ sub undefine {
 sub list {
     my( $self, $which, $namesonly ) = @_ ;
 
-    croak "Usage: list( -macro|-script|variable )" unless defined $which ;
+    croak "Usage: list( -macro|-script|-variable )" unless defined $which ;
     croak "Invalid type" unless $which =~ /^-(macro|script|variable)$/o ;
 
     my @lines ;
@@ -211,7 +211,7 @@ sub expand {
         if( defined $1 and $1 eq 'CASE' ) {
             croak "No condition for CASE $where" unless defined $2 ;
 
-            my $eval   = $self->_expand_variable( $2 ) ;
+            my $eval    = $self->_expand_variable( $2 ) ;
             my $result ;
             eval {
                 no strict 'vars' ;   # Give (global) access to variables
@@ -836,7 +836,7 @@ Thus we could have a file, C<test.html.m> containing:
     </BODY>
     </HTML>
 
-which when expanded, either in code using C<$Macro->expand()>, or using the
+which when expanded, either in code using C<$Macro-E<gt>expand()>, or using the
 simple C<macro> utility supplied with C<Macro.pm>:
 
     [1]% macro test.html.m > test.html
@@ -893,7 +893,7 @@ Variables may be modified within script C<%DEFINE>s, e.g.
 As we can see variables support the #variable syntax similarly to parameters
 which support #0 etc and ara available in scripts via the C<@Param> array.
 Note that changing parameters within a script only apply within the script;
-whereas changing variables in the C<%Var} hash in a script changes them from
+whereas changing variables in the C<%Var> hash in a script changes them from
 that point on globally.
 
 Variables are also used with C<%CASE> (covered later).
@@ -1164,6 +1164,10 @@ Lousy error reporting for embedded perl in most cases.
 1999/08/18  Created.
 
 1999/08/22  Version 1.00.
+
+1999/08/28  Minor documentation corrections.
+
+1999/08/29  Minor documentation corrections.
 
 
 =head1 AUTHOR

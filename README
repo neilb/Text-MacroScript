@@ -386,7 +386,7 @@ Thus we could have a file, C<test.html.m> containing:
     </BODY>
     </HTML>
 
-which when expanded, either in code using C<$Macro->expand()>, or using the
+which when expanded, either in code using C<$Macro-E<gt>expand()>, or using the
 simple C<macro> utility supplied with C<Macro.pm>:
 
     [1]% macro test.html.m > test.html
@@ -443,7 +443,7 @@ Variables may be modified within script C<%DEFINE>s, e.g.
 As we can see variables support the #variable syntax similarly to parameters
 which support #0 etc and ara available in scripts via the C<@Param> array.
 Note that changing parameters within a script only apply within the script;
-whereas changing variables in the C<%Var} hash in a script changes them from
+whereas changing variables in the C<%Var> hash in a script changes them from
 that point on globally.
 
 Variables are also used with C<%CASE> (covered later).
@@ -714,6 +714,10 @@ Lousy error reporting for embedded perl in most cases.
 1999/08/18  Created.
 
 1999/08/22  Version 1.00.
+
+1999/08/28  Minor documentation corrections.
+
+1999/08/29  Minor documentation corrections.
 
 
 =head1 AUTHOR
