@@ -1,6 +1,6 @@
 package Macro ; # Documented at the __END__.
 
-# $Id: Macro.pm,v 1.16 1999/09/01 21:18:34 root Exp root $
+# $Id: Macro.pm,v 1.19 1999/09/04 17:44:04 root Exp root $
 
 
 require 5.004 ;
@@ -10,7 +10,7 @@ use strict ;
 use Carp ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.03' ; 
+$VERSION = '1.05' ; 
 
 
 sub new {
@@ -76,7 +76,7 @@ sub define {
 
     croak "Usage: define( -macro|-script|-variable, <name>, <body> )"
     unless defined $which and defined $name and defined $body ;
-    croak "Invalid type"       unless $which =~ /^-(macro|script|variable)$/o ;
+    croak "Invalid type"       unless $which =~ /^-(?:macro|script|variable)$/o ;
     croak "Invalid name $name" unless $name  =~ /^[^][\s]+$/o ;
 
     $self->{uc substr( $which, 1 )}{$name} = $body ;
@@ -88,7 +88,7 @@ sub undefine {
 
     croak "Usage: undefine( -macro|-script|-variable, <name> )"
     unless defined $which and defined $name ;
-    croak "Invalid type"       unless $which =~ /^-(macro|script|variable)$/o ;
+    croak "Invalid type"       unless $which =~ /^-(?:macro|script|variable)$/o ;
     croak "Invalid name $name" unless $name  =~ /^[^][\s]+$/o ;
    
     $which = uc substr( $which, 1 ) ;
@@ -103,7 +103,7 @@ sub list {
     my( $self, $which, $namesonly ) = @_ ;
 
     croak "Usage: list( -macro|-script|-variable )" unless defined $which ;
-    croak "Invalid type" unless $which =~ /^-(macro|script|variable)$/o ;
+    croak "Invalid type" unless $which =~ /^-(?:macro|script|variable)$/o ;
 
     my @lines ;
     local $_ ;
@@ -122,6 +122,7 @@ sub list {
         else {
             $line .= " [$body]\n" unless $namesonly ;
         }
+
         if( wantarray ) {
             push @lines, $line ;
         }
@@ -139,7 +140,7 @@ sub undefine_all {
 
     croak "Usage: undefine_all( -macro|-script|-variable )" 
     unless defined $which ;
-    croak "Invalid type" unless $which =~ /^-(macro|script|variable)$/o ;
+    croak "Invalid type" unless $which =~ /^-(?:macro|script|variable)$/o ;
    
     $self->{uc substr( $which, 1 )} = () ;
 }
@@ -216,6 +217,7 @@ sub expand {
             eval {
                 no strict 'vars' ;   # Give (global) access to variables
                 *Var    = $self->{VARIABLE} ;
+                local $_ ;
                 $result = eval $eval ;
             } ;
             croak "Evaluation of CASE $eval failed $where: $@" if $@ ;
@@ -380,6 +382,7 @@ sub expand {
                     my @Param = @param ; # Give (local)  access to params
                     no strict 'vars' ;   # Give (global) access to variables
                     *Var      = $self->{VARIABLE} ;
+                    local $_ ;
                     $result   = eval $body ;
                 } ;
                 croak "Evaluation of SCRIPT $name failed $where: $@" 
@@ -675,18 +678,21 @@ variables names beginning with #. All names are case-sensitive.
 Note that if we define a macro and then a script with the same name the
 script will effectively replace the macro.
 
-We can have parameters:
+We can have parameters (for macros and scripts), e.g.:
 
     %DEFINE *P [The forename is #0 and the surname is #1]
 
-Parameters can contain square brackets since macro will grab up to the last
-square bracket on the line. The only thing we can't pass are `|'s since these
-are used to separate parameters. White-space between the macro name and the [
-is optional.
+Parameters used in the source text can contain square brackets since macro
+will grab up to the last square bracket on the line. The only thing we can't
+pass are `|'s since these are used to separate parameters. White-space between
+the macro name and the [ is optional in definitions but I<not allowed> in the
+source text.
 
 Parameters are named #0, #1, etc. There is no limit, although we must use all
 those we specify. In the example above we I<must> use *P[param1|param2],
-e.g. *P[Jim|Hendrix]; if we don't C<Macro.pm> will croak. 
+e.g. *P[Jim|Hendrix]; if we don't C<Macro.pm> will croak. Note that macro
+names and their parameters must all be on the same line (although this is
+relaxed if you use paragraph mode). 
 
 On the other hand we can use as many I<more> than we need, for example
 add a third to document: *P[Jim|Hendrix|Musician] will become `The forename is
@@ -1170,6 +1176,10 @@ Lousy error reporting for embedded perl in most cases.
 1999/08/29  Minor documentation corrections.
 
 1999/09/01  Minor documentation corrections.
+
+1999/09/02  Minor documentation corrections.
+
+1999/09/04  localised $_ before eval calls.
 
 
 =head1 AUTHOR
