@@ -1,3 +1,22 @@
+2000/04/27
+
+Reduced amount of internal error checking for marginal speed improvements.
+
+Class is now inheritable.
+
+I've reached a kind of watershed with this module: it does the pre-processing
+I want it to do, but because I opted for power vs speed it is best used for
+batch work rather than on-the-fly processing. There are also several modules
+that do similar things but with different tradeoffs. Feedback on what you use
+it for, what it lacks, etc would be helpful in deciding where to go with it. 
+
+
+2000/02/22
+
+Minor correction to _croak so that error messages don't list filename and line
+twice.
+
+
 2000/02/18
 
 Corrected tarball so that make test will work. Additional tests to

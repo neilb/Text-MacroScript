@@ -9,7 +9,7 @@ use strict ;
 
 use vars qw( $Loaded $Count $DEBUG $TRIMWIDTH ) ;
 
-BEGIN { $| = 1 ; print "1..3\n" ; }
+BEGIN { $| = 1 ; print "1..8\n" ; }
 END   { print "not ok 1\n" unless $Loaded ; }
 
 use Text::MacroScript ;
@@ -18,19 +18,48 @@ $Loaded = 1 ;
 $DEBUG = 1,  shift if @ARGV and $ARGV[0] eq '-d' ;
 $TRIMWIDTH = @ARGV ? shift : 60 ;
 
-report( "loaded module ", 0, '' ) ;
+report( "loaded module ", 0, '', __LINE__ ) ;
 
-my $Macro ;
-
-eval {
-    $Macro = Text::MacroScript->new ;
-} ;
-report( 'new', 0, $@ ) ;
+my $M ;
 
 eval {
-    $Macro = Text::MacroScript->new( -file => [ 'nosuchfile' ] ) ;
+    $M = Text::MacroScript->new ;
 } ;
-report( 'new', 1, $@ ) ;
+report( 'new', 0, $@, __LINE__ ) ;
+
+eval {
+    $M = Text::MacroScript->new( -file => [ 'nosuchfile' ] ) ;
+} ;
+report( 'new', 1, $@, __LINE__ ) ;
+
+$M = Text::MacroScript->new ;
+
+eval {
+    $M->_validate( -fred ) ;
+} ;
+report( '_validate', 1, $@, __LINE__ ) ;
+
+eval {
+    $M->_validate( -name, '[invalid]' ) ;
+} ;
+report( '_validate', 1, $@, __LINE__ ) ;
+
+eval {
+    $M->_validate_array_name( -fred ) ;
+} ;
+report( '_validate_array_name', 1, $@, __LINE__ ) ;
+
+
+eval {
+    $M->_get_class( -fred ) ;
+} ;
+report( '_get_class', 1, $@, __LINE__ ) ;
+
+eval {
+    $M->_set_class( -fred ) ;
+} ;
+report( '_set_class', 1, $@, __LINE__ ) ;
+
 
 
 
@@ -38,9 +67,10 @@ sub report {
     my $test = shift ;
     my $flag = shift ;
     my $e    = shift ;
+    my $line = shift ;
 
     ++$Count ;
-    printf "[%03d] $test(): ", $Count if $DEBUG ;
+    printf "[%03d~%04d] $test(): ", $Count, $line if $DEBUG ;
 
     if( $flag == 0 and not $e ) {
         print "ok $Count\n" ;

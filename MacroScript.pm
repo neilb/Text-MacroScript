@@ -1,133 +1,37 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-# $Id: MacroScript.pm,v 1.26 2000/02/18 22:35:23 root Exp $
+# $Id: MacroScript.pm,v 1.31 2000/04/27 20:45:14 root Exp root $
 
 require 5.004 ;
 
 use strict ;
 
-use Carp ;
+use Carp qw( carp croak ) ;
 use Cwd ;
-use Symbol ;
+use Symbol () ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.35' ; 
+$VERSION = '1.37' ; 
 
 
+### Object fields
+#       -comment
+#       -file 
+#       -macro 
+#       -script 
+#       -variable
+#       -embedded 
+#       -opendelim 
+#       -closedelim 
+
+### -which values: -variable -script -macro
+ 
 ### Private class data and methods. 
 #
-#   _croak                  class   object
-#   _get_class              class   object
-#   _set_class              class   object
-#   _valid_key              class   object
-#   _validate               class   object
-#   _validate_array_name    class   object
 #   _expand_variable                object
 #   _find_element                   object
 #   _insert_element                 object
 #   _remove_element                 object
-
-{
-    # private methods croak; public methods call _croak; since private methods
-    # should only be called within public methods -last_error will be set via
-    # the public method so long as all private method calls are eval{};
-    # wrapped - we wrap _validate* calls but not necessarily other _* calls. 
-
-    my %_class = ( 
-        -last_error => undef, 
-        -which      => '^-(?:macro|script|variable)$',
-        -name       => '^[^][\s]+$',
-        ) ;
-
-    my %_valid_class_key = (
-        -last_error => '$', 
-        -which      => '~', # ~ signifies regex
-        -name       => '~',
-        ) ;
-
-    my %_valid_object_key = (
-        # Public keys must *never* match %_class keys 
-        -comment    => '$',
-        -file       => '@', 
-        -macro      => '@',
-        -script     => '@',
-        -variable   => '@',
-        -embedded   => '$',
-        -opendelim  => '$',
-        -closedelim => '$',
-        ) ;
-
-
-    sub _croak { # Class and object method
-        my $self  = shift ;
-        my $class = ref( $self ) || $self ;
-        my $error = shift ;
-
-        $error = (caller(1))[3] . "() $error" ;
-
-        $_class{-last_error} = $error ;
-        croak $error ; 
-    }
-
-    sub _valid_key { # Class and object method
-        # We only give access to object scalars.
-        my $self  = shift ;
-        my $class = ref( $self ) || $self ;
-        my $type  = shift ; # -object|-class
-        my $key   = shift ;
-
-        $type eq '-object' ?
-            ( exists $_valid_object_key{$key} and 
-                     $_valid_object_key{$key} eq '$' ) ? 
-                $_valid_object_key{$key} : undef :
-            exists $_valid_class_key{$key}  ? 
-                $_valid_class_key{$key}  : undef ;
-    }
-
-    sub _validate { # Class and object method
-        my $self  = shift ;
-        my $class = ref( $self ) || $self ;
-        my $which = shift ; # e.g. -type|-name 
-        my $val   = shift ;
-
-        croak "_validate() invalid key $which" 
-        unless exists $_class{$which} and defined $_class{$which} and
-               $_valid_class_key{$which} eq '~' ;
-
-        my $pat   = $_class{$which} ;
-        
-        croak "_validate() $val does not match $pat"
-        unless $val =~ /$pat/ ;
-    }
-
-    sub _validate_array_name { # Class and object method
-        my $self  = shift ;
-        my $class = ref( $self ) || $self ;
-        my $name  = shift ;
-
-        croak "invalid array name $name" unless
-        $name eq 'MACRO' or $name eq 'SCRIPT' ;
-    }
-    
-    sub _get_class { # Class and object method
-        my $self  = shift ;
-        my $class = ref( $self ) || $self ;
-        my $key   = shift ;
-
-        exists $_class{$key} ? $_class{$key} : 
-                               croak "_get_class() invalid key $key" ; 
-    } 
-
-    sub _set_class { # Class and object method
-        my $self  = shift ;
-        my $class = ref( $self ) || $self ;
-        my $key   = shift ;
-
-        croak "_set_class() invalid key $key" unless exists $_class{$key} ; 
-
-        $_class{$key} = shift ;
-    }
-}
 
 
 sub _expand_variable { # Private object method.
@@ -135,14 +39,13 @@ sub _expand_variable { # Private object method.
     my $class = ref( $self ) || $self ;
     local $_  = shift || '' ;
 
-    $class->_croak( "is an object method" ) unless ref $self ; 
-
-    my @variables = sort { 
+    foreach my $var (  
+                sort { 
                     length( $b ) <=> length( $a ) ||
                             $b   cmp         $a 
-                    } keys %{$self->{VARIABLE}} ;
+                    } keys %{$self->{VARIABLE}} 
 
-    foreach my $var ( @variables ) {
+                ) {
         s/#\Q$var\E/\$Var{"$var"}/msg ;
     }
 
@@ -155,12 +58,6 @@ sub _expand_variable { # Private object method.
 sub _find_element { # Private object method.
     my( $self, $array_name, $target ) = @_ ;
     my $class = ref( $self ) || $self ;
-
-    eval {
-        croak "is an object method" unless ref $self ; 
-        $class->_validate_array_name( $array_name ) ;
-    } ;
-    $class->_croak( $@ ) if $@ ; 
 
     my $target_len    = length $target ;
 
@@ -197,8 +94,6 @@ sub _insert_element { # Private object method.
     my( $self, $array_name, $name, $body ) = @_ ;
     my $class = ref( $self ) || $self ;
 
-    $class->_croak( "is an object method" ) unless ref $self ; 
-
     if( $array_name eq 'VARIABLE' ) {
         $self->{$array_name}{$name} = $body ;
     }
@@ -221,8 +116,6 @@ sub _insert_element { # Private object method.
 sub _remove_element { # Private object method.
     my( $self, $array_name, $name ) = @_ ;
     my $class = ref( $self ) || $self ;
-
-    $class->_croak( "is an object method" ) unless ref $self ; 
 
     my $element = undef ;
 
@@ -329,35 +222,17 @@ sub new { # Class and object method
             $self->define( -script, $name, $body ) ;
         }
     } ;
-    $class->_croak( $@ ) if $@ ;
+    croak $@ if $@ ;
 
     $self ;
 }
 
 
-sub get { # Class and object method
+sub get { # Object method
     my $self  = shift ;
     my $class = ref( $self ) || $self ;
-    my $key   = shift ;
 
-    my $result ;
-
-    eval { 
-        if( $class->_valid_key( -object, $key ) ) {
-            croak "must be called by an object for an object key" 
-            unless ref $self ;
-            $result = $self->{$key} ;
-        }
-        elsif( $class->_valid_key( -class, $key ) ) {
-            $result = $class->_get_class( $key ) ;
-        } 
-        else {
-            croak "invalid key $key" ;
-        }
-    } ;
-    $class->_croak( $@ ) if $@ ;
-
-    $result ;
+    $self->{shift()} ;
 }
 
 # No set - use define instead.
@@ -367,18 +242,7 @@ sub define { # Object method.
     my( $self, $which, $name, $body ) = @_ ;
     my $class = ref( $self ) || $self ;
 
-    eval {
-        croak "is an object method" unless ref $self ;
-        croak "usage: define( -macro|-script|-variable, <name>, <body> )"
-        unless defined $which and defined $name and defined $body ;
-        $class->_validate( -which, $which ) ;
-        $class->_validate( -name,  $name ) ;
-    } ;
-    $class->_croak( $@ ) if $@ ;
-
-    $which = uc substr( $which, 1 ) ;
-
-    $self->_insert_element( $which, $name, $body ) ;
+    $self->_insert_element( uc substr( $which, 1 ), $name, $body ) ;
 }
 
 
@@ -386,32 +250,16 @@ sub undefine { # Object method.
     my( $self, $which, $name ) = @_ ;
     my $class = ref( $self ) || $self ;
 
-    eval {
-        croak "is an object method" unless ref $self ;
-        croak "usage: undefine( -macro|-script|-variable, <name> )"
-        unless defined $which and defined $name ;
-        $class->_validate( -which, $which ) ;
-        $class->_validate( -name,  $name ) ;
-    } ;
-    $class->_croak( $@ ) if $@ ;
-   
     $which = uc substr( $which, 1 ) ;
-    my $found = $self->_remove_element( $which, $name ) ; 
 
-    carp "No $which called $name exists" unless $found ; 
+    carp "No $which called $name exists" unless 
+    $self->_remove_element( $which, $name ) ; 
 }
 
 
 sub list { # Object method.
     my( $self, $which, $namesonly ) = @_ ;
     my $class = ref( $self ) || $self ;
-
-    eval {
-        croak "is an object method" unless ref $self ;
-        croak "usage: list( -macro|-script|-variable )" unless defined $which ;
-        $class->_validate( -which, $which ) ;
-    } ;
-    $class->_croak( $@ ) if $@ ;
 
     my @lines ;
     local $_ ;
@@ -457,21 +305,13 @@ sub undefine_all { # Object method.
     my( $self, $which ) = @_ ;
     my $class = ref( $self ) || $self ;
 
-    eval {
-        croak "is an object method" unless ref $self ;
-        croak "usage: undefine_all( -macro|-script|-variable )" 
-        unless defined $which ;
-        $class->_validate( -which, $which ) ;
-    } ;
-    $class->_croak( $@ ) if $@ ;
-       
     $which = uc substr( $which, 1 ) ;
 
     if( $which eq 'VARIABLE' ) {
         %{$self->{$which}} = () ;
     }
     else {
-        @{$self->{uc substr( $which, 1 )}} = () ;
+        @{$self->{$which}} = () ;
     }
 }
 
@@ -480,8 +320,6 @@ sub undefine_all { # Object method.
 sub load_file { # Object method.
     my( $self, $file ) = @_ ;
     my $class = ref( $self ) || $self ;
-
-    $class->_croak( "is an object method" ) unless ref $self ;
 
     # Treat loaded files as if wrapped in delimiters (only affects embedded
     # processing).
@@ -508,7 +346,6 @@ sub expand_file { # Object method.
     my @lines ;
 
     eval {
-        croak "is an object method"         unless ref $self ;
         croak "missing filename"            unless     $file ; 
         croak "file `$file' does not exist" unless  -e $file ;
 
@@ -517,7 +354,7 @@ sub expand_file { # Object method.
 
         local $_ ;
 
-        my $fh = gensym ;
+        my $fh = Symbol::gensym ;
 
         open $fh, $file or croak "failed to open $file: $!" ;
 
@@ -526,19 +363,19 @@ sub expand_file { # Object method.
                             $self->expand_embedded( $_, $file ) :
                             $self->expand( $_, $file ) ;
 
-            if( defined $line and $line ) {
-                if( $wantarray ) {
-                    push @lines, $line ;
-                }
-                else {
-                    print $line unless $noprint ;
-                }
+            next unless defined $line and $line ; 
+
+            if( $wantarray ) {
+                push @lines, $line ;
+            }
+            else {
+                print $line unless $noprint ;
             }
         }
 
         close $fh or croak "failed to close $file: $!" ;
     } ;
-    $class->_croak( $@ ) if $@ ;
+    croak $@ if $@ ;
 
     @lines if $wantarray and not $noprint ;
 }
@@ -549,8 +386,6 @@ sub expand_embedded { # Object method.
     my $class = ref( $self ) || $self ;
     local $_  = shift ;
     my $file  = shift || '-' ;
-
-    $class->_croak( "is an object method" ) unless ref $self ;
 
     my $line = '' ;
 
@@ -608,8 +443,6 @@ sub expand { # Object method.
     my $where     = "at $file line $self->{LINO}" ;
 
     eval {
-        croak "is an object method" unless ref $self ;
-
         if( /^\%((?:END_)?CASE)(?:\s*\[(.*)\])?/mso or 
             ( $self->{IN_CASE} eq 'SKIP' ) ) {
 
@@ -647,8 +480,7 @@ sub expand { # Object method.
 
             $self->{"IN_$which"} = 0 ;
             $self->_insert_element( $which, $self->{NAME}, $self->{DEFINE} ) ;
-            $self->{NAME}        = '' ;
-            $self->{DEFINE}      = '' ;
+            $self->{NAME} = $self->{DEFINE} = '' ;
 
             $_ = '' if $self->{REMOVE} ;
         }
@@ -859,7 +691,7 @@ sub expand { # Object method.
             }
         }
     } ;
-    $class->_croak( $@ ) if $@ ;
+    croak $@ if $@ ;
 
     $_ ;
 }

@@ -8,16 +8,18 @@ Copyright (c) Mark Summerfield 1999-2000. All Rights Reserved.
 
 These macros may be used/distributed/modified under the GPL. 
 
-The bulk of their work has now been pushed into macroutil.pl.
+The bulk of their work has now been pushed into macroutil.pl, except for the
+menus which should be extracted out but haven't got round to doing so yet.
 
 %END_CASE
 
 %REQUIRE[macroutil.pl]
 
-%DEFINE_VARIABLE MENU_PERLMODULE_UPDATE     [2000/02/15]
-%DEFINE_VARIABLE MENU_PERLPROGRAM_UPDATE    [2000/02/01]
-%DEFINE_VARIABLE MENU_PERLARTICLE_UPDATE    [2000/02/01]
+%DEFINE_VARIABLE MENU_PERLMODULE_UPDATE     [2000/05/07]
+%DEFINE_VARIABLE MENU_PERLPROGRAM_UPDATE    [2000/05/22]
+%DEFINE_VARIABLE MENU_PERLARTICLE_UPDATE    [2000/04/21]
 %DEFINE_VARIABLE MENU_PERLEXPERIMENT_UPDATE [2000/02/11]
+%DEFINE_VARIABLE MENU_PERLANTIQUES_UPDATE   [2000/00/00]
 %DEFINE_VARIABLE MENU_NOBLINK_UPDATE        [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_LINUX_UPDATE  [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_MAC_UPDATE    [2000/01/01]
@@ -99,9 +101,10 @@ qq{<br />We respect your <a href="privacy.html">privacy</a>.</h6>}
 my %item = (
         perlmodule     => [ 0, "perl/modules.html",    "Perl Modules"     ],
         perlprogram    => [ 1, "perl/programs.html",   "Perl Programs"    ],
-        perlexperiment => [ 2, "perl/experiment.html", "Perl Experiments" ],
-        perlarticle    => [ 3, "perl/articles.html",   "Perl Articles"    ],
-        noblink        => [ 4, "noblink/index.html",   "NoBlink"          ],
+        perlarticle    => [ 2, "perl/articles.html",   "Perl Articles"    ],
+        perlexperiment => [ 3, "perl/experiment.html", "Perl Experiments" ],
+        perlantiques   => [ 4, "perl/antiques.html",   "Perl Antiques"    ],
+        noblink        => [ 5, "noblink/index.html",   "NoBlink"          ],
     ) ;
 
 my $thisitem = shift @Param ;
@@ -168,11 +171,13 @@ $menu .= "</ul>\n" ;
 my %perl = (
         perlmodule     => [ 0, "perl/modules.html",     "Perl Modules"     ],
         perlprogram    => [ 1, "perl/programs.html",    "Perl Programs"    ],
-        perlexperiment => [ 2, "perl/experiment.html",  "Perl Experiments" ],
-        perlarticle    => [ 3, "perl/articles.html",    "Perl Articles"    ],
+        perlarticle    => [ 2, "perl/articles.html",   "Perl Articles"    ],
+        perlexperiment => [ 3, "perl/experiment.html", "Perl Experiments" ],
+        perlantiques   => [ 4, "perl/antiques.html",   "Perl Antiques"    ],
     ) ;
 my %item = (
         quickform      => [ 0, "perl/quickform.html",   "Creating Web Forms"  ],
+        quickformusers => [ 0, "perl/quickform-users.html", "QuickForm Sites" ],
         perlbookreview => [ 1, "perl/bookreviews.html", "Perl Book Reviews"   ],
     ) ;
 
