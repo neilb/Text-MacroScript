@@ -1,6 +1,6 @@
-package Macro ; # Documented at the __END__.
+package Text::MacroScript ; # Documented at the __END__.
 
-# $Id: Macro.pm,v 1.23 1999/09/07 21:34:12 root Exp root $
+# $Id: MacroScript.pm,v 1.2 1999/09/11 10:51:34 root Exp root $
 
 
 require 5.004 ;
@@ -10,7 +10,7 @@ use strict ;
 use Carp ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.10' ; 
+$VERSION = '1.13' ; 
 
 
 sub new {
@@ -279,9 +279,7 @@ sub expand {
     $self->{LINO} = $. unless $self->{IN_MACRO} or $self->{IN_SCRIPT} ;
     my $where     = "at $file line $self->{LINO}" ;
 
-    study ;
-
-    if( /^\%((?:END_)?CASE)(?:\s*\[(.*)\])?/mo or 
+    if( /^\%((?:END_)?CASE)(?:\s*\[(.*)\])?/mso or 
         ( $self->{IN_CASE} eq 'SKIP' ) ) {
 
         croak "Runaway \%DEFINE $where to line $."
@@ -310,7 +308,7 @@ sub expand {
 
         $_ = '' if $self->{REMOVE} ;
     }
-    elsif( ( $self->{IN_MACRO} or $self->{IN_SCRIPT} ) and /^\%END_DEFINE/mo ) {
+    elsif( ( $self->{IN_MACRO} or $self->{IN_SCRIPT} ) and /^\%END_DEFINE/mso ) {
         # End of a multi-line macro or script
         $self->{DEFINE} = $self->_expand_variable( $self->{DEFINE} ) ;
 
@@ -335,13 +333,13 @@ sub expand {
         if /^\%
             (?:(?:UNDEFINE(?:_ALL)|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
             LOAD | INCLUDE | (?:END_)CASE
-           /mox ;
+           /msox ;
 
         $self->{DEFINE} .= $_ ;
 
         $_ = '' if $self->{REMOVE} ;
     }
-    elsif( /^\%UNDEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)/mo ) {
+    elsif( /^\%UNDEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)/mso ) {
         # Undefining a macro, script or variable
         my $which = $1 || 'MACRO' ;
 
@@ -352,7 +350,7 @@ sub expand {
  
         $_ = '' if $self->{REMOVE} ;
     }
-    elsif( /^\%UNDEFINE_ALL(?:_(SCRIPT|VARIABLE))?/mo ) {
+    elsif( /^\%UNDEFINE_ALL(?:_(SCRIPT|VARIABLE))?/mso ) {
         # Undefining all macros or scripts
         my $which = $1 || 'MACRO' ;
 
@@ -360,7 +358,7 @@ sub expand {
 
         $_ = '' if $self->{REMOVE} ;
     }
-    elsif( /^\%DEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)\s*\[(.*)\]/mo ) {
+    elsif( /^\%DEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)\s*\[(.*)\]/mso ) {
         # Defining a single-line macro, script or variable
         my $which = $1 || 'MACRO' ;
 
@@ -368,7 +366,7 @@ sub expand {
 
         $_ = '' if $self->{REMOVE} ;
     }
-    elsif( /^\%DEFINE(?:_(SCRIPT))?\s+([^][\s]+)/mo ) {
+    elsif( /^\%DEFINE(?:_(SCRIPT))?\s+([^][\s]+)/mso ) {
         # Preparing to define a multi-line macro or script (we don't permit
         # multi-line variables)
         my $which = defined $1 ? 'SCRIPT' : 'MACRO' ;
@@ -379,7 +377,7 @@ sub expand {
 
         $_ = '' if $self->{REMOVE} ;
     }
-    elsif( /^\%(LOAD|INCLUDE)\s*\[(.+)\]/mo ) {
+    elsif( /^\%(LOAD|INCLUDE)\s*\[(.+)\]/mso ) {
         # Save state in local stack frame (i.e. recursion is taking care of
         # stacking for us)
         my $in_macro    = $self->{IN_MACRO} ;   # Should never be true
@@ -463,15 +461,15 @@ sub expand {
                 # Substitute any parameters in the script's body; we go from
                 # largest index to smallest to ensure that we substitute #13
                 # before #1!
-                if( $body =~ /#\d/mo ) {
+                if( $body =~ /#\d/mso ) {
                     # Warnings don't seem to work correctly here so we switch
                     # them off and do them manually.
                     local $^W = 0 ;
                     for( my $i = $#param ; $i >= 0 ; $i-- ) {
-                        $body =~ s/#$i/$param[$i]/mg ;
+                        $body =~ s/#$i/$param[$i]/msg ;
                     }
                     croak "Parameter missing in SCRIPT $name $body $where"
-                    if $body =~ /#\d/mo ;
+                    if $body =~ /#\d/mso ;
                     # Extra parameters, i.e. those given in the text but not
                     # used by the macro or script are ignored and do not
                     # appear in the output.
@@ -515,11 +513,11 @@ sub expand {
                 {
                     local $^W = 0 ;
                     for( my $i = $#param ; $i >= 0 ; $i-- ) {
-                        $body =~ s/#$i/$param[$i]/mg ;
+                        $body =~ s/#$i/$param[$i]/msg ;
                     }
 
                     croak "Parameter missing in MACRO $name $where"
-                    if $body =~ /#\d/mo ;
+                    if $body =~ /#\d/mso ;
                 }
                 $body ;
              }gmsex ; 
@@ -540,7 +538,7 @@ sub _expand_variable {
                     } keys %{$self->{VARIABLE}} ;
 
     foreach my $var ( @variables ) {
-        s/#\Q$var\E/\$Var{"$var"}/gms ;
+        s/#\Q$var\E/\$Var{"$var"}/msg ;
     }
 
     $_ ;
@@ -553,30 +551,31 @@ __END__
 
 =head1 NAME
 
-Macro - A macro pre-processor with embedded perl capability 
+Text::MacroScript - A macro pre-processor with embedded perl capability 
 
 =head1 SYNOPSIS
 
-    use Macro ;
+    use Text::MacroScript ;
 
     # new() for macro processing
 
-    my $Macro = new Macro ;
+    my $Macro = new Text::MacroScript ;
     while( <> ) {
         print $Macro->expand( $_ ) if $_ ;
     }
 
     # Canonical use (the filename improves error messages):
-    my $Macro = new Macro ;
+    my $Macro = new Text::MacroScript ;
     while( <> ) {
         print $Macro->expand( $_, $ARGV ) if $_ ;
     }
 
     # new() for embedded macro processing
 
-    my $Macro = new Macro( -embedded => 1 ) ; # Delimiters default to <: and :>
+    my $Macro = new Text::MacroScript( -embedded => 1 ) ; 
+    # Delimiters default to <: and :>
     # or
-    my $Macro = new Macro( -opendelim => '[[', -closedelim => ']]' ) ;
+    my $Macro = new Text::MacroScript( -opendelim => '[[', -closedelim => ']]' ) ;
     while( <> ) {
         print $Macro->expand_delimited( $_, $ARGV ) if $_ ;
     }
@@ -584,14 +583,14 @@ Macro - A macro pre-processor with embedded perl capability
 
     # Create a macro object and create initial macros/scripts from the file(s)
     # given:
-    my $Macro = new Macro( 
+    my $Macro = new Text::MacroScript( 
                     -file => [ 'local.macro', '~/.macro/global.macro' ] 
                     ) ;
 
 
     # Create a macro object and create initial macros/scripts from the
     # definition(s) given:
-    my $Macro = new Macro(
+    my $Macro = new Text::MacroScript(
                     -macro => [
                             [ 'MAX_INT' => '32767' ],
                         ],
@@ -607,7 +606,7 @@ Macro - A macro pre-processor with embedded perl capability
 
     # We may of course use any combination of the options. 
 
-    my $Macro = new Macro( -comment => 1 ) ; # Create the %%[] macro.
+    my $Macro = new Text::MacroScript( -comment => 1 ) ; # Create the %%[] macro.
 
 
     # define()
@@ -673,9 +672,10 @@ Macro - A macro pre-processor with embedded perl capability
     $expanded = $Macro->expand_embedded( $unexpanded, $filename ) ;
 
 This bundle also includes the C<macro> script which allows us to expand
-macros without having to use/understand C<Macro.pm>, although you will have to
-learn the handful of macro commands available and which are documented here
-and in C<macro>. C<macro> provides more documentation on the embedded approach.
+macros without having to use/understand C<Text::MacroScript.pm>, although you will
+have to learn the handful of macro commands available and which are documented
+here and in C<macro>. C<macro> provides more documentation on the embedded
+approach.
 
 =head1 DESCRIPTION
 
@@ -790,19 +790,21 @@ approaches.
 
 For macro processing:
 
-    my $Macro = new Macro ;
+    my $Macro = new Text::MacroScript ;
 
 For embedded macro processing:
 
-    my $Macro = new Macro( -embedded => 1 ) ; # Delimiters default to <: and :>
+    my $Macro = new Text::MacroScript( -embedded => 1 ) ; 
+    # Delimiters default to <: and :>
 
 Or specify your own delimiters:
     
-    my $Macro = new Macro( -opendelim => '[[', -closedelim => ']]' ) ;
+    my $Macro = new Text::MacroScript( -opendelim => '[[', -closedelim => ']]' ) ;
 
 Or specify one delimiter to use for both (probably not wise):
 
-    my $Macro = new Macro( -opendelim => '%%' ) ; # -closedelim defaults to %%
+    my $Macro = new Text::MacroScript( -opendelim => '%%' ) ; 
+    # -closedelim defaults to -opendelim, e.g. %% in this case
  
 
 The full list of options that may be specified at object creation:
@@ -815,7 +817,7 @@ are doing embedded processing. Default is a reference to an empty array.
 
 C<-macro> optional array reference of macros, in the form:
 
-    my $Macro = new Macro(
+    my $Macro = new Text::MacroScript(
                     -macro => [
                         ["name1"=>"body1"],
                         ["name2"=>"body2"],
@@ -827,7 +829,7 @@ Default is a reference to an empty array.
 
 C<-script> optional array reference of scripts, in the form:
 
-    my $Macro = new Macro(
+    my $Macro = new Text::MacroScript(
                     -script => [
                         ["name1"=>"body1"],
                         ["name2"=>"body2"],
@@ -839,7 +841,7 @@ Default is a reference to an empty array.
 
 C<-variable> optional array reference of variables, in the form:
 
-    my $Macro = new Macro(
+    my $Macro = new Text::MacroScript(
                     -variable => [
                         ["name1"=>"value1"],
                         ["name2"=>"value2"],
@@ -893,7 +895,7 @@ source text.
 
 Parameters are named #0, #1, etc. There is no limit, although we must use all
 those we specify. In the example above we I<must> use *P[param1|param2],
-e.g. *P[Jim|Hendrix]; if we don't C<Macro.pm> will croak. Note that macro
+e.g. *P[Jim|Hendrix]; if we don't C<Text::MacroScript.pm> will croak. Note that macro
 names and their parameters must all be on the same line (although this is
 relaxed if you use paragraph mode). 
 
@@ -1052,7 +1054,7 @@ Thus we could have a file, C<test.html.m> containing:
     </HTML>
 
 which when expanded, either in code using C<$Macro-E<gt>expand()>, or using the
-simple C<macro> utility supplied with C<Macro.pm>:
+simple C<macro> utility supplied with C<Text::MacroScript.pm>:
 
     [1]% macro test.html.m > test.html
 
@@ -1383,8 +1385,8 @@ We can add the definition in code:
 Or the macro can be added automatically for us when we create the Macro
 object:
 
-    my $Macro = new Macro( -comment => 1 ) ; # All other options may be used
-                                             # too of course.
+    my $Macro = new Text::MacroScript( -comment => 1 ) ; 
+    # All other options may be used too of course.
 
 However the easiest way to comment is to use C<%CASE>:
 
@@ -1418,6 +1420,12 @@ Lousy error reporting for embedded perl in most cases.
 1999/09/04  localised $_ before eval calls.
 
 1999/09/07  Added support for embedded processing.
+
+1999/09/10  Renamed package Text::MacroScript.pm as per John Porter's (CPAN)
+            suggestion.
+
+1999/09/11  Removed study. Treats newline as any other character so you can
+            process lines, paragraphs or entire files with identical results.
 
 
 =head1 AUTHOR

@@ -4,9 +4,9 @@ use ExtUtils::MakeMaker ;
 # the contents of the Makefile that is written.
 
 WriteMakefile(
-    'NAME'         => 'Macro',
-    'VERSION_FROM' => 'Macro.pm', # finds $VERSION
-    'DISTNAME'     => 'Macro',
+    'NAME'         => 'Text::MacroScript',
+    'VERSION_FROM' => 'MacroScript.pm', # finds $VERSION
+    'DISTNAME'     => 'Text-MacroScript',
     ($] >= 5.005 ?
         (
             ABSTRACT => 'A macro pre-processor with embedded perl capability', 
