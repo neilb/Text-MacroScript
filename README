@@ -146,9 +146,9 @@ any parameters that are given.
     %UNDEFINE_ALL   # Undefine all macros
 
 
-    %DEFINE scriptname [script body]
+    %DEFINE_SCRIPT scriptname [script body]
 
-    %DEFINE scriptname
+    %DEFINE_SCRIPT scriptname
     multi-line
     script body
     arbitrary perl
@@ -161,7 +161,7 @@ any parameters that are given.
     %UNDEFINE_ALL_SCRIPT
 
 
-    %DEFINE variablename [variable value]
+    %DEFINE_VARIABLE variablename [variable value]
 
     %UNDEFINE variablename
 
@@ -718,6 +718,8 @@ Lousy error reporting for embedded perl in most cases.
 1999/08/28  Minor documentation corrections.
 
 1999/08/29  Minor documentation corrections.
+
+1999/09/01  Minor documentation corrections.
 
 
 =head1 AUTHOR

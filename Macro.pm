@@ -1,6 +1,6 @@
 package Macro ; # Documented at the __END__.
 
-# $Id: Macro.pm,v 1.15 1999/08/29 19:25:42 root Exp root $
+# $Id: Macro.pm,v 1.16 1999/09/01 21:18:34 root Exp root $
 
 
 require 5.004 ;
@@ -10,7 +10,7 @@ use strict ;
 use Carp ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.02' ; 
+$VERSION = '1.03' ; 
 
 
 sub new {
@@ -32,7 +32,7 @@ sub new {
     $self->{REMOVE}   = 1 ;  # Remove definitions from the output; only an
                              # option for debugging purposes
 
-    # Temporaries used during processing
+    # `State' temporaries used during processing
     $self->{IN_MACRO}  = 0 ;    # Are we in a multi-line macro definition?
     $self->{IN_SCRIPT} = 0 ;    # Are we in a multi-line script definition?
     $self->{IN_CASE}   = 0 ;    # Are we in a %CASE block? 0, 'SKIP' or 1.
@@ -596,9 +596,9 @@ any parameters that are given.
     %UNDEFINE_ALL   # Undefine all macros
 
 
-    %DEFINE scriptname [script body]
+    %DEFINE_SCRIPT scriptname [script body]
 
-    %DEFINE scriptname
+    %DEFINE_SCRIPT scriptname
     multi-line
     script body
     arbitrary perl
@@ -611,7 +611,7 @@ any parameters that are given.
     %UNDEFINE_ALL_SCRIPT
 
 
-    %DEFINE variablename [variable value]
+    %DEFINE_VARIABLE variablename [variable value]
 
     %UNDEFINE variablename
 
@@ -1168,6 +1168,8 @@ Lousy error reporting for embedded perl in most cases.
 1999/08/28  Minor documentation corrections.
 
 1999/08/29  Minor documentation corrections.
+
+1999/09/01  Minor documentation corrections.
 
 
 =head1 AUTHOR
