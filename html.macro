@@ -13,18 +13,22 @@ menus which should be extracted out but haven't got round to doing so yet.
 
 %END_CASE
 
-%REQUIRE[macroutil.pl]
+%REQUIRE[/home/mark/lib/macroutil.pl]
 
-%DEFINE_VARIABLE MENU_PERLMODULE_UPDATE     [2000/05/07]
-%DEFINE_VARIABLE MENU_PERLPROGRAM_UPDATE    [2000/05/22]
-%DEFINE_VARIABLE MENU_PERLARTICLE_UPDATE    [2000/04/21]
+%DEFINE_VARIABLE MENU_OUROBOURUS_UPDATE     [2000/07/31]
+
+%DEFINE_VARIABLE MENU_PERLMODULE_UPDATE     [2002/05/26]
+%DEFINE_VARIABLE MENU_PERLPROGRAM_UPDATE    [2001/05/26]
+%DEFINE_VARIABLE MENU_PERLARTICLE_UPDATE    [2000/10/20]
 %DEFINE_VARIABLE MENU_PERLEXPERIMENT_UPDATE [2000/02/11]
 %DEFINE_VARIABLE MENU_PERLANTIQUES_UPDATE   [2000/00/00]
 %DEFINE_VARIABLE MENU_NOBLINK_UPDATE        [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_LINUX_UPDATE  [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_MAC_UPDATE    [2000/01/01]
 %DEFINE_VARIABLE MENU_NOBLINK_WIN_UPDATE    [2000/01/01]
+%DEFINE_VARIABLE MENU_OUROBOURUS_UPDATE     [2000/07/31]
 
+%DEFINE NOPATENTS[<a href="http://petition.eurolinux.org"><img src="/images/nopatent.gif" /></a>]
 
 %DEFINE DOCTYPE_HTML[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">]
 %DEFINE DOCTYPE[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">]
@@ -35,10 +39,11 @@ qq{<link href="${root}style.css" rel="stylesheet" type="text/css" />}
 %END_DEFINE
 
 %DEFINE_SCRIPT BANNER
-<<__EOT__ ;
-<!--VirtualAvenueBanner-->
-<a id="TOP" name="TOP" /><!--#exec cgi="/cgi-bin/log.cgi" -->
-__EOT__
+'';
+# qq{
+# <!--VirtualAvenueBanner-->
+# <a id="TOP" name="TOP" /><!--#exec cgi="/cgi-bin/log.cgi" -->
+# }
 %END_DEFINE
 
 %DEFINE_SCRIPT _ROOT[relpath]
@@ -78,18 +83,21 @@ imageif( relpath . "images/updated.gif", $date, 'Updated' ) ;
 %END_DEFINE
 
 %DEFINE_SCRIPT BODY
+if ( abspath =~ /python/ ) {
+    return qq{<body bgcolor="white">};
+}
 my $image = relpath . "images/perlpress-tile.gif" ;
 my $size  = lc html_imgsize( $image ) || '' ;
 $size =~ s/(\d+)/"$1"/go ;
-qq{<body background="$image" ${size} alt="Tile Image">} ;
+qq{<body bgcolor="white" background="$image" ${size} alt="Tile Image">} ;
 %END_DEFINE
 
 %DEFINE_SCRIPT COPYRIGHT
-'<h6>' . copyright('<a href="mailto:summer@perlpress.com">PerlPress Ltd</a>') . '</h6>'
+'<h6>' . copyright('<a href="mailto:summer@perlpress.com">PerlPress</a>') . '</h6>'
 %END_DEFINE
 
 %DEFINE_SCRIPT FRONTPAGECOPYRIGHT
-'<h6>' . copyright('<a href="mailto:summer@perlpress.com">PerlPress Ltd</a>') .
+'<h6>' . copyright('<a href="mailto:summer@perlpress.com">PerlPress</a>') .
 qq{<br />We respect your <a href="privacy.html">privacy</a>.</h6>}
 %END_DEFINE
 
@@ -99,12 +107,13 @@ qq{<br />We respect your <a href="privacy.html">privacy</a>.</h6>}
 
 %DEFINE_SCRIPT MAINMENU
 my %item = (
-        perlmodule     => [ 0, "perl/modules.html",    "Perl Modules"     ],
-        perlprogram    => [ 1, "perl/programs.html",   "Perl Programs"    ],
-        perlarticle    => [ 2, "perl/articles.html",   "Perl Articles"    ],
-        perlexperiment => [ 3, "perl/experiment.html", "Perl Experiments" ],
-        perlantiques   => [ 4, "perl/antiques.html",   "Perl Antiques"    ],
-        noblink        => [ 5, "noblink/index.html",   "NoBlink"          ],
+        perlmodule     => [ 0, "perl/modules.html",     "Perl Modules"        ],
+        perlprogram    => [ 1, "perl/programs.html",    "Perl Programs"       ],
+        perlarticle    => [ 2, "perl/articles.html",    "Articles"            ],
+        noblink        => [ 3, "noblink/index.html",    "NoBlink"             ],
+        python	       => [ 4, "python/index.html",	"Python"	      ],
+        perlexperiment => [ 5, "perl/experiment.html",  "Perl Experiments"    ],
+        perlantiques   => [ 6, "perl/antiques.html",    "Perl Antiques"       ],
     ) ;
 
 my $thisitem = shift @Param ;
@@ -122,7 +131,9 @@ foreach my $item ( sort { $item{$a}[0] <=> $item{$b}[0] } keys %item ) {
                  "</li>\n" ;
     }
     else {
-        $menu .= qq{<li><a href="${root}$item{$item}[1]">} .
+        my $path = $root;
+        $path = '' if $item{$item}[1] =~ m,^http://,;
+        $menu .= qq{<li><a href="${path}$item{$item}[1]">} .
                  qq{$item{$item}[2]</a>} . 
                  imageif( "${root}images/updated.gif", $date, 'Updated' ) .
                  "</li>\n" ;
@@ -167,50 +178,27 @@ foreach my $item ( sort { $item{$a}[0] <=> $item{$b}[0] } keys %item ) {
 $menu .= "</ul>\n" ;
 %END_DEFINE
 
-%DEFINE_SCRIPT ARTICLEMENU
-my %perl = (
-        perlmodule     => [ 0, "perl/modules.html",     "Perl Modules"     ],
-        perlprogram    => [ 1, "perl/programs.html",    "Perl Programs"    ],
-        perlarticle    => [ 2, "perl/articles.html",   "Perl Articles"    ],
-        perlexperiment => [ 3, "perl/experiment.html", "Perl Experiments" ],
-        perlantiques   => [ 4, "perl/antiques.html",   "Perl Antiques"    ],
-    ) ;
-my %item = (
-        quickform      => [ 0, "perl/quickform.html",   "Creating Web Forms"  ],
-        quickformusers => [ 0, "perl/quickform-users.html", "QuickForm Sites" ],
-        perlbookreview => [ 1, "perl/bookreviews.html", "Perl Book Reviews"   ],
-    ) ;
-
-my $thisitem = shift @Param ;
-my $root     = relpath ;
-my $menu     = qq{<ul class="navigate">\n} ;
-if( $thisitem ne 'main' ) {
-    $menu .= qq{<li><a href="${root}index.html">} .
-    image( "${root}images/home.gif", 'Home' ) . "</a></li>\n" ;
-}
-foreach my $item ( sort { $perl{$a}[0] <=> $perl{$b}[0] } keys %perl ) {
-    my $date = $Var{"MENU_\U${item}_UPDATE"} ;
-    if( $item eq $thisitem ) {
-        $menu .= qq{<li style="text-color:lightgrey">$perl{$item}[2]} .
-                 imageif( "${root}images/updated.gif", $date, 'Updated' ) ;
-    }
-    else {
-        $menu .= qq{<li><a href="${root}$perl{$item}[1]">} .
-                 qq{$perl{$item}[2]</a>} . 
-                 imageif( "${root}images/updated.gif", $date, 'Updated' ) ;
-    }
-    $menu .= "</li>\n" ;
-}
-foreach my $item ( sort { $item{$a}[0] <=> $item{$b}[0] } keys %item ) {
-    if( $item eq $thisitem ) {
-        $menu .= qq{<li style="text-color:lightgrey">$item{$item}[2]</li>\n} ;
-    }
-    else {
-        $menu .= qq{<li><a href="${root}$item{$item}[1]">} .
-                 qq{$item{$item}[2]</a></li>\n} ;
-    }
-}
-$menu .= "</ul>\n" ;
+%DEFINE_SCRIPT OCOPYRIGHT
+'<h6>' . 
+copyright('<a href="mailto:mark@perlpress.com">Mark Summerfield</a>', 2000) . 
+'</h6>'
 %END_DEFINE
+
+%DEFINE_SCRIPT OFRONTPAGECOPYRIGHT
+'<h6>' . 
+copyright('<a href="mailto:mark@python.com">Mark Summerfield</a>', 2000) . 
+qq{<br />I respect your <a href="privacy.html">privacy</a>.</h6>}
+%END_DEFINE
+
+%DEFINE_SCRIPT OLOGO
+my $image = relpath . "images/ourobourus-logo.gif" ;
+my $size  = lc html_imgsize( $image ) || '' ;
+$size =~ s/(\d+)/"$1"/go ;
+qq{<p style="text-align:center;">} .
+qq{<a href="/"><img border="0" src="/images/ourobourus-logo.gif"} .
+qq{ $size alt="ourobourus"></a></p>}
+%END_DEFINE
+
+
 
 

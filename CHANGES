@@ -1,3 +1,8 @@
+2003/08/29
+
+Added a patch from Andrew Eland that provides a warning if you have a
+macro definition that runs away to the end of the file.
+
 2000/04/27
 
 Reduced amount of internal error checking for marginal speed improvements.

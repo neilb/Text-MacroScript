@@ -64,6 +64,7 @@ sub imageif {
     my $date  = shift ;
     my $alt   = shift || '' ;
 
+    return '' unless $date ;
     my( $nyear, $nmon, $nday ) = $date =~ /^(\d\d\d\d)\D(\d\d?)\D(\d\d?)$/ ;
     my $compare = sprintf "%04d%02d%02d", $nyear, $nmon, $nday ;
     my( $year, $mon, $day ) = today ;
