@@ -9,7 +9,7 @@ use Cwd ;
 use Symbol () ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '1.39' ; 
+$VERSION = '1.40' ; 
 
 
 ### Object fields
@@ -35,7 +35,7 @@ $VERSION = '1.39' ;
 sub _expand_variable { # Private object method.
     my $self  = shift ;
     my $class = ref( $self ) || $self ;
-    local $_  = shift || '' ;
+    local $_  = (shift || '') ;
 
     foreach my $var (  
                 sort { 
@@ -389,7 +389,7 @@ sub expand_embedded { # Object method.
     my $self  = shift ;
     my $class = ref( $self ) || $self ;
     local $_  = shift ;
-    my $file  = shift || '-' ;
+    my $file  = (shift || '-') ;
 
     my $line = '' ;
 
@@ -441,7 +441,7 @@ sub expand { # Object method.
     my $self  = shift ;
     my $class = ref( $self ) || $self ;
     local $_  = shift ;
-    my $file  = shift || '-' ;
+    my $file  = (shift || '-') ;
 
     $self->{LINO} = $. || 1 unless $self->{IN_MACRO} or $self->{IN_SCRIPT} ;
     my $where     = "at $file line $self->{LINO}" ;
