@@ -1,7 +1,5 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-# $Id: MacroScript.pm,v 1.31 2000/04/27 20:45:14 root Exp root $
-
 require 5.004 ;
 
 use strict ;
@@ -449,7 +447,7 @@ sub expand { # Object method.
     my $where     = "at $file line $self->{LINO}" ;
 
     eval {
-        if( /^\%((?:END_)?CASE)(?:\s*\[(.*)\])?/mso or 
+        if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso or 
             ( $self->{IN_CASE} eq 'SKIP' ) ) {
 
             croak "runaway \%DEFINE $where to line $."
@@ -520,7 +518,7 @@ sub expand { # Object method.
 
             $_ = '' if $self->{REMOVE} ;
         }
-        elsif( /^\%DEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)\s*\[(.*)\]/mso ) {
+        elsif( /^\%DEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)\s*\[(.*?)\]/mso ) {
             # Defining a single-line macro, script or variable
             my $which = $1 || 'MACRO' ;
 
@@ -538,7 +536,7 @@ sub expand { # Object method.
 
             $_ = '' if $self->{REMOVE} ;
         }
-        elsif( /^\%(LOAD|INCLUDE)\s*\[(.+)\]/mso ) {
+        elsif( /^\%(LOAD|INCLUDE)\s*\[(.+?)\]/mso ) {
             # Save state in local stack frame (i.e. recursion is taking care of
             # stacking for us)
             my $in_macro    = $self->{IN_MACRO} ;   # Should never be true
@@ -593,7 +591,7 @@ sub expand { # Object method.
             # Replace string with the outcome of the load (empty) or include 
             $_ = join '', @lines ;
         }
-        elsif( /^\%REQUIRE\s*\[(.+)\]/mso ) {
+        elsif( /^\%REQUIRE\s*\[(.+?)\]/mso ) {
             my $file = $1 ;
             eval {
                 require $file ;
@@ -612,7 +610,7 @@ sub expand { # Object method.
                 # Macro names shouldn't include ] and can't include [.
                 s{
                     \Q$name\E
-                    (?:\[(.+)\])?  
+                    (?:\[(.+?)\])?  
                  }{
                     # Get any parameters
                     my @param = split /\|/, $1 if defined $1 ;
@@ -673,7 +671,7 @@ sub expand { # Object method.
 
                 s{
                     \Q$name\E
-                    (?:\[(.+)\])?  
+                    (?:\[(.+?)\])?  
                  }{
                     my @param = split /\|/, $1 if defined $1 ;
                     {

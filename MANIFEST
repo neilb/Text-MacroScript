@@ -7,3 +7,4 @@ macrodir
 macroutil.pl
 html.macro
 t/macroscript.t
+META.yml                                 Module meta-data (added by MakeMaker)
