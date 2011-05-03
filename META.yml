@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Text-MacroScript
-version:            1.38
+version:            1.39
 abstract:           A macro pre-processor with embedded perl capability
 author:
     - Mark Summerfield <summer@perlpress.com>
