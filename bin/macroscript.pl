@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: macro,v 1.25 2000/02/01 21:08:34 root Exp $
-
 # Copyright (c) 1999-2000 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
 
@@ -93,10 +91,10 @@ sub help {
 
     print STDERR <<__EOT__ ;
 
-macro v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
+macroscript v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.
 
-usage: macro [options] infile(s) > outfile
+usage: macroscript [options] infile(s) > outfile
 
 options: (use the short or long name followed by the parameter where req'd) 
 -C --comment      add the %%[] comment macro 
@@ -113,7 +111,7 @@ options: (use the short or long name followed by the parameter where req'd)
 
 b = boolean 1 = true, 0 = false; i = integer; s = string e.g. filename
 
-See macrodir for a different approach.
+See macroscriptdir for a different approach.
 __EOT__
 
     exit ; 
@@ -123,17 +121,13 @@ __END__
 
 =head1 NAME
 
-macro - A macro pre-processor with embedded perl capability 
-
-=head1 README
-
-macro - A macro pre-processor with embedded perl capability 
+macroscript - A macro pre-processor with embedded perl capability 
 
 =head1 DESCRIPTION
 
 See Text::MacroScript.pm for the most complete and up-to-date documentation.
 
-See macrodir for a different approach.
+See macroscriptdir for a different approach.
 
 These commands may appear in separate `macro' files, and/or in the body of
 files. Wherever a macroname or scriptname is encountered it will be replaced
@@ -566,7 +560,7 @@ operators in our expressions:
 
     and Both are true or  At least one is true not Negate the expression
 
-Although C<macro> doesn't support nested C<%CASE>'s we can still represent
+Although C<macroscript> doesn't support nested C<%CASE>'s we can still represent
 logic like this:
 
     if cond1 then if cond2 do cond1 + cond2 stuff else do cond1 stuff end if
@@ -645,7 +639,7 @@ However the easiest way to comment is to use C<%CASE>:
 
 =head2 C<Text::MacroScript.pm>
 
-C<Text::MacroScript.pm> provides the underlying code for C<macro>, and for
+C<Text::MacroScript.pm> provides the underlying code for C<macroscript>, and for
 perl programmers it provides the ability to create and manipulate Macro
 objects in code similarly to how we can create and manipulate them through
 embedding them in files. See C<Text::MacroScript.pm>'s documentation for

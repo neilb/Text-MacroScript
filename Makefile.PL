@@ -18,5 +18,9 @@ WriteMakefile(
 	'PREREQ_PM'	   => {
 		'Image::Size' => 0,
 	},
+	'EXE_FILES'	   => [
+		'bin/macroscript.pl',
+		'bin/macroscriptdir.pl',
+	],
     'dist'         => { COMPRESS => "gzip -9", SUFFIX => "gz" }
 ) ;

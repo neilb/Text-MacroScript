@@ -1,7 +1,7 @@
+bin/macroscript.pl
+bin/macroscriptdir.pl
 Changes
 html.macro
-macro
-macrodir
 MacroScript.pm
 macroutil.pl
 Makefile.PL
@@ -9,3 +9,4 @@ MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
 t/macroscript.t
+TODO

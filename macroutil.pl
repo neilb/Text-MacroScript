@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: macroutil.pl,v 1.3 2000/02/18 22:38:52 root Exp root $
-
 # Copyright (c) Mark Summerfield 2000. All Rights Reserved.
 # May be used/distributed under the LGPL. 
 

@@ -1,4 +1,4 @@
-- [ ] Install macro in the modules binary directory, so that it can 
+- [X] Install macro in the modules binary directory, so that it can 
       be used from makefiles; rename to macroscript.pl to avoid name 
 	  clashes.
 - [ ] Create test scripts to test all features.

@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 
-# $Id: macrodir,v 1.11 2000/02/03 22:19:35 root Exp $
-
 # Copyright (c) 1999-2000 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
 
@@ -102,10 +100,10 @@ sub help {
 
     print STDERR <<__EOT__ ;
 
-macrodir v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
+macroscriptdir v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.
 
-usage: macrodir [options] <path>
+usage: macroscriptdir [options] <path>
 
 -d --dir       Put output files in <dir> instead of $Opt{'root'}
 -f --force     Force conversion [$Opt{'force'}]
