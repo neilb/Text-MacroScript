@@ -9,3 +9,5 @@
 - [ ] Module to avoid macro expansions inside strings.
 - [ ] Module to avoid macro expansions inside comments.
 - [ ] Module to eliminate comments.
+- [ ] Allow redefinition of prefixes %, #, [, |, ]
+- [ ] Allow macro parameters to include newlines
