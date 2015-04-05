@@ -18,10 +18,20 @@ $ms = new_ok('Text::MacroScript' => [ -embedded => 1 ]);
 #is $ms->expand_embedded("hello<:%DEFINE *\nHallo\nWelt\n%END_DEFINE:>world<:*:>\n"),
 #	"helloworldHallo\nWelt\n";
 
-$ms = new_ok('Text::MacroScript' => [ -embedded => 1 ]);
-is $ms->expand_embedded("hello<:%DEFINE *\n"),	"hello";
-is $ms->expand_embedded("Hallo\nWelt\n"),		"";
-is $ms->expand_embedded("%END_DEFINE:>world<:"),"world";
-is $ms->expand_embedded("*:>\n"),				"Hallo\nWelt\n\n";
+for ([ [ -embedded => 1 ], 							"<:", ":>" ],
+     [ [ -opendelim => "<<", -closedelim => ">>" ], "<<", ">>" ],
+     [ [ -opendelim => "!!" ], 						"!!", "!!" ],
+	) {
+	my($args, $OPEN, $CLOSE) = @$_;
+	my @args = @$args;
+	note "@args $OPEN $CLOSE";
+	
+	$ms = new_ok('Text::MacroScript' => [ @args ]);
+	is $ms->expand_embedded("hello${OPEN}%DEFINE *\n"),	"hello";
+	is $ms->expand_embedded("Hallo\nWelt\n"),		"";
+	is $ms->expand_embedded("%END_DEFINE${CLOSE}world${OPEN}"),"world";
+	is $ms->expand_embedded("*${CLOSE}\n"),				"Hallo\nWelt\n\n";
+	
+}
 
 done_testing;
