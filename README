@@ -1,8 +1,5 @@
 ============================================================================
-This is an adoptable module. The original maintainer has told the PAUSE 
-admins they he's making these modules available for immediate transfer
-to a future maintainer. Write to modules@perl.org to get maintainership
-of this module.
+This module was adopted by pscust@cpan.org
 ============================================================================
 
 You can install this using in the usual Perl fashion
@@ -22,11 +19,11 @@ perldoc directly on the module file.
 
 	perldoc MacroScript.pm
         
-This module is also in Github
+This module repository is kept in Github, feel free to send pull requests
 
-	https://github.com/briandfoy/Text-MacroScript
+	https://github.com/pauloscustodio/Text-MacroScript
 
 
 Enjoy, 
 
-brian d foy, bdfoy@cpan.org
+Paulo Custodio, pscust@cpan.org

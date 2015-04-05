@@ -1,0 +1,11 @@
+- [ ] Install macro in the modules binary directory, so that it can 
+      be used from makefiles; rename to macroscript.pl to avoid name 
+	  clashes.
+- [ ] Create test scripts to test all features.
+- [ ] Implement a repeating construct.
+- [ ] Implement a list iterating construct.
+- [ ] Implement nested if-elsif-endif.
+- [ ] Implement modules for less-used features.
+- [ ] Module to avoid macro expansions inside strings.
+- [ ] Module to avoid macro expansions inside comments.
+- [ ] Module to eliminate comments.

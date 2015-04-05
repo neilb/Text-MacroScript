@@ -1,10 +1,11 @@
-MacroScript.pm
-MANIFEST
-Makefile.PL
-README
+Changes
+html.macro
 macro
 macrodir
+MacroScript.pm
 macroutil.pl
-html.macro
+Makefile.PL
+MANIFEST
+META.yml			Module meta-data (added by MakeMaker)
+README
 t/macroscript.t
-META.yml                                 Module meta-data (added by MakeMaker)
