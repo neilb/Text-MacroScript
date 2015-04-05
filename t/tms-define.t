@@ -85,4 +85,14 @@ is $ms->expand("*[0|1|2]\n"),			"0+1\n";
 is $ms->expand("%DEFINE * [#0+\#ffff]\n"),	"";
 is $ms->expand("*[1]\n"),				"1+#ffff\n";
 
+#------------------------------------------------------------------------------
+# multi-line define
+$ms = new_ok('Text::MacroScript');
+is $ms->expand("%DEFINE *\n"),			"";
+is $ms->expand("line 1: #0\n"),			"";
+is $ms->expand("line 2: #1\n"),			"";
+is $ms->expand("line 3: #2\n"),			"";
+is $ms->expand("%END_DEFINE\n"),		"";
+is $ms->expand("*[a|b|c]\n"),			"line 1: a\nline 2: b\nline 3: c\n\n";
+
 done_testing;
