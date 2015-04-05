@@ -9,7 +9,7 @@ use Cwd ;
 use Symbol () ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '2.0'; 
+$VERSION = '2.00'; 
 
 
 ### Object fields

@@ -10,7 +10,7 @@
 use strict ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '2.0'; 
+$VERSION = '2.00'; 
 
 use Cwd ;
 use Image::Size 'html_imgsize' ;
