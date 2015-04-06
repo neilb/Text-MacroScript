@@ -41,6 +41,7 @@ $ms = new_ok('Text::MacroScript' => [
 					[ "Z1"		=> "hel" ],
 					[ "Z2"		=> "lo" ],
 				]]);
+is $ms->expand("hello Z1 Z2\n"),	 	"Hallo hel lo\n";
 #is $ms->expand("Z1Z2\n"),	 			"Hallo\n";
 $ms = new_ok('Text::MacroScript' => [ 
 				-macro => [ 
@@ -48,6 +49,7 @@ $ms = new_ok('Text::MacroScript' => [
 					[ "ZZZZZ2"	=> "lo" ],
 					[ "hello"	=> "Hallo" ],
 				]]);
+is $ms->expand("hello ZZZZZ1 ZZZZZ2\n"),"Hallo hel lo\n";
 is $ms->expand("ZZZZZ1ZZZZZ2\n"),		"Hallo\n";
 
 #------------------------------------------------------------------------------
@@ -55,6 +57,8 @@ is $ms->expand("ZZZZZ1ZZZZZ2\n"),		"Hallo\n";
 $ms = new_ok('Text::MacroScript');
 $ms->define( -macro => "NUM", 25 );
 is $ms->expand("NUMNUM"), 			"2525";
+# Enhancement #4: undefine_all() should carp if no option is given
+# $ms->undefine();
 $ms->undefine( -macro => "NUM" );
 is $ms->expand("NUMNUM"), 			"NUMNUM";
 # Enhancement #2: expand() does not accept a multi-line text
