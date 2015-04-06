@@ -750,10 +750,10 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
                         ],
                     -script => [
                         [ 'DHM2S' => 
-                            [ 
+                            ' 
                                 my $s = (#0*24*60*60)+(#1*60*60)+(#2*60) ;
                                 "#0 days, #1 hrs, #2 mins = $s secs" 
-                            ],
+                            ',
                         ],
                     -variable => [ '*MARKER*' => 0 ],
                     ) ;
@@ -892,13 +892,13 @@ this assumes the whole file is `embedded'.)
     any variables are in %Var, although #varname may be used
     %END_DEFINE
 
-    %UNDEFINE scriptname
+    %UNDEFINE_SCRIPT scriptname
 
     %UNDEFINE_ALL_SCRIPT
 
     %DEFINE_VARIABLE variablename [variable value]
 
-    %UNDEFINE variablename
+    %UNDEFINE_VARIABLE variablename
 
     %UNDEFINE_ALL_VARIABLE
 
