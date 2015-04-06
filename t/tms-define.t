@@ -65,6 +65,23 @@ is $ms->expand("%UNDEFINE N\n"), 	"";
 is $ms->expand("NN\n"), 			"NN\n";
 
 #------------------------------------------------------------------------------
+# undefine_all
+$ms = new_ok('Text::MacroScript');
+$ms->define( -macro => "N1", 1 );
+$ms->define( -macro => "N2", 2 );
+$ms->define( -macro => "N3", 3 );
+is $ms->expand("N1N2N3"), "123";
+$ms->undefine_all('-macro');
+is $ms->expand("N1N2N3"), "N1N2N3";
+
+is $ms->expand("%DEFINE N1 [1]"), "";
+is $ms->expand("%DEFINE N2 [2]"), "";
+is $ms->expand("%DEFINE N3 [3]"), "";
+is $ms->expand("N1N2N3"), "123";
+is $ms->expand("%UNDEFINE_ALL"), "";
+is $ms->expand("N1N2N3"), "N1N2N3";
+
+#------------------------------------------------------------------------------
 # macros with regexp-special-chars
 $ms = new_ok('Text::MacroScript');
 is $ms->expand("%DEFINE * [star]\n"),"";
