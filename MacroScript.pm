@@ -373,10 +373,10 @@ sub expand_file { # Object method.
 
         close $fh or croak "failed to close $file: $!" ;
 
-	if( $self->{IN_MACRO} or $self->{IN_SCRIPT} ) {
-	    my $which = $self->{IN_MACRO} ? 'DEFINE' : 'DEFINE_SCRIPT' ;
-	    croak "runaway \%$which to end of file"
-	}
+		if( $self->{IN_MACRO} or $self->{IN_SCRIPT} ) {
+			my $which = $self->{IN_MACRO} ? 'DEFINE' : 'DEFINE_SCRIPT' ;
+			croak "runaway \%$which to end of file"
+		}
 
     } ;
     croak $@ if $@ ;
