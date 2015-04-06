@@ -733,7 +733,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     # or
     my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' ) ;
     while( <> ) {
-        print $Macro->expand_delimited( $_, $ARGV ) if $_ ;
+        print $Macro->expand_embedded( $_, $ARGV ) if $_ ;
     }
 
     # Create a macro object and create initial macros/scripts from the file(s)
