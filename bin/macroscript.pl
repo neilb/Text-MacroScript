@@ -224,7 +224,7 @@ delimiter. They then execute any code up until the closing delimiter. The text
 that results replaces everything between and including the delimeters. They
 then carry on printing text until they hit an opening delimeter and so on
 until they've finished processing all the text. This script provides a macro
-approach by default, but if called as C<emacro> or as C<macro> with C<-e> set
+approach by default, but if called as C<macroscript.pl> with C<-e> set
 then it behaves as an embedded perl processor and only performs macro
 operations on text between the delimiters.
 
@@ -392,7 +392,7 @@ or a real embedded perl file, C<test.html.e>:
     <:DATESTAMP[midnight]:> </BODY> </HTML>
 
 either of which when expanded, either in code using C<$Macro->expand()>, or
-using the simple C<macro> utility supplied with C<Text::MacroScript.pm>:
+using the simple C<macroscript.pl> utility supplied with C<Text::MacroScript.pm>:
 
     [1]% macro test.html.m > test.html
 
