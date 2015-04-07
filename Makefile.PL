@@ -18,6 +18,7 @@ WriteMakefile(
 	'PREREQ_PM'	   => {
 		'Image::Size' => 0,
 		'File::Slurp::Tiny' => 0,
+		'Capture::Tiny' => 0,
 	},
 	'EXE_FILES'	   => [
 		'bin/macroscript.pl',
