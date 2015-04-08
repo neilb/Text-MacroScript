@@ -1,5 +1,5 @@
-bin/macroscript.pl
-bin/macroscriptdir.pl
+bin/macro.pl
+bin/macrodir.pl
 Changes
 html.macro
 MacroScript.pm
@@ -8,5 +8,13 @@ Makefile.PL
 MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
+t/macro.t
 t/macroscript.t
+t/tms-case.t
+t/tms-comment.t
+t/tms-define.t
+t/tms-define_script.t
+t/tms-embedded.t
+t/tms-list.t
+t/tms-load.t
 TODO

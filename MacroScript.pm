@@ -820,10 +820,10 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     $expanded = $Macro->expand_embedded( $unexpanded, $filename ) ;
 
 
-This bundle also includes the C<macroscript.pl> and C<macroscriptdir.pl> scripts which allows us
+This bundle also includes the C<macro> and C<macrodir> scripts which allows us
 to expand macros without having to use/understand C<Text::MacroScript.pm>,
 although you will have to learn the handful of macro commands available and
-which are documented here and in C<macroscript.pl>. C<macroscript.pl> provides more
+which are documented here and in C<macro>. C<macro> provides more
 documentation on the embedded approach.
 
 The C<macroutil.pl> library supplied provides some functions which you may
@@ -1266,7 +1266,7 @@ Thus we could have a file, C<test.html.m> containing:
     </HTML>
 
 which when expanded, either in code using C<$Macro-E<gt>expand()>, or using the
-simple C<macroscript.pl> utility supplied with C<Text::MacroScript.pm>:
+simple C<macro> utility supplied with C<Text::MacroScript.pm>:
 
     [1]% macro test.html.m > test.html
 
@@ -1522,7 +1522,7 @@ Although nested C<%CASE>s are not supported we can get the same functionality
     More Win32/DOS stuff.
     %END_CASE
 
-Although C<macroscript.pl> doesn't support nested C<%CASE>'s we can still represent
+Although C<macro> doesn't support nested C<%CASE>'s we can still represent
 logic like this:
 
     if cond1 then
@@ -1654,7 +1654,7 @@ directive.
 =head1 EXAMPLES
 
 I now include a sample C<html.macro> file for use with HTML documents. It uses
-the C<macroscriptdir.pl> program (supplied). The macro examples include macros which
+the C<macrodir> program (supplied). The macro examples include macros which
 use C<relpath> and also two macros which will include `new' and `updated'
 images up until a specified expiry date using variables.
 
@@ -1667,7 +1667,7 @@ Lousy error reporting for embedded perl in most cases.
 =head1 AUTHOR
 
 Mark Summerfield. I can be contacted as <summer@perlpress.com> -
-please include the word 'macroscript' in the subject line.
+please include the word 'macro' in the subject line.
 
 =head1 COPYRIGHT
 

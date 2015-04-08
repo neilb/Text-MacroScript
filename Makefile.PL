@@ -21,8 +21,8 @@ WriteMakefile(
 		'Capture::Tiny' => 0,
 	},
 	'EXE_FILES'	   => [
-		'bin/macroscript.pl',
-		'bin/macroscriptdir.pl',
+		'bin/macro.pl',
+		'bin/macrodir.pl',
 	],
     'dist'         => { COMPRESS => "gzip -9", SUFFIX => "gz" }
 ) ;
