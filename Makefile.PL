@@ -17,8 +17,7 @@ WriteMakefile(
     'INC'          => '',     # e.g., '-I/usr/include/other'
 	'PREREQ_PM'	   => {
 		'Image::Size' => 0,
-		'File::Slurp::Tiny' => 0,
-		'Path::Tiny' => 0,
+		'Path::Tiny' => 0.011,
 		'Capture::Tiny' => 0,
 	},
 	'EXE_FILES'	   => [

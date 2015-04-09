@@ -7,12 +7,12 @@ use strict;
 use warnings;
 use Test::More;
 use Capture::Tiny 'capture';
-use File::Slurp::Tiny 'write_file';
+use Path::Tiny;
 
 my $macro = "perl macro";
 
 my $macros = "test_macros~";
-write_file($macros, <<END);
+path($macros)->spew(<<END);
 %%[Silly scripts]
 %DEFINE Hello [Hallo]
 %DEFINE_VARIABLE name [Welt]
@@ -20,12 +20,12 @@ write_file($macros, <<END);
 END
 
 my $test1 = "test1~";
-write_file($test1, <<END);
+path($test1)->spew(<<END);
 Hello World
 END
 
 my $test2 = "test2~";
-write_file($test2, <<END);
+path($test2)->spew(<<END);
 xxHello Worldxx
 xyHello Worldyx
 <:Hello World:>
