@@ -9,7 +9,7 @@ use Test::More;
 use Capture::Tiny 'capture';
 use File::Slurp::Tiny 'write_file';
 
-my $macro = "perl bin/macro.pl";
+my $macro = "perl macro";
 
 my $macros = "test_macros~";
 write_file($macros, <<END);
