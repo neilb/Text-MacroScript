@@ -10,3 +10,9 @@
 - [ ] Module to avoid macro expansions inside strings.
 - [ ] Module to avoid macro expansions inside comments.
 - [ ] Module to eliminate comments.
+
+- Lost files
+No such file: t/tms-comment.t
+No such file: t/tms-define.t
+No such file: t/tms-define_script.t
+No such file: t/tms-embedded.t

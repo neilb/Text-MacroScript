@@ -1,3 +1,16 @@
+2.01	2015-04-13
+
+	Bug Fixes
+	* Documentation
+
+	New Features
+	* Install scripts in Perl site bin
+
+	Other
+	* Added test scripts
+	* Raised issues at https://github.com/pauloscustodio/Text-MacroScript/issues
+	* Commented all tests that failed and added a diag() message
+	
 2.00	2015-04-04
 
 	* Module adopted by pscust@cpan.org
