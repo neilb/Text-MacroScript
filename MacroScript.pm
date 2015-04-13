@@ -1667,7 +1667,7 @@ Lousy error reporting for embedded perl in most cases.
 =head1 AUTHOR
 
 Mark Summerfield. I can be contacted as <summer@perlpress.com> -
-please include the word 'macroscript' in the subject line.
+please include the word 'macro' in the subject line.
 
 =head1 COPYRIGHT
 

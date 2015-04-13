@@ -17,6 +17,13 @@ WriteMakefile(
     'INC'          => '',     # e.g., '-I/usr/include/other'
 	'PREREQ_PM'	   => {
 		'Image::Size' => 0,
+		'Path::Tiny' => 0.013,
+		'Capture::Tiny' => 0,
+		'Test::Differences' => 0,
 	},
+	'EXE_FILES'	   => [
+		'macro',
+		'macrodir',
+	],
     'dist'         => { COMPRESS => "gzip -9", SUFFIX => "gz" }
 ) ;

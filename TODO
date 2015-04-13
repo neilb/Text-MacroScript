@@ -1,7 +1,8 @@
 - [ ] Install macro in the modules binary directory, so that it can 
       be used from makefiles; rename to macroscript.pl to avoid name 
 	  clashes.
-- [ ] Create test scripts to test all features.
+- [X] Create test scripts to test all features.
+- [ ] Create test scripts to test scripts.
 - [ ] Implement a repeating construct.
 - [ ] Implement a list iterating construct.
 - [ ] Implement nested if-elsif-endif.
