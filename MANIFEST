@@ -12,6 +12,10 @@ t/macro.t
 t/macrodir.t
 t/macroscript.t
 t/tms-case.t
+t/tms-comment.t
+t/tms-define.t
+t/tms-define_script.t
+t/tms-embedded.t
 t/tms-list.t
 t/tms-load.t
 TODO
