@@ -6,8 +6,11 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Differences;
 use Capture::Tiny 'capture';
 use Path::Tiny;
+
+use_ok 'Text::MacroScript';
 
 my $macro = "perl macro";
 
@@ -96,6 +99,41 @@ t_macro("-f $macros -e -o xy           -c yx $test2",
 		"xxHello Worldxx\nHallo Welt\n<:Hello World:>\n");
 t_macro("-f $macros -e -o xy --closedelim yx $test2", 
 		"xxHello Worldxx\nHallo Welt\n<:Hello World:>\n");
+
+#------------------------------------------------------------------------------
+# -h --help
+my $VERSION = $Text::MacroScript::VERSION;
+for my $args ("-h", "--help") {
+	my $cmd = "$macro $args";
+	ok 1, "- $cmd";
+	my($out,$err,$res) = capture { system $cmd; };
+	is $out, "";
+	eq_or_diff $err, <<END;
+
+macro v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
+All rights reserved. May be used/distributed under the GPL.
+
+usage: macro [options] infile(s) > outfile
+
+options: (use the short or long name followed by the parameter where req'd) 
+-C --comment      add the %%[] comment macro 
+-f --file       s macro/script file to read (repeat for multiple files) 
+-m --macro        just list macros [0] 
+-n --name         just list the names of macros/scripts [0] 
+                  (if no -m or -s or v are specified this sets them all) 
+-s --script       just list scripts [0] 
+-v --variable     just list variables [0]
+
+-e --emacro       operate as embedded perl processor [0] 
+-o --opendelim  s closing delimiter for embedded processor [] 
+-c --closedelim s closing delimiter for embedded processor []
+
+b = boolean 1 = true, 0 = false; i = integer; s = string e.g. filename
+
+See macrodir for a different approach.
+END
+	is $res, 0;
+}
 
 is unlink($macros, $test1, $test2), 3;
 done_testing;
