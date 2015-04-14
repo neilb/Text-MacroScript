@@ -18,7 +18,7 @@ sub void(&) { $_[0]->(); () }
 
 use_ok 'Text::MacroScript';
 
-path($test1)->spew(<<'END');
+path($test1)->spew(norm_nl(<<'END'));
 Test text with hello
 %DEFINE hello [world]
 Test text with hello
@@ -81,3 +81,10 @@ is $ms->expand("copyright['Paulo Custodio'|2015]"),
 ok unlink($test1);
 
 done_testing;
+
+
+sub norm_nl {
+	local($_) = @_;
+	s/\r\n/\n/g;
+	return $_;
+}

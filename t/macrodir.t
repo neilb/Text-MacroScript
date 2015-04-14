@@ -236,7 +236,7 @@ sub test_help {
 
 	my($out,$err,$res) = capture { system $cmd; };
 	is $out, "";
-	eq_or_diff $err, <<END;
+	eq_or_diff $err, norm_nl(<<END);
 
 macrodir v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.
@@ -260,6 +260,12 @@ path. (See html.macro example file for usage and Text::MacroScript.pm and
 macro documentation.)
 END
 	is $res, 0;
+}
+
+sub norm_nl {
+	local($_) = @_;
+	s/\r\n/\n/g;
+	return $_;
 }
 
 
@@ -357,7 +363,7 @@ for my $opt_help ("-h", "--help") {
 
 	my($out,$err,$res) = capture { system $cmd; };
 	is $out, "";
-	eq_or_diff $err, <<END;
+	eq_or_diff $err, norm_nl(<<END);
 
 macrodir v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.

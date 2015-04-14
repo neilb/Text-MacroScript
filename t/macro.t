@@ -15,7 +15,7 @@ use_ok 'Text::MacroScript';
 my $macro = "perl macro";
 
 my $macros = "test_macros~";
-path($macros)->spew(<<END);
+path($macros)->spew(norm_nl(<<END));
 %%[Silly scripts]
 %DEFINE Hello [Hallo]
 %DEFINE_VARIABLE name [Welt]
@@ -23,12 +23,12 @@ path($macros)->spew(<<END);
 END
 
 my $test1 = "test1~";
-path($test1)->spew(<<END);
+path($test1)->spew(norm_nl(<<END));
 Hello World
 END
 
 my $test2 = "test2~";
-path($test2)->spew(<<END);
+path($test2)->spew(norm_nl(<<END));
 xxHello Worldxx
 xyHello Worldyx
 <:Hello World:>
@@ -108,7 +108,7 @@ for my $args ("-h", "--help") {
 	ok 1, "- $cmd";
 	my($out,$err,$res) = capture { system $cmd; };
 	is $out, "";
-	eq_or_diff $err, <<END;
+	eq_or_diff $err, norm_nl(<<END);
 
 macro v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.
@@ -148,3 +148,10 @@ sub t_macro {
 	is $err, "";
 	is $res, 0;
 }
+
+sub norm_nl {
+	local($_) = @_;
+	s/\r\n/\n/g;
+	return $_;
+}
+

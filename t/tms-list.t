@@ -6,6 +6,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Differences;
 use Capture::Tiny 'capture';
 
 my $ms;
@@ -26,7 +27,7 @@ $ms->define( -variable, MONTH => 'April' );
 #------------------------------------------------------------------------------
 # list macros
 ($out,$err,@res) = capture { void { $ms->list( -macro ); } };
-is $out, <<'END';
+eq_or_diff $out, norm_nl(<<'END');
 %DEFINE N1 [1]
 
 %DEFINE N2 [2]
@@ -44,7 +45,7 @@ is_deeply \@res, ["%DEFINE N1 [1]\n",
 #------------------------------------------------------------------------------
 # list macros -namesonly
 ($out,$err,@res) = capture { void { $ms->list( -macro, -namesonly ); } };
-is $out, <<'END';
+eq_or_diff $out, norm_nl(<<'END');
 %DEFINE N1
 %DEFINE N2
 END
@@ -60,7 +61,7 @@ is_deeply \@res, ["%DEFINE N1",
 #------------------------------------------------------------------------------
 # list scripts
 ($out,$err,@res) = capture { void { $ms->list( -script ); } };
-is $out, <<'END';
+eq_or_diff $out, norm_nl(<<'END');
 %DEFINE_SCRIPT ADD [#0+#1]
 
 %DEFINE_SCRIPT SUB [#0-#1]
@@ -78,7 +79,7 @@ is_deeply \@res, ["%DEFINE_SCRIPT ADD [#0+#1]\n",
 #------------------------------------------------------------------------------
 # list scripts -namesonly
 ($out,$err,@res) = capture { void { $ms->list( -script, -namesonly ); } };
-is $out, <<'END';
+eq_or_diff $out, norm_nl(<<'END');
 %DEFINE_SCRIPT ADD
 %DEFINE_SCRIPT SUB
 END
@@ -94,7 +95,7 @@ is_deeply \@res, ["%DEFINE_SCRIPT ADD",
 #------------------------------------------------------------------------------
 # list variables
 ($out,$err,@res) = capture { void { $ms->list( -variable ); } };
-is $out, <<'END';
+eq_or_diff $out, norm_nl(<<'END');
 %DEFINE_VARIABLE YEAR [2015]
 
 %DEFINE_VARIABLE MONTH [April]
@@ -112,7 +113,7 @@ is_deeply \@res, ["%DEFINE_VARIABLE YEAR [2015]\n",
 #------------------------------------------------------------------------------
 # list variables -namesonly
 ($out,$err,@res) = capture { void { $ms->list( -variable, -namesonly ); } };
-is $out, <<'END';
+eq_or_diff $out, norm_nl(<<'END');
 %DEFINE_VARIABLE YEAR
 %DEFINE_VARIABLE MONTH
 END
@@ -126,3 +127,9 @@ is_deeply \@res, ["%DEFINE_VARIABLE YEAR",
 				  "%DEFINE_VARIABLE MONTH"];
 
 done_testing;
+
+sub norm_nl {
+	local($_) = @_;
+	s/\r\n/\n/g;
+	return $_;
+}
