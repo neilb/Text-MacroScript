@@ -27,7 +27,14 @@ my $Macro = Text::MacroScript->new(
                 -file     => [ $Opt{'file'} ],
                 ) ;
 
-find( \&wanted, scalar @ARGV ? @ARGV : '.' ) ;
+find( { preprocess 	=> \&preprocess, 
+		wanted		=> \&wanted, 
+	  },
+	  scalar @ARGV ? @ARGV : '.' ) ;
+
+sub preprocess {
+	return sort(@_);
+}
 
 sub wanted {
     return unless /\.m$/o ;
