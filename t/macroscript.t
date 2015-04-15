@@ -1,9 +1,10 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Copyright (c) 2000 Mark Summerfield. All Rights Reserved.
 # May be used/distributed under the GPL.
 
-use strict ;
+use strict;
+use warnings;
 
 use vars qw( $Loaded $Count $DEBUG $TRIMWIDTH ) ;
 

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Copyright (c) 2015 Paulo Custodio. All Rights Reserved.
 # May be used/distributed under the GPL.

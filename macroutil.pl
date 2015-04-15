@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # $Id: macroutil.pl,v 1.3 2000/02/18 22:38:52 root Exp root $
 
@@ -7,7 +7,8 @@
 
 # Documented at the __END__.
 
-use strict ;
+use strict;
+use warnings;
 
 use vars qw( $VERSION ) ;
 $VERSION = '2.02_02'; 

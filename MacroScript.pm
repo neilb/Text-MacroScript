@@ -1,8 +1,9 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-require 5.004 ;
+require 5.008;
 
-use strict ;
+use strict;
+use warnings;
 
 use Carp qw( carp croak ) ;
 use Path::Tiny;
