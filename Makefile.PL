@@ -16,10 +16,10 @@ WriteMakefile(
     'DEFINE'       => '',     # e.g., '-DHAVE_SOMETHING'
     'INC'          => '',     # e.g., '-I/usr/include/other'
 	'PREREQ_PM'	   => {
-		'Image::Size' => 0,
-		'Path::Tiny' => 0.013,
-		'Capture::Tiny' => 0,
-		'Test::Differences' => 0,
+		'Image::Size' => 3.3,
+		'Path::Tiny' => 0.068,
+		'Capture::Tiny' => 0.22,
+		'Test::Differences' => 0.61,
 	},
 	'EXE_FILES'	   => [
 		'macro',
