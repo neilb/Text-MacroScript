@@ -10,7 +10,7 @@ use Test::Differences;
 use Capture::Tiny 'capture';
 use Path::Tiny;
 use Time::HiRes 'usleep';
-use Cwd;
+use Path::Tiny;
 
 use_ok 'Text::MacroScript';
 
@@ -232,7 +232,7 @@ sub test_help {
 	ok 1, "- $cmd";
 	
 	my $VERSION = $Text::MacroScript::VERSION;
-	my $ROOT = cwd;
+	my $ROOT = Path::Tiny->cwd;
 
 	my($out,$err,$res) = capture { system $cmd; };
 	is $out, "";

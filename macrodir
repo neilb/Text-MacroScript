@@ -7,7 +7,7 @@
 
 use strict ;
 
-use Cwd ;
+use Path::Tiny;
 use Getopt::Long ;
 use File::Basename ;
 use File::Find ;
@@ -88,7 +88,7 @@ sub getoptions {
     $Opt{'force'}   = 0 ;
     $Opt{'file'}    = 'macro' ;
     $Opt{'prep'}    = 0 ;
-    $Opt{'root'}    = cwd ;
+    $Opt{'root'}    = Path::Tiny->cwd ;
     $Opt{'verbose'} = 1 ;
 
     &help if defined $ARGV[0] and $ARGV[0] =~ /^(-h|--help)$/o ;

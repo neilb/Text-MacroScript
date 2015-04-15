@@ -5,7 +5,7 @@ require 5.004 ;
 use strict ;
 
 use Carp qw( carp croak ) ;
-use Cwd ;
+use Path::Tiny;
 use Symbol () ;
 
 use vars qw( $VERSION ) ;

@@ -12,16 +12,16 @@ use strict ;
 use vars qw( $VERSION ) ;
 $VERSION = '2.02_02'; 
 
-use Cwd ;
+use Path::Tiny;
 use Image::Size 'html_imgsize' ;
 
 
 BEGIN {
-    my $ORIGPATH = cwd ;
+    my $ORIGPATH = Path::Tiny->cwd;
     my $offset   = $ORIGPATH =~ tr!/!/! ;
 
     sub relpath { 
-        my $path     = cwd ;
+        my $path     = Path::Tiny->cwd;
         my $newlevel = $path =~ tr!/!/! ;
 
         $newlevel -= $offset ;
@@ -31,7 +31,7 @@ BEGIN {
 
     sub abspath {
         # Returns the `absolute' path if we take the original path to be root.
-        my $path = cwd ;
+        my $path = Path::Tiny->cwd;
 
         $path =~ s!^$ORIGPATH!! ;
 
