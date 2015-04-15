@@ -42,7 +42,6 @@ sub run_tests {
 	run_test({-args => ""});
 
 	# -v|--verbose
-	diag "Bug #8: macrodir: verbose is on by default, option -v|--verbose is inverted";
 	diag "Bug #10: macrodir always in embedded mode, ignoring -p option";
 	run_test({-args => "-v"});
 	run_test({-args => "--verbose"});
@@ -50,33 +49,29 @@ sub run_tests {
 	# source dir argument
 	diag "Bug #10: macrodir always in embedded mode, ignoring -p option";
 	run_test({-src_dir => "2", -args => "2"});
-	diag "Bug #11: macrodir: Option -v eats diretory name if it looks like a number";
-	#run_test({-src_dir => "2", -args => "-v 2"});
+	run_test({-src_dir => "2", -args => "-v 2"});
 	run_test({-src_dir => "2", -args => "-v -- 2"});
 	
 	# -d, --dir target dir
-	diag "Bug #8: macrodir: verbose is on by default, option -v|--verbose is inverted";
 	diag "Bug #9: macrodir -d: does not replicate source tree in target directory";
 	diag "Bug #10: macrodir always in embedded mode, ignoring -p option";
-	#run_test({-target_dir => $TARGET, -args => "-d $TARGET"});
-	#run_test({-target_dir => $TARGET, -args => "--dir $TARGET"});
+	#run_test({-target_dir => $TARGET, -args => "-v -d $TARGET"});
+	#run_test({-target_dir => $TARGET, -args => "-v --dir $TARGET"});
 	
 	# -f, --force
-	diag "Bug #8: macrodir: verbose is on by default, option -v|--verbose is inverted";
 	diag "Bug #10: macrodir always in embedded mode, ignoring -p option";
-	run_test({-force => 1, -args => "-f"});
-	run_test({-force => 1, -args => "--force"});
+	run_test({-force => 1, -args => "-v -f"});
+	run_test({-force => 1, -args => "-v --force"});
 
 	# -F, --file
-	diag "Bug #8: macrodir: verbose is on by default, option -v|--verbose is inverted";
 	diag "Bug #10: macrodir always in embedded mode, ignoring -p option";
-	run_test({-macro_file => "newmacros", -args => "-F newmacros"});
-	run_test({-macro_file => "newmacros", -args => "--file newmacros"});
+	run_test({-macro_file => "newmacros", -args => "-v -F newmacros"});
+	run_test({-macro_file => "newmacros", -args => "-v --file newmacros"});
 	
 	# -p, --prep
 	diag "Bug #10: macrodir always in embedded mode, ignoring -p option";
-	run_test({-args => "-p"});
-	run_test({-args => "--prep"});
+	run_test({-args => "-v -p"});
+	run_test({-args => "-v --prep"});
 
 	# -h, --help
 	test_help("-h");
@@ -92,9 +87,7 @@ sub run_test {
 
 	# set flags
 	for ($opts->{-args}) {
-		diag "Bug #8: macrodir: verbose is on by default, option -v|--verbose is inverted";
-		#$opts->{-verbose} = /-v|--verbose/ ? 1 : 0;
-		$opts->{-verbose} = /-v\b|--verbose\b/ ? 0 : 1;
+		$opts->{-verbose} = /-v\b|--verbose\b/ ? 1 : 0;
 		
 		diag "Bug #10: macrodir always in embedded mode, ignoring -p option";
 		#$opts->{-embedded} = /-p\b|--prep\b/ ? 1 : 0;
@@ -117,7 +110,9 @@ sub run_test {
 				usleep 250;
 				$opts->{m_file}[1]->touch;
 			}
-			splice @{$opts->{output}}, 2, scalar(@{$opts->{output}}) - 2;
+			for (@{$opts->{output}}[ 2 .. $#{$opts->{output}} ]) {
+				s/Expanding.* to (.+)/$1 is up to date/;
+			}
 
 			run_macrodir($opts);
 			check_result_files($opts);
@@ -200,6 +195,7 @@ sub run_macrodir {
 	
 	if ($opts->{-verbose}) {
 		$err =~ s! \.\/! !g;
+		$err =~ s!^\.\/!!mg;
 		eq_or_diff $err, join("", @{$opts->{output}});
 	}
 	else {
@@ -249,7 +245,7 @@ usage: macrodir [options] <path>
 -h --help      Show this screen and exit
 -p --prep      Operate as macro pre-processor instead of an embedded macro
                expander
--v --verbose   Verbose [1]
+-v --verbose   Verbose [0]
 
 Loads the macros from file 'macro' in the current directory then expands
 macros embedded in <: and :> in every .m file in the current directory and any

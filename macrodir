@@ -76,7 +76,7 @@ sub wanted {
         } ;
         warn $@ if $@ ;
     }
-    elsif( $Opt{'verbose'} > 1 ) {
+    elsif( $Opt{'verbose'} ) {
         print STDERR "$showdir$newfile is up to date\n" 
     }
 }
@@ -90,7 +90,7 @@ sub getoptions {
     $Opt{'file'}    = 'macro' ;
     $Opt{'prep'}    = 0 ;
     $Opt{'root'}    = Path::Tiny->cwd ;
-    $Opt{'verbose'} = 1 ;
+    $Opt{'verbose'} = 0;
 
     &help if defined $ARGV[0] and $ARGV[0] =~ /^(-h|--help)$/o ;
 
@@ -100,7 +100,7 @@ sub getoptions {
         'force|f',
         'file|F=s',
         'prep|p',
-        'verbose|v:i',
+        'verbose|v',
         ) or &help ;
 
     $Opt{'dir'} .= '/' if $Opt{'dir'} and $Opt{'dir'} !~ /\/$/o ;
