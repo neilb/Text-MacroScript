@@ -16,7 +16,7 @@ use Symbol ;
 use Text::MacroScript ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '2.02_01';
+$VERSION = '2.02_02';
 
 my %Opt ;
 
@@ -27,7 +27,14 @@ my $Macro = Text::MacroScript->new(
                 -file     => [ $Opt{'file'} ],
                 ) ;
 
-find( \&wanted, scalar @ARGV ? @ARGV : '.' ) ;
+find( { preprocess 	=> \&preprocess, 
+		wanted		=> \&wanted, 
+	  },
+	  scalar @ARGV ? @ARGV : '.' ) ;
+
+sub preprocess {
+	return sort(@_);
+}
 
 sub wanted {
     return unless /\.m$/o ;
