@@ -271,7 +271,7 @@ sub list { # Object method.
 
     if( $which eq 'VARIABLE' ) {
         $array = [ map { [ $_, $self->{VARIABLE}{$_} ] } 
-                    keys %{$self->{VARIABLE}} ] ;
+                    sort keys %{$self->{VARIABLE}} ] ;
     }
     else {
         $array = $self->{$which} ;
