@@ -1,3 +1,16 @@
+2.02_03	2015-04-16
+
+	Bug Fixes
+	* #18: output order of list() not predictable
+	* #8: macrodir: verbose is on by default, option -v|--vervose is no-op
+	* #11: macrodir: Option -v eats diretory name if it looks like a number
+	* #12: use Path::Tiny instead of Cwd
+	* #14: Remove dead code from macrodir.t
+
+	Other
+	* Use strict and warnings in all files, require perl 5.8 (extended regular expressions)
+	* Set current versions of required modules as minimum version
+
 2.02_02	2015-04-15
 
 	Bug Fixes
