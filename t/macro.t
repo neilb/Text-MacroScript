@@ -12,7 +12,7 @@ use Path::Tiny;
 
 use_ok 'Text::MacroScript';
 
-my $macro = "perl macro";
+my $macro = "$^X macro";
 
 my $macros = "test_macros~";
 path($macros)->spew(norm_nl(<<END));

@@ -14,7 +14,7 @@ use Path::Tiny;
 
 use_ok 'Text::MacroScript';
 
-my $MACRODIR  = "perl ../../macrodir";
+my $MACRODIR  = "$^X ../../macrodir";
 my @PRONOUNS  = ("my", "your", "his", "her");
 my @DATA_DIRS = (undef,undef,  "2",   "2");
 my $TARGET = "../target";
