@@ -1,3 +1,8 @@
+2.02_04	2015-04-17
+
+	Bug Fixes
+	* Fix #19, RT 103777 Tests run with system perl
+
 2.02_03	2015-04-16
 
 	Bug Fixes
@@ -8,7 +13,8 @@
 	* #14: Remove dead code from macrodir.t
 
 	Other
-	* Use strict and warnings in all files, require perl 5.8 (extended regular expressions)
+	* Use strict and warnings in all files, require perl 5.8
+	  (extended regular expressions)
 	* Set current versions of required modules as minimum version
 
 2.02_02	2015-04-15
