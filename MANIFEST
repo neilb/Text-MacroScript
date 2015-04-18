@@ -1,15 +1,15 @@
 Changes
 html.macro
-macropp
 macrodir
+macropp
 MacroScript.pm
 macroutil.pl
 Makefile.PL
 MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
-t/macropp.t
 t/macrodir.t
+t/macropp.t
 t/macroscript.t
 t/tms-case.t
 t/tms-comment.t

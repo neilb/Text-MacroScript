@@ -11,4 +11,4 @@
 - [ ] Module to avoid macro expansions inside comments.
 - [ ] Module to eliminate comments.
 - [X] Remove $Id:
-- [ ] Remove emacro
+- [X] Remove emacro

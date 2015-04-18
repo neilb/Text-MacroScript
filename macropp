@@ -47,7 +47,7 @@ sub getoptions {
     # Defaults.
     $Opt{'closedelim'} = '' ; 
     $Opt{'comment'}    = 0 ; 
-    $Opt{'emacro'}     = $0 =~ /emacro$/ ? 1 : 0 ; 
+    $Opt{'emacro'}     = 0 ;
     $Opt{'files'}      = [] ; 
     $Opt{'macro'}      = 0 ;
     $Opt{'name'}       = 0 ; 
@@ -192,7 +192,7 @@ Thus, in the body of a file we may have, for example:
     Some arbitrary text. We are writing to complain to the &B about the shoddy
     work they did.
 
-Or, in the case of using the C<-e> option (or calling as C<emacro>) for
+Or, in the case of using the C<-e> option for
 embedded style processing our files might look like this:
 
     <:
@@ -396,10 +396,6 @@ either of which when expanded, either in code using C<$Macro->expand()>, or
 using the simple C<macropp> utility supplied with C<Text::MacroScript.pm>:
 
     [1]% macropp test.html.m > test.html
-
-or
-
-    [1]% emacro test.html.e > test.html
 
 or
 
