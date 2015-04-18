@@ -253,7 +253,7 @@ subdirectories.
 
 Text::MacroScript now supplies a function relpath which returns the relative
 path. (See html.macro example file for usage and Text::MacroScript.pm and
-macro documentation.)
+macropp documentation.)
 END
 	is $res, 0;
 }

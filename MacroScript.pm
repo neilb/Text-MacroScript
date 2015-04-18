@@ -821,10 +821,10 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     $expanded = $Macro->expand_embedded( $unexpanded, $filename ) ;
 
 
-This bundle also includes the C<macro> and C<macrodir> scripts which allows us
+This bundle also includes the C<macropp> and C<macrodir> scripts which allows us
 to expand macros without having to use/understand C<Text::MacroScript.pm>,
 although you will have to learn the handful of macro commands available and
-which are documented here and in C<macro>. C<macro> provides more
+which are documented here and in C<macropp>. C<macropp> provides more
 documentation on the embedded approach.
 
 The C<macroutil.pl> library supplied provides some functions which you may
@@ -1267,9 +1267,9 @@ Thus we could have a file, C<test.html.m> containing:
     </HTML>
 
 which when expanded, either in code using C<$Macro-E<gt>expand()>, or using the
-simple C<macro> utility supplied with C<Text::MacroScript.pm>:
+simple C<macropp> utility supplied with C<Text::MacroScript.pm>:
 
-    [1]% macro test.html.m > test.html
+    [1]% macropp test.html.m > test.html
 
 C<test.html> will contain just this:
 
@@ -1394,7 +1394,7 @@ process the file(s). In code this would be achieved like this:
 
 From the command line it would be achieved thus:
 
-    [2]% macro -f ~/.macro/html.macros test.html.m > test.html
+    [2]% macropp -f ~/.macro/html.macros test.html.m > test.html
     
 
 One disadvantage of this approach, especially if we have lots of macro files,
@@ -1420,7 +1420,7 @@ load the macros. In code we can simply do this:
 
 or from the command line:
 
-    [3]% macro test.html.m > test.html
+    [3]% macropp test.html.m > test.html
 
     
 At the beginning of our lout typesetting files we might put this line:
@@ -1523,7 +1523,7 @@ Although nested C<%CASE>s are not supported we can get the same functionality
     More Win32/DOS stuff.
     %END_CASE
 
-Although C<macro> doesn't support nested C<%CASE>'s we can still represent
+Although C<macropp> doesn't support nested C<%CASE>'s we can still represent
 logic like this:
 
     if cond1 then

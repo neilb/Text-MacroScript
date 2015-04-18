@@ -12,7 +12,7 @@ use Path::Tiny;
 
 use_ok 'Text::MacroScript';
 
-my $macro = "$^X macro";
+my $macropp = "$^X macropp";
 
 my $macros = "test_macros~";
 path($macros)->spew(norm_nl(<<END));
@@ -104,16 +104,16 @@ t_macro("-f $macros -e -o xy --closedelim yx $test2",
 # -h --help
 my $VERSION = $Text::MacroScript::VERSION;
 for my $args ("-h", "--help") {
-	my $cmd = "$macro $args";
+	my $cmd = "$macropp $args";
 	ok 1, "- $cmd";
 	my($out,$err,$res) = capture { system $cmd; };
 	is $out, "";
 	eq_or_diff $err, norm_nl(<<END);
 
-macro v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
+macropp v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.
 
-usage: macro [options] infile(s) > outfile
+usage: macropp [options] infile(s) > outfile
 
 options: (use the short or long name followed by the parameter where req'd) 
 -C --comment      add the %%[] comment macro 
@@ -141,7 +141,7 @@ done_testing;
 #------------------------------------------------------------------------------
 sub t_macro {
 	my($args, $output) = @_;
-	my $cmd = "$macro $args";
+	my $cmd = "$macropp $args";
 	ok 1, "line ".(caller)[2]." - $cmd";
 	my($out,$err,$res) = capture { system $cmd; };
 	is $out, $output;

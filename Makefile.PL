@@ -25,7 +25,7 @@ WriteMakefile(
 		'Test::Differences' => 0.61,
 	},
 	'EXE_FILES'	   => [
-		'macro',
+		'macropp',
 		'macrodir',
 	],
     'dist'         => { COMPRESS => "gzip -9", SUFFIX => "gz" }

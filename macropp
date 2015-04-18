@@ -94,10 +94,10 @@ sub help {
 
     print STDERR <<__EOT__ ;
 
-macro v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
+macropp v $VERSION. Copyright (c) Mark Summerfield 1999-2000. 
 All rights reserved. May be used/distributed under the GPL.
 
-usage: macro [options] infile(s) > outfile
+usage: macropp [options] infile(s) > outfile
 
 options: (use the short or long name followed by the parameter where req'd) 
 -C --comment      add the %%[] comment macro 
@@ -124,7 +124,7 @@ __END__
 
 =head1 NAME
 
-macro - A macro pre-processor with embedded perl capability 
+macropp - A macro pre-processor with embedded perl capability 
 
 =head1 DESCRIPTION
 
@@ -395,9 +395,9 @@ or a real embedded perl file, C<test.html.e>:
     <:DATESTAMP[midnight]:> </BODY> </HTML>
 
 either of which when expanded, either in code using C<$Macro->expand()>, or
-using the simple C<macro> utility supplied with C<Text::MacroScript.pm>:
+using the simple C<macropp> utility supplied with C<Text::MacroScript.pm>:
 
-    [1]% macro test.html.m > test.html
+    [1]% macropp test.html.m > test.html
 
 or
 
@@ -405,7 +405,7 @@ or
 
 or
 
-    [1]% macro -e test.html.e > test.html
+    [1]% macropp -e test.html.e > test.html
 
 C<test.html> will contain just this:
 
@@ -442,7 +442,7 @@ need them.
 
 From the command line it would be achieved thus:
 
-    [2]% macro -f ~/.macro/html.macros test.html.m > test.html
+    [2]% macropp -f ~/.macro/html.macros test.html.m > test.html
 
 One disadvantage of this approach, especially if we have lots of macro files,
 is that we can easily forget which macro files are required by which text
@@ -459,7 +459,7 @@ at the point it appears in the text file:
 The above text has the same output but we don't have to remember or explicitly
 load the macros so our command line becomes: 
 
-    [3]% macro test.html.m > test.html
+    [3]% macropp test.html.m > test.html
 
     At the beginning of our lout typesetting files we might put this line:
 
@@ -563,7 +563,7 @@ operators in our expressions:
 
     and Both are true or  At least one is true not Negate the expression
 
-Although C<macro> doesn't support nested C<%CASE>'s we can still represent
+Although C<macropp> doesn't support nested C<%CASE>'s we can still represent
 logic like this:
 
     if cond1 then if cond2 do cond1 + cond2 stuff else do cond1 stuff end if
@@ -642,7 +642,7 @@ However the easiest way to comment is to use C<%CASE>:
 
 =head2 C<Text::MacroScript.pm>
 
-C<Text::MacroScript.pm> provides the underlying code for C<macro>, and for
+C<Text::MacroScript.pm> provides the underlying code for C<macropp>, and for
 perl programmers it provides the ability to create and manipulate Macro
 objects in code similarly to how we can create and manipulate them through
 embedding them in files. See C<Text::MacroScript.pm>'s documentation for
