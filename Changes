@@ -1,32 +1,20 @@
-2.02_04	2015-04-17
+2.03	2015-04-18
 
 	Bug Fixes
-	* Fix #19, RT 103777 Tests run with system perl
-
-2.02_03	2015-04-16
-
-	Bug Fixes
+	* #19, RT 103777 Tests run with system perl
 	* #18: output order of list() not predictable
 	* #8: macrodir: verbose is on by default, option -v|--vervose is no-op
 	* #11: macrodir: Option -v eats diretory name if it looks like a number
 	* #12: use Path::Tiny instead of Cwd
 	* #14: Remove dead code from macrodir.t
+	* #15: macrodir expanding files in a different order. 
+	* #13: here documents in test scripts may include "\r\n" which fail eq to "\n"
 
 	Other
 	* Use strict and warnings in all files, require perl 5.8
 	  (extended regular expressions)
 	* Set current versions of required modules as minimum version
 
-2.02_02	2015-04-15
-
-	Bug Fixes
-	* #15: macrodir expanding files in a different order. 
-
-2.02_01	2015-04-14
-
-	Bug Fixes
-	* #13: here documents in test scripts may include "\r\n" which fail eq to "\n"
- 
 2.02	2015-04-13
 
 	Other

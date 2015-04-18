@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 use vars qw( $VERSION ) ;
-$VERSION = '2.02_04'; 
+$VERSION = '2.03'; 
 
 use Path::Tiny;
 use Image::Size 'html_imgsize' ;
