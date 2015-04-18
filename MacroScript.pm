@@ -1,6 +1,6 @@
 package Text::MacroScript ; # Documented at the __END__.
 
-require 5.008;
+require 5.010;
 
 use strict;
 use warnings;
