@@ -1,3 +1,12 @@
+2.04	2015-04-18
+
+	Feature Changes
+	* #22: Remove references to emacro - not installed
+	* #20: The script macro has a too generic name - rename to macropp
+
+	Other
+	* #21: Remove RCS keywords - useless in GIT
+
 2.03	2015-04-18
 
 	Bug Fixes
