@@ -1,4 +1,4 @@
-- [ ] Install macro in the modules binary directory, so that it can 
+- [X] Install macro in the modules binary directory, so that it can 
       be used from makefiles; rename to macropp to avoid name 
 	  clashes.
 - [X] Create test scripts to test all features.
@@ -10,5 +10,5 @@
 - [ ] Module to avoid macro expansions inside strings.
 - [ ] Module to avoid macro expansions inside comments.
 - [ ] Module to eliminate comments.
-- [ ] Remove $Id:
+- [X] Remove $Id:
 - [ ] Remove emacro

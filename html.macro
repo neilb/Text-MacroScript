@@ -1,7 +1,5 @@
 %CASE[0]
 
-$Id: macro,v 1.2 2000/02/05 23:07:35 root Exp root $
-
 Macros used to maintain http://www.perlpress.com
 
 Copyright (c) Mark Summerfield 1999-2000. All Rights Reserved.
