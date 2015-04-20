@@ -135,6 +135,37 @@ END
 	is $res, 0;
 }
 
+#------------------------------------------------------------------------------
+# check error reporting
+path($test1)->spew(norm_nl(<<END));
+include 
+%DEFINE
+END
+
+my $test2 = "test2~";
+path($test2)->spew(norm_nl(<<END));
+%INCLUDE[$test1]xxHello Worldxx
+%DEFINE
+END
+
+my $cmd = "$macropp $test1";
+ok 1, " - $cmd";
+my($out,$err,$res) = capture { system $cmd; };
+diag "Bug #23: macropp: report errors on syntax error";
+#is $out, "";
+#is $err, "";
+#is $res, 0;
+
+my $cmd = "$macropp $test2";
+ok 1, " - $cmd";
+my($out,$err,$res) = capture { system $cmd; };
+diag "Bug #23: macropp: report errors on syntax error";
+#is $out, "";
+#is $err, "";
+#is $res, 0;
+
+
+
 is unlink($macros, $test1, $test2), 3;
 done_testing;
 
