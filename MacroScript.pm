@@ -10,7 +10,7 @@ use Path::Tiny;
 use Symbol () ;
 
 use vars qw( $VERSION ) ;
-$VERSION = '2.04'; 
+$VERSION = '2.04_01'; 
 
 
 ### Object fields
