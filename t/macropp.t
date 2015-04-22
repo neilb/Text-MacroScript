@@ -143,6 +143,15 @@ sub t_macro {
 	my($args, $output) = @_;
 	my $cmd = "$macropp $args";
 	ok 1, "line ".(caller)[2]." - $cmd";
+	
+	# diag for bug #26 
+	diag "\npwd:".`pwd`."\n\n";
+	diag "\nls:\n".`ls -l`."\n\n";
+	diag "\nRunning command:$cmd.\n\n";
+	my $ret = system($cmd);
+	diag "\ncommand returned:$ret.\n\n";
+	# end diag
+	
 	my($out,$err,$res) = capture { system $cmd; };
 	is $out, $output;
 	is $err, "";
