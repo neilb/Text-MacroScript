@@ -1,6 +1,6 @@
 package Text::MacroScript;
 
-require 5.010;
+require v5.10;
 
 use strict;
 use warnings;
