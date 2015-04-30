@@ -135,6 +135,8 @@ sub _remove_element { # Private object method.
 }
 
 
+#------------------------------------------------------------------------------
+# Destroy object, syntax error if input not complete - e.g. missing close struct
 DESTROY { # Object method
   ; # Noop
 }
@@ -142,6 +144,8 @@ DESTROY { # Object method
 
 ### Public methods
 
+#------------------------------------------------------------------------------
+# Create new object, allow -options 
 sub new { # Class and object method
     my $self  = shift;
     my $class = ref( $self ) || $self;
@@ -315,7 +319,8 @@ sub undefine_all { # Object method.
 }
 
 
-# If we just want to load in a macro file
+#------------------------------------------------------------------------------
+# load macro definitions from a file
 sub load_file { # Object method.
     my( $self, $file ) = @_;
     my $class = ref( $self ) || $self;
@@ -331,6 +336,8 @@ sub load_file { # Object method.
 }
 
 
+#------------------------------------------------------------------------------
+# parses the given file with expand() or expand_embedded() depending on -embedded
 # Usage: $macro->expand_file( name, body )
 # In an array context will return the file, e.g.
 # @expanded = $macro->expand_file( name, body );
@@ -386,6 +393,8 @@ sub expand_file { # Object method.
 }
 
 
+#------------------------------------------------------------------------------
+# similar to expand(), but only expands text between the open and close delimiters
 sub expand_embedded { # Object method.
     my $self  = shift;
     my $class = ref( $self ) || $self;
@@ -438,6 +447,8 @@ sub expand_embedded { # Object method.
 }
 
 
+#------------------------------------------------------------------------------
+# parse and expand passed string; filename is used for error messages
 sub expand { # Object method.
     my $self  = shift;
     my $class = ref( $self ) || $self;
@@ -706,9 +717,11 @@ sub expand { # Object method.
 
 __END__
 
+
 =head1 NAME
 
 Text::MacroScript - A macro pre-processor with embedded perl capability 
+
 
 =head1 SYNOPSIS
 
@@ -734,7 +747,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     # or
     my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' );
     while( <> ) {
-        print $Macro->expand_delimited( $_, $ARGV ) if $_;
+        print $Macro->expand_embedded( $_, $ARGV ) if $_;
     }
 
     # Create a macro object and create initial macros/scripts from the file(s)
@@ -808,7 +821,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     $Macro->expand_file( $filename );
     @expanded = $Macro->expand_file( $filename );
-
+    
     
     # expand()
 
@@ -822,7 +835,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
 
 This bundle also includes the C<macropp> and C<macrodir> scripts which allows us
-to expand macros without having to use/understand C<Text::MacroScript.pm>,
+to expand macros without having to use/understand C<Text::MacroScript>,
 although you will have to learn the handful of macro commands available and
 which are documented here and in C<macropp>. C<macropp> provides more
 documentation on the embedded approach.
@@ -830,110 +843,8 @@ documentation on the embedded approach.
 The C<macroutil.pl> library supplied provides some functions which you may
 choose to use in HTML work for example.
 
-=head1 DESCRIPTION
 
-Define macros, scripts and variables in macro files or directly in text files.
-
-Commands may appear in separate macro files which are loaded in either via the
-text files they process (e.g. via the C<%LOAD> command), or may be embedded
-directly in text files. Almost every command that can appear in a file has an
-equivalent object method so that programmers may achieve the same things in
-code as can be achieved by macro commands in texts; there are also additional
-methods which have no command equivalents.
-
-Most the examples given here use the macro approach. However this module now
-directly supports an embedded approach and this is now documented. Although
-you may specify your own delimiters where shown in examples we use the default
-delimiters of C<E<gt>:> and C<:E<lt>> throughout.
-
-=head2 Public methods
-
-    new         class   object
-    get         class   object
-    define              object
-    undefine            object
-    list                object
-    undefine_all        object
-    load_file           object
-    expand_file         object
-    expand              object
-    expand_embedded     object
-
-
-=head2 Summary of Commands
-
-These commands may appear in separate `macro' files, and/or in the body of
-files. Wherever a macroname or scriptname is encountered it will be replaced
-by the body of the macro or the result of the evaluation of the script using
-any parameters that are given.
-
-Note that if we are using an embedded approach commands, macro names and
-script names should appear between delimiters. (Except when we C<%LOAD> since
-this assumes the whole file is `embedded'.)
-
-    %DEFINE macroname [macro body]
-
-    %DEFINE macroname
-    multi-line
-    macro body
-    #0, #1 are the first and second parameters if any used
-    %END_DEFINE
-
-    %UNDEFINE macroname
-
-    %UNDEFINE_ALL   # Undefine all macros
-
-    %DEFINE_SCRIPT scriptname [script body]
-
-    %DEFINE_SCRIPT scriptname
-    multi-line
-    script body
-    arbitrary perl
-    optional parameters are in @Param, although #0, etc may be used
-    any variables are in %Var, although #varname may be used
-    %END_DEFINE
-
-    %UNDEFINE scriptname
-
-    %UNDEFINE_ALL_SCRIPT
-
-    %DEFINE_VARIABLE variablename [variable value]
-
-    %UNDEFINE variablename
-
-    %UNDEFINE_ALL_VARIABLE
-
-    %LOAD[path/filename]    # Instantiate macros/scripts/variables in this
-                            # file, but discard the text
-
-    %INCLUDE[path/filename] # Instantiate macros/scripts/variables in this
-                            # file and output the resultant text
-
-    %REQUIRE[path/filename] # Make Perl require a file e.g. of functions,
-                            # modules, etc. which can then be accessed within
-                            # scripts. 
- 
-    %CASE [condition]       # Provides #ifdef-type functionality
-    %END_CASE
-
-Thus, in the body of a file we may have, for example:
-
-    %DEFINE &B [Billericky Rickety Builders]
-    Some arbitrary text.
-    We are writing to complain to the &B about the shoddy work they did.
-
-If we are taking the embedded approach the example above might become:
-
-    <:%DEFINE BB [Billericky Rickety Builders]:>
-    Some arbitrary text.
-    We are writing to complain to the <:BB:> about the shoddy work they did.
-
-When using an embedded approach we don't have to make the macro or script name
-unique within the text, (although each must be distinct from each other),
-since the delimiters are used to signify them. However since expansion applies
-recursively it is still wise to make names distinctive.
-
-=head2 Macro systems vs embedded systems
+=head1 MACRO SYSTEMS VS EMBEDDED SYSTEMS
 
 Macro systems read all the text, substituting anything which matches a macro
 name with the macro's body (or script name with the result of the execution of
@@ -943,175 +854,499 @@ macro/script names everywhere, not just in a delimited section) and more risky
 up with a mess) than embedded systems. On the other hand because they work on
 the whole text not just delimited bits, macro systems can perform processing
 that embedded systems can't. Macro systems are used extensively, for example
-the CPP, C pre-processor, with its #DEFINE's, etc.
+the CPP, C pre-processor, with its #DEFINE's, etc. 
 
-Essentially, embedded systems print all text until they hit an opening
+Essentially, embedded systems print all text until they hit an opening 
 delimiter. They then execute any code up until the closing delimiter. The text
 that results replaces everything between and including the delimeters. They
 then carry on printing text until they hit an opening delimeter and so on
 until they've finished processing all the text. This module now provides both
-approaches.
+approaches. 
 
-=head2 Creating macro objects with C<new()>
+
+=head1 DESCRIPTION
+
+Define macros, scripts and variables in macro files or directly in text files. 
+
+Commands can appear in separate macro files which are loaded in either via the
+text files they process (e.g. via the L</%LOAD> command), or can be embedded
+directly in text files. Almost every command that can appear in a file has an
+equivalent object method so that programmers can achieve the same things in
+code as can be achieved by macro commands in texts; there are also additional
+methods which have no command equivalents. 
+
+Most the examples given here use the macro approach. However this module now
+directly supports an embedded approach and this is now documented. Although
+you can specify your own delimiters where shown in examples we use the default
+delimiters of C<E<lt>:> and C<:E<gt>> throughout.
+
+
+=head2 Public methods
+
+
+=head3 new
+
+  $self = $class->new();
+  $self = $class->new( %opts );
+
+Create a new C<Text::MacroScript> object, initialized with the supplied 
+options. By default creates an object for macro processing. 
 
 For macro processing:
 
-    my $Macro = Text::MacroScript->new;
+  my $Macro = Text::MacroScript->new;
 
 For embedded macro processing:
 
-    my $Macro = Text::MacroScript->new( -embedded => 1 ); 
-    # Delimiters default to <: and :>
+  my $Macro = Text::MacroScript->new( -embedded => 1 ); 
+  # Delimiters default to <: and :>
 
 Or specify your own delimiters:
     
-    my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' );
+  my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' );
 
 Or specify one delimiter to use for both (probably not wise):
 
-    my $Macro = Text::MacroScript->new( -opendelim => '%%' ); 
-    # -closedelim defaults to -opendelim, e.g. %% in this case
+  my $Macro = Text::MacroScript->new( -opendelim => '%%' ); 
+  # -closedelim defaults to -opendelim, e.g. %% in this case
  
+The full list of options that can be specified at object creation:
 
-The full list of options that may be specified at object creation:
+=over 4
 
-C<-comment> optional integer; 1 = create the C<%%[]> comment macro; default 0.
+=item *
 
-C<-file> optional array reference of strings; read macros and scripts from the
-file(s) given - they are C<%LOAD>ed so are treated as already embedded if we
-are doing embedded processing. Default is a reference to an empty array. 
+C<-embedded =E<gt> 1>
 
-C<-macro> optional array reference of macros, in the form:
+Create the object for embedded processing, with default C<E<lt>:> and 
+C<:E<gt>> delimiters. If option value is C<0>, or if the option is not 
+supplied, create the object for macro processing. 
 
-    my $Macro = Text::MacroScript->new(
-                    -macro => [
-                        ["name1"=>"body1"],
-                        ["name2"=>"body2"],
-                        ["name3"=>"body3"],
-                    ],
-                    );
+=item *
 
-Default is a reference to an empty array. 
+C<-opendelim =E<gt> '[[', -closedelim =E<gt> ']]'>
 
-C<-script> optional array reference of scripts, in the form:
+Create the object for embedded processing, with the supplied C<[[> and 
+C<]]> delimiters. 
 
-    my $Macro = Text::MacroScript->new(
-                    -script => [
-                        ["name1"=>"body1"],
-                        ["name2"=>"body2"],
-                        ["name3"=>"body3"],
-                    ],
-                    );
+=item *
 
-Default is a reference to an empty array. 
+C<-opendelim =E<gt> '%%'>
 
-C<-variable> optional array reference of variables, in the form:
+Create the object for embedded processing, with the same C<!!> as open 
+and close delimiters. 
 
-    my $Macro = Text::MacroScript->new(
-                    -variable => [
-                        ["name1"=>"value1"],
-                        ["name2"=>"value2"],
-                        ["name3"=>"value3"],
-                    ],
-                    );
+=item *
 
-Default is a reference to an empty array. 
+C<-comment =E<gt> 1>
 
-C<-embedded> optional integer, 1 = use embedded processing; 0 = use macro
-processing. Default is 0. If set to 1 then the delimiters become <: and :>
-unless otherwise specified.
+Create the C<%%[]> comment macro.
 
-C<-opendelim> optional string, default is undef unless C<-embedded> is 1 in
-which case default is <: if C<-opendelim> is undefined or the empty string.
+=item *
 
-C<-closedelim> optional string, default is undef unless C<-embedded> is 1 in
-which case default is :> if C<-closedelim> is undefined or the empty string
-and C<-opendelim> is <: or C<-opendelim> if C<-opendelim> is not <:.
+C<-file =E<gt> [ @files ]>
 
-=head2 Defining Macros with C<%DEFINE> and C<define()>
+See also L</%LOAD> and C<macropp -f>.
 
-In files we would write:
+=item *
 
-    %DEFINE MAC [The Mackintosh Macro]
+C<-macro =E<gt> [ @macros ]>
+
+Define macros, where each macro is a pair of C<name =E<gt> body>, e.g.
+
+    my $Macro = Text::MacroScript->new(-macro => [ ["name1"=>"body1"], ["name2"=>"body2"] ] );
+
+See also L</%DEFINE>.
+
+=item *
+
+C<-script =E<gt> [ @scripts ]>
+
+Define scripts, where each script is a pair of C<name =E<gt> body>, e.g.
+
+    my $Macro = Text::MacroScript->new(-script => [ ["name1"=>"body1"], ["name2"=>"body2"] ] );
+
+See also L</%DEFINE_SCRIPT>.
+
+=item *
+
+C<-variable =E<gt> [ @svariables ]>
+
+Define variables, where each variable is a pair of C<name =E<gt> value>, e.g.
+
+    my $Macro = Text::MacroScript->new(-variable => [ ["name1"=>"value1"], ["name2"=>"value2"] ] );
+
+See also L</%DEFINE_VARIABLE>.
+
+=back
+
+
+=head3 define_macro
+
+  $Macro->define_macro( $name, $body );
+
+Defines a macro with the given name that expands to the given body when 
+called. If a macro with the same name already exists, it is silently 
+overwritten. 
+
+This is the same as the deprecated syntax:
+
+  $Macro->define( -macro, $name, $body );
+
+See also L</%DEFINE>.
+
+
+=head3 list_macro
+
+  $Macro->list_macro;            # lists to STDOUT
+  @output = $Macro->list_macro;  # lists to array
+  $Macro->list_macro(-namesonly); # only names
+
+Lists all defined macros to C<STDOUT> or returns the result if called in 
+list context. Accepts an optional parameter C<-namesonly> to list only
+the macro names and not the body.
+
+
+=head3 undefine_macro
+
+  $Macro->undefine_macro( $name );
+
+If a macro exists with the given name, it is deleted. If not, the function
+does nothing.
+
+This is the same as the deprecated syntax:
+
+  $Macro->undefine( -macro, $name );
+
+See also L</%UNDEFINE>.
+
+
+=head3 undefine_all_macro
+
+  $Macro->undefine_all_macro;
+
+Delete all the defined macros.
+
+This is the same as the deprecated syntax:
+
+  $Macro->undefine_all( -macro );
+
+See also L</%UNDEFINE_ALL>.
+
+
+=cut
+#  $Macro->define_macro( $name, \@arg_names, $body );
+#The optional array of C<@arg_names> contains the names of local variables
+#that are defined with the actual arguments passed to the macro when called.
+#The arguments are refered in the body as other variables, prefixed with 
+#C<#>, e.g.
+#
+#  $Macro->define_macro( 'ADD', ['A', 'B'], "#A+#B" );
+#  $Macro->expand("ADD[2|3]"); --> "2+3"
+
+
+=head3 define_script
+
+  $Macro->define_script( $name, $body );
+
+
+Defines a perl script with the given name that executes the given body 
+when called. If a script with the same name already exists, it is 
+silently overwritten. 
+
+This is the same as the deprecated syntax:
+
+
+  $Macro->define( -script, $name, $body );
+
+See also L</%DEFINE_SCRIPT>.
+
+
+=head3 list_script
+
+  $Macro->list_script;             # lists to STDOUT
+  @output = $Macro->list_script;   # lists to array
+  $Macro->list_script(-namesonly); # only names
+
+Lists all defined scripts to C<STDOUT> or returns the result if called in 
+list context. Accepts an optional parameter C<-namesonly> to list only
+the script names and not the body.
+
+
+=head3 undefine_script
+
+  $Macro->undefine_script( $name );
+
+If a script exists with the given name, it is deleted. If not, the function
+does nothing.
+
+This is the same as the deprecated syntax:
+
+  $Macro->undefine( -script, $name );
+
+See also L</%UNDEFINE_SCRIPT>.
+
+
+=head3 undefine_all_script
+
+  $Macro->undefine_all_script;
+
+Delete all the defined scripts.
+
+This is the same as the deprecated syntax:
+
+  $Macro->undefine_all( -script );
+
+See also L</%UNDEFINE_ALL_SCRIPT>.
+
+
+=cut
+#  $Macro->define_script( $name, \@arg_names, $body );
+#
+#The optional array of C<@arg_names> contains the names of local variables
+#that are defined with the actual arguments passed to the script when called.
+#The arguments are referred in the body as other variables, prefixed with 
+#C<#>, e.g.
+#
+#  $Macro->define_script( 'ADD', ['A', 'B'], "#A+#B" );
+#  $Macro->expand("ADD[2|3]"); --> "5"
+
+
+=head3 define_variable
+
+  $Macro->define_variable( $name, $value );
+
+Defines or updates a variable that can be used within macros or perl scripts
+as C<#varname>. 
+
+This is the same as the deprecated syntax:
+
+  $Macro->define( -variable, $name, $value );
+
+See also L</%DEFINE_VARIABLE>.
+
+
+=head3 list_variable
+
+  $Macro->list_variable;             # lists to STDOUT
+  @output = $Macro->list_variable;   # lists to array
+  $Macro->list_variable(-namesonly); # only names
+
+Lists all defined variables to C<STDOUT> or returns the result if called in 
+list context. Accepts an optional parameter C<-namesonly> to list only
+the variable names and not the body.
+
+
+=head3 undefine_variable
+
+  $Macro->undefine_variable( $name );
+
+If a variable exists with the given name, it is deleted. If not, the function
+does nothing.
+
+This is the same as the deprecated syntax:
+
+  $Macro->undefine( -variable, $name );
+
+See also L</%UNDEFINE_VARIABLE>.
+
+
+
+=head3 undefine_all_variable
+
+  $Macro->undefine_all_variable;
+
+Delete all the defined variables.
+
+This is the same as the deprecated syntax:
+
+  $Macro->undefine_all( -variable );
+
+See also L</%UNDEFINE_ALL_VARIABLE>.
+
+
+=head3 expand
+
+  $text = $Macro->expand( $in );
+  $text = $Macro->expand( $in, $filename );
+
+Expands the given C<$in> input and returns the expanded text. The C<$in> 
+is either a text line or an interator that returns a sequence of text 
+lines. 
+
+The C<$filename> is optional and defaults to C<"-">. It is used in error 
+messages to locate the error. 
+
+The expansion processes any macro definitions and expands any macro 
+calls found in the input text. C<expand()> buffers internally all the 
+lines required for a multi-line definition, i.e. it can be called once 
+for each line of a multi-line L</%DEFINE>. 
+
+
+=head3 expand_embedded
+
+  $text = $Macro->expand_embedded( $in );
+  $text = $Macro->expand_embedded( $in, $filename );
+
+Similar to C<expand()>, but only expands text between the open and close 
+delimiters (see C<-opendelim> and C<-closedelim>).
+
+All the other text is copied verbatin to the output.
+
+
+=head3 load_file
+
+  $Macro->load_file( $filename );
+
+See also L</%LOAD> and C<macropp -f>.
+
+
+=head3 expand_file
+
+  $Macro->expand_file( $filename );
+  @expanded = $Macro->expand_file( $filename );
+
+When called in C<void> context, sends output to the current output 
+filehandle. When called in C<ARRAY> context, returns the list of 
+expaned lines. 
+
+Calls C<expand_embedded()> on each line if doing embedded processing 
+(C<-embedded>), or C<expand()> otherwise. 
+
+See also L</%INCLUDE>. 
+
+
+=head1 MACRO LANGUAGE
+
+This chapter describes the macro language statements processed in the 
+input files. 
+
+
+=head2 Defining and using macros
+
+These commands can appear in separate I<macro> files, and/or in the body of
+files. Wherever a macroname or scriptname is encountered it will be replaced
+by the body of the macro or the result of the evaluation of the script using
+any parameters that are given. 
+
+Note that if we are using an embedded approach commands, macro names and 
+script names should appear between delimiters. (Except when we L</%LOAD> since
+this assumes the whole file is I<embedded>.
+
+
+=head3 %DEFINE
+
+  %DEFINE macroname [macro body]
+  %DEFINE macroname
+  multi-line
+  macro body
+  #0, #1 are the first and second parameters if any used
+  %END_DEFINE
+
+Thus, in the body of a file we may have, for example:
+
+  %DEFINE &B [Billericky Rickety Builders]
+  Some arbitrary text.
+  We are writing to complain to the &B about the shoddy work they did.
+
+If we are taking the embedded approach the example above might become:
+
+  <:%DEFINE BB [Billericky Rickety Builders]:>
+  Some arbitrary text.
+  We are writing to complain to the <:BB:> about the shoddy work they did.
+
+When using an embedded approach we don't have to make the macro or script name
+unique within the text, (although each must be distinct from each other),
+since the delimiters are used to signify them. However since expansion applies
+recursively it is still wise to make names distinctive. 
+
+In files we would write: 
+
+  %DEFINE MAC [The Mackintosh Macro]
 
 The equivalent method call is:
 
-    $Macro->define( -macro, 'MAC', 'The Mackintosh Macro' );
+    $Macro->define_macro( 'MAC', 'The Mackintosh Macro' );
 
-We can call our macro anything, excluding white-space characters and [,
-although [ is not advised. So a name like C<%*&!> is fine - indeed names which
+We can call our macro anything, excluding white-space and special 
+characters used while parsing the input text (C<[,],(,),#>). 
+
+All names are case-sensitive. 
+
+So a name like C<%*&!> is fine - indeed names which
 could not normally appear in the text are recommended to avoid having the
 wrong thing substituted. We should also avoid calling macros, scripts or
-variables names beginning with #. All names are case-sensitive.
+variables names beginning with C<#>.
 
-Note that if we define a macro and then a script with the same name the
-script will effectively replace the macro.
+Note that if we define a macro and then a script with the same name the 
+script will effectively replace the macro. 
 
 We can have parameters (for macros and scripts), e.g.:
 
-    %DEFINE *P [The forename is #0 and the surname is #1]
+  %DEFINE *P [The forename is #0 and the surname is #1]
 
 Parameters used in the source text can contain square brackets since macro
 will grab up to the last square bracket on the line. The only thing we can't
-pass are `|'s since these are used to separate parameters. White-space between
-the macro name and the [ is optional in definitions but I<not allowed> in the
-source text.
+pass are C<|>s since these are used to separate parameters. White-space between
+the macro name and the C<[> is optional in definitions but I<not allowed> in the
+source text. 
 
-Parameters are named #0, #1, etc. There is a limit of 100 parameters, i.e.
-#0..#99, and we must use all those we specify. In the example above we I<must>
-use *P[param1|param2], e.g. *P[Jim|Hendrix]; if we don't
-C<Text::MacroScript.pm> will croak. Note that macro names and their parameters
+Parameters are named C<#0>, C<#1>, etc. There is a limit of 100 parameters, i.e.
+C<#0..#99>, and we must use all those we specify. In the example above we I<must>
+use C<*P[param1|param2]>, e.g. C<*P[Jim|Hendrix]>; if we don't
+C<Text::MacroScript> will croak. Note that macro names and their parameters
 must all be on the same line (although this is relaxed if you use paragraph
-mode). 
+mode).
 
-Because we use # to signify parameters if you require text that consists of a
-# followed by digits then you should escape the #, e.g.
+Because we use C<#> to signify parameters if you require text that consists of a
+C<#> followed by digits then you should escape the C<#>, e.g.
 
-    %DEFINE *GRAY[<font color="\#121212">#0</font>]
+  %DEFINE *GRAY[<font color="\#121212">#0</font>]
 
 We can use as many I<more> parameters than we need, for example add a third to
-document: *P[Jim|Hendrix|Musician] will become `The forename is Jim and the
-surname is Hendrix', just as in the previous example; the third parameter,
-`Musician', will simply be thrown away.
+document: C<*P[Jim|Hendrix|Musician]> will become 
+I<'The forename is Jim and the surname is Hendrix'>,
+just as in the previous example; the third parameter,
+I<'Musician'>, will simply be thrown away. 
 
-If we take an embedded approach we might write this example thus:
+If we take an embedded approach we might write this example thus: 
 
-    <:%DEFINE P [The forename is #0 and the surname is #1]:>
+  <:%DEFINE P [The forename is #0 and the surname is #1]:>
 
 and in the text, <:P[Jim|Hendrix]:> will be transformed appropriately.
 
 If we define a macro, script or variable and later define the same name the
 later definition will replace the earlier one. This is useful for making local
 macro definitions over-ride global ones, simply by loading the global ones
-first.
+first. 
 
 Although macros can have plain textual names like this:
 
-    %DEFINE MAX_INT [32767]
+  %DEFINE MAX_INT [32767]
 
-It is generally wise to use a prefix and/or suffix to make sure we don't
-expand something unintentionally, e.g.
+It is generally wise to use a prefix and/or suffix to make sure we don't 
+expand something unintentionally, e.g. 
 
-    %DEFINE $MAX_INT [65535]
+  %DEFINE $MAX_INT [65535]
 
 B<Macro expansion is no respector of quoted strings or anything else> - 
 B<if the name matches the expansion will take place!>
 
 Multi-line definitions are permitted (here's an example I use with the lout
-typesetting language):
+typesetting language): 
 
-    %DEFINE SCENE
-    @Section
-        @Title {#0}
-    @Begin
-    @PP
-    @Include {#1}
-    @End @Section
-    %END_DEFINE
+  %DEFINE SCENE
+  @Section
+    @Title {#0}
+  @Begin
+  @PP
+  @Include {#1}
+  @End @Section
+  %END_DEFINE
 
 This allows us to write the following in our lout files:
 
-    SCENE[ The title of the scene | scene1.lt ]
+  SCENE[ The title of the scene | scene1.lt ]
 
 which is a lot shorter than the definition.
 
@@ -1123,234 +1358,265 @@ B<Converting a macro to a script>
 This can be achieved very simply. For a one line macro simply enclose the
 body between qq{ and }, e.g.
 
-    %DEFINE $SURNAME [Baggins]
+  %DEFINE $SURNAME [Baggins]
 
 becomes
 
-    %DEFINE_SCRIPT $SURNAME [qq{Baggins}]
+  %DEFINE_SCRIPT $SURNAME [qq{Baggins}]
 
 For a multi-line macro use a here document, e.g.
 
-    %DEFINE SCENE
-    @Section
-        @Title {#0}
-    @Begin
-    @PP
-    @Include {#1}
-    @End @Section
-    %END_DEFINE
+  %DEFINE SCENE
+  @Section
+    @Title {#0}
+  @Begin
+  @PP
+  @Include {#1}
+  @End @Section
+  %END_DEFINE
 
 becomes
 
-    %DEFINE_SCRIPT SCENE
-    <<__EOT__
-    \@Section
-        \@Title {#0}
-    \@Begin
-    \@PP
-    \@Include {#1}
-    \@End \@Section
-    __EOT__
-    %END_DEFINE
+  %DEFINE_SCRIPT SCENE
+  <<__EOT__
+  \@Section
+    \@Title {#0}
+  \@Begin
+  \@PP
+  \@Include {#1}
+  \@End \@Section
+  __EOT__
+  %END_DEFINE
 
-Note that the @s had to be escaped because they have a special meaning in
+Note that the C<@s> had to be escaped because they have a special meaning in
 perl.
 
-=head2 Defining Scripts with C<%DEFINE_SCRIPT> and C<define()>
 
-Instead of straight textual substitution, we can have some perl executed
-(after any parameters have been replaced in the perl text):
+=head3 %UNDEFINE
 
-    %DEFINE_SCRIPT *ADD ["#0 + #1 = " . (#0 + #1)]
+Macros can be undefined in files:
+
+  %UNDEFINE *P
+
+and in code:
+
+  $Macro->undefine_macro('*P'); 
+
+Undefining a non-existing macro is not considered an error.
+
+
+=head3 %UNDEFINE_ALL
+
+All macros can be undefined in files:
+
+  %UNDEFINE_ALL
+
+and in code:
+
+  $Macro->undefine_all_macro; 
+
+
+=head3 %DEFINE_SCRIPT
+
+Instead of straight textual substitution, we can have some perl executed 
+(after any parameters have been replaced in the perl text): 
+
+  %DEFINE_SCRIPT *ADD ["#0 + #1 = " . (#0 + #1)]
 
 or by using the equivalent method call:
 
-    $Macro->define( -script, '*ADD', '"#0 + #1 = " . (#0 + #1)' );
+  $Macro->define_script( '*ADD', '"#0 + #1 = " . (#0 + #1)' );
 
-These would be used as *ADD[5|11] in the text which would be output as:
+We can call our script anything, excluding white-space characters special 
+characters used while parsing the input text (C<[,],(,),#>). 
 
-    These would be used as 5 + 11 = 16 in the text...
+All names are case-sensitive. 
+
+  These would be used as C<*ADD[5|11]> in the text
+
+which would be output as: 
+
+  These would be used as 5 + 11 = 16 in the text
 
 In script definitions we can use an alternative way of passing parameters
-instead of or in addition to the #0 syntax.
+instead of or in addition to the C<#0> syntax.
 
 This is particularly useful if we want to take a variable number of parameters
-since the #0 etc syntax does not provide for this. An array called C<@Param>
+since the C<#0> etc syntax does not provide for this. An array called C<@Param>
 is available to our perl code that has any parameters. This allows things
-like the following to be achieved:
+like the following to be achieved: 
 
-    %DEFINE_SCRIPT ^PEOPLE
-    # We don't use the name hash number params but read straight from the
-    # array:
-    my $a = "friends and relatives are ";
-    $a .= join ", ", @Param;
-    $a;
-    %END_DEFINE
+  %DEFINE_SCRIPT ^PEOPLE
+  # We don't use the name hash number params but read straight from the
+  # array:
+  my $a = "friends and relatives are ";
+  $a .= join ", ", @Param;
+  $a;
+  %END_DEFINE
 
 The above would expand in the following text:
 
-    Her ^PEOPLE[Anna|John|Zebadiah].
+  Her ^PEOPLE[Anna|John|Zebadiah].
 
 to
-    Her friends and relatives are Anna, John, Zebadiah.
 
-In addition to having access to the parameters either using the #0 syntax or
+  Her friends and relatives are Anna, John, Zebadiah.
+
+In addition to having access to the parameters either using the C<#0> syntax or
 the C<@Param> array, we can also access any variables that have been defined
-using C<%DEFINE_VARIABLE> (see later). These are accessible either using
-#variablename similarly to the #0 parameter syntax, or via the C<%Var> hash.
+using L</%DEFINE_VARIABLE>. These are accessible either using
+C<#variablename> similarly to the <#0> parameter syntax, or via the C<%Var> hash.
 Although we can change both C<@Param> and C<%Var> elements in our script,
 the changes to C<@Param> only apply within the script whereas changes to
-C<%Var> apply from that point on globally.
+C<%Var> apply from that point on globally. 
 
-Note that if you require a literal # followed by digits in a script body then
-you must escape the # like this C<\#>.
+Note that if you require a literal C<#> followed by digits in a script body then
+you must escape the C<#> like this C<\#>.
 
-Macro names can be any length and consist of any characters (including
-non-printable which is probably only useful within code), except white-space
-and [, although ] is not recommended and a leading # should be avoided.
+Here's a simple date-stamp style: 
 
-Here's a simple date-stamp style:
+  %DEFINE_SCRIPT *DATESTAMP
+  use POSIX;
+  "#0 on ".strftime("%Y/%m/%d", localtime(time));
+  %END_DEFINE
 
-    %DEFINE_SCRIPT *DATESTAMP
-    {
-        my( $d, $m, $y ) = (localtime( time ))[3..5];
-        $m++;
-        $m = "0$m" if $m < 10;
-        $d = "0$d" if $d < 10;
-        $y += 1900;
-        "#0 on $y/$m/$d";
-    }
-    %END_DEFINE
+If we wanted to add the above in code we'd have to make sure the 
+C<$variables> weren't interpolated:
 
-If we wanted to add the above in code we'd have to make sure the $variables
-weren't interpolated:
+  $Macro->define_script( '*DATESTAMP', <<'__EOT__' );
+  use POSIX;
+  "#0 on ".strftime("%Y/%m/%d", localtime(time));
+  __EOT__
 
-    $Macro->define( -script, '*DATESTAMP', <<'__EOT__' );
-    {
-        my( $d, $m, $y ) = (localtime( time ))[3..5];
-        $m++;
-        $m = "0$m" if $m < 10;
-        $d = "0$d" if $d < 10;
-        $y += 1900;
-        "#0 on $y/$m/$d";
-    }
-    __EOT__
  
 Here's (a somewhat contrived example of) how the above would be used:
 
-    <HTML>
-    <HEAD><TITLE>Test Page</TITLE></HEAD>
-    <BODY>
-    *DATESTAMP[Last Updated]<P>
-    This page is up-to-date and will remain valid until *DATESTAMP[midnight]
-    </BODY>
-    </HTML>
+  <HTML>
+  <HEAD><TITLE>Test Page</TITLE></HEAD>
+  <BODY>
+  *DATESTAMP[Last Updated]<P>
+  This page is up-to-date and will remain valid until *DATESTAMP[midnight]
+  </BODY>
+  </HTML>
 
 Thus we could have a file, C<test.html.m> containing:
 
-    %DEFINE_SCRIPT *DATESTAMP
-    {
-        my( $d, $m, $y ) = (localtime( time ))[3..5];
-        $m++;
-        $m = "0$m" if $m < 10;
-        $d = "0$d" if $d < 10;
-        $y += 1900;
-        "#0 on $y/$m/$d";
-    }
-    %END_DEFINE
-    <HTML>
-    <HEAD><TITLE>Test Page</TITLE></HEAD>
-    <BODY>
-    *DATESTAMP[Last Updated]<P>
-    This page is up-to-date and will remain valid until *DATESTAMP[midnight]
-    </BODY>
-    </HTML>
+  %DEFINE_SCRIPT *DATESTAMP
+  use POSIX;
+  "#0 on ".strftime("%Y/%m/%d", localtime(time));
+  %END_DEFINE
+  <HTML>
+  <HEAD><TITLE>Test Page</TITLE></HEAD>
+  <BODY>
+  *DATESTAMP[Last Updated]<P>
+  This page is up-to-date and will remain valid until *DATESTAMP[midnight]
+  </BODY>
+  </HTML>
 
 which when expanded, either in code using C<$Macro-E<gt>expand()>, or using the
-simple C<macropp> utility supplied with C<Text::MacroScript.pm>:
+simple C<macropp> utility supplied with C<Text::MacroScript>:
 
-    [1]% macropp test.html.m > test.html
+  % macropp test.html.m > test.html
 
 C<test.html> will contain just this:
 
-    <HTML>
-    <HEAD><TITLE>Test Page</TITLE></HEAD>
-    <BODY>
-    Last Updated on 1999/08/21<P>
-    This page is up-to-date and will remain valid until midnight on 1999/08/21
-    </BODY>
-    </HTML>
+  <HTML>
+  <HEAD><TITLE>Test Page</TITLE></HEAD>
+  <BODY>
+  Last Updated on 1999/08/21<P>
+  This page is up-to-date and will remain valid until midnight on 1999/08/21
+  </BODY>
+  </HTML>
 
 Of course in practice we wouldn't want to define everything in-line like this.
-See C<%LOAD> later for an alternative.
+See L</%LOAD> later for an alternative.
 
 This example written in embedded style might be written thus:
 
-    <:
-    %DEFINE_SCRIPT DATESTAMP
-    {
-        my( $d, $m, $y ) = (localtime( time ))[3..5];
-        $m++;
-        $m = "0$m" if $m < 10;
-        $d = "0$d" if $d < 10;
-        $y += 1900;
-        "#0 on $y/$m/$d";
-    }
-    %END_DEFINE
-    :>
-    <HTML>
-    <HEAD><TITLE>Test Page</TITLE></HEAD>
-    <BODY>
-    <!-- Note how the parameter must be within the delimiters. -->
-    <:DATESTAMP[Last Updated]:><P>
-    This page is up-to-date and will remain valid until <:DATESTAMP[midnight]:>
-    </BODY>
-    </HTML>
+  <:
+  %DEFINE_SCRIPT DATESTAMP
+  use POSIX;
+  "#0 on ".strftime("%Y/%m/%d", localtime(time));
+  %END_DEFINE
+  :>
+  <HTML>
+  <HEAD><TITLE>Test Page</TITLE></HEAD>
+  <BODY>
+  <!-- Note how the parameter must be within the delimiters. -->
+  <:DATESTAMP[Last Updated]:><P>
+  This page is up-to-date and will remain valid until <:DATESTAMP[midnight]:>
+  </BODY>
+  </HTML>
 
 For more (and better) HTML examples see the example file C<html.macro>.
 
 The body of a script may not contain a literal null. If you really need one
-then represent the null as C<chr(0)>.
+then represent the null as C<chr(0)>. 
 
-=head2 Defining Variables with C<%DEFINE_VARIABLE> and C<define()>
+
+=head3 %UNDEFINE_SCRIPT
+
+Scripts can be undefined in files:
+
+  %UNDEFINE_SCRIPT *DATESTAMP
+
+and in code:
+
+  $Macro->undefine_script('*DATESTAMP'); 
+
+Undefining a non-existing script is not considered an error.
+
+
+=head3 %UNDEFINE_ALL_SCRIPT
+
+All scripts can be undefined in files:
+
+  %UNDEFINE_ALL_SCRIPT
+
+and in code:
+
+  $Macro->undefine_all_script; 
+
+
+=head3 %DEFINE_VARIABLE
 
 We can also define variables:
 
-    %DEFINE_VARIABLE &*! [89.1232]
+  %DEFINE_VARIABLE &*! [89.1232]
 
 or in code:
 
-    $Macro->define( -variable, '&*!', 89.1232 );
+  $Macro->define_variable( '&*!', 89.1232 );
 
-Note that there is no multi-line version of C<%DEFINE_VARIABLE>.
+Note that there is no multi-line version of L</%DEFINE_VARIABLE>.
 
-All current variables are available inside C<%DEFINE_SCRIPT> scripts in the C<%Var>
-hash:
+All current variables are available inside L</%DEFINE> macros and 
+L</%DEFINE_SCRIPT> as C<#varname>. Inside L</%DEFINE_SCRIPT> scripts they 
+are also available in the C<%Var> hash: 
 
-    %DEFINE_SCRIPT *TEST1
-    $a = '';
-    while( my( $key, $val ) each( %Var ) ) {
-        $a .= "$key = $val\n";
-    }
-    $a;
-    %END_DEFINE
+  %DEFINE_SCRIPT *TEST1
+  $a = '';
+  while( my( $key, $val ) each( %Var ) ) {
+    $a .= "$key = $val\n";
+  }
+  $a;
+  %END_DEFINE
 
 Here's another example:
     
-    %DEFINE_VARIABLE XCOORD[256]
-    %DEFINE_VARIABLE YCOORD[112]
-        :
-    The X coord is *SCALE[X|16] and the Y coord is *SCALE[Y|16] 
+  %DEFINE_VARIABLE XCOORD[256]
+  %DEFINE_VARIABLE YCOORD[112]
+  The X coord is *SCALE[X|16] and the Y coord is *SCALE[Y|16] 
     
-    %DEFINE_SCRIPT *SCALE
-    my $coord = shift @Param;
-    my $scale = shift @Param;
-    my $val   = $Var{$coord};
-    $val %= scale; # Scale it
-    $val; 
-    %END_DEFINE
+  %DEFINE_SCRIPT *SCALE
+  my $coord = shift @Param;
+  my $scale = shift @Param;
+  my $val   = $Var{$coord};
+  $val %= scale; # Scale it
+  $val; 
+  %END_DEFINE
         
-Variables may be modified within script C<%DEFINE>s, e.g.
+Variables can be modified within script L</%DEFINE>s, e.g.
 
     %DEFINE_VARIABLE VV[Foxtrot]
     # VV eq 'Foxtrot'
@@ -1365,37 +1631,65 @@ Variables may be modified within script C<%DEFINE>s, e.g.
     # VV eq 'Tango' - note that we *must* refer to the script (as we've done
     # on the line following) for it to execute.
 
-As we can see variables support the #variable syntax similarly to parameters
-which support #0 etc and ara available in scripts via the C<@Param> array.
+As we can see variables support the C<#variable> syntax similarly to parameters
+which support C<#0> etc and ara available in scripts via the C<@Param> array.
 Note that changing parameters within a script only apply within the script;
 whereas changing variables in the C<%Var> hash in a script changes them from
 that point on globally.
 
-Variables are also used with C<%CASE> (covered later).
+Variables are also used with L</%CASE>.
 
-=head2 Loading and including files with C<%LOAD> and C<load_file()>, and C<%INCLUDE> and C<expand_file()>
+
+=head3 %UNDEFINE_VARIABLE
+
+Variables can be undefined in files:
+
+  %UNDEFINE_VARIABLE &*!
+
+and in code:
+
+  $Macro->undefine_variable('&*!'); 
+
+Undefining a non-existing variable is not considered an error.
+
+
+=head3 %UNDEFINE_ALL_VARIABLE
+
+All variables can be undefined in files:
+
+  %UNDEFINE_ALL_VARIABLE
+
+and in code:
+
+  $Macro->undefine_all_variable; 
+
+
+One use of undefining everything is to ensure we get a clean start. We might
+head up our files thus:
+
+  %UNDEFINE_ALL
+  %UNDEFINE_ALL_SCRIPT
+  %UNDEFINE_ALL_VARIABLE
+  %LOAD[mymacros]
+  text goes here
+
+
+=head2 Loading and including files
 
 Although we can define macros directly in the files that require them it is often
 more useful to define them separately and include them in all those that need
-them.
+them. 
 
 One way of achieving this is to load in the macros/scripts first and then
 process the file(s). In code this would be achieved like this:
 
-    $Macro->load_file( $macro_file ); # Loads definitions only, ignores any
-                                       # other text. If working in embedded
-                                       # mode the file is treated as if
-                                       # wrapped in delimiters.
-    $Macro->expand_file( $file );     # Expands definitions (and instantiates
-                                       # any definitions that appear in the
-                                       # file); output is to the current
-                                       # output filehandle.
-    my @expanded = $Macro->expand_file( $file ); # Output to array.
+  $Macro->load_file( $macro_file );             # loads definitions only
+  $Macro->expand_file( $file );                 # expands definitions to STDOUT
+  my @expanded = $Macro->expand_file( $file );  # expands to array.
 
 From the command line it would be achieved thus:
 
-    [2]% macropp -f ~/.macro/html.macros test.html.m > test.html
-    
+  % macropp -f html.macros test.html.m > test.html
 
 One disadvantage of this approach, especially if we have lots of macro files,
 is that we can easily forget which macro files are required by which text
@@ -1404,25 +1698,25 @@ themselves, but this would lose reusability. The answer to both these problems
 is to use the C<%LOAD> command which loads the definitions from the named file at
 the point it appears in the text file:
 
-    %LOAD[~/.macro/html.macros]
-    <HTML>
-    <HEAD><TITLE>Test Page Again</TITLE></HEAD>
-    <BODY>
-    *DATESTAMP[Last Updated]<P>
-    This page will remain valid until *DATESTAMP[midnight]
-    </BODY>
-    </HTML>
+  %LOAD[~/.macro/html.macros]
+  <HTML>
+  <HEAD><TITLE>Test Page Again</TITLE></HEAD>
+  <BODY>
+  *DATESTAMP[Last Updated]<P>
+  This page will remain valid until *DATESTAMP[midnight]
+  </BODY>
+  </HTML>
 
 The above text has the same output but we don't have to remember or explicitly
 load the macros. In code we can simply do this:
 
-    my @expanded = $Macro->expand_file( $file );
+  my @expanded = $Macro->expand_file( $file );
 
 or from the command line:
 
-    [3]% macropp test.html.m > test.html
+  % macropp test.html.m > test.html
 
-    
+
 At the beginning of our lout typesetting files we might put this line:
 
     %LOAD[local.macros]
@@ -1456,21 +1750,59 @@ Macros and scripts are expanded in the following order:
 1. scripts (longest named first, shortest named last)
 2. macros  (longest named first, shortest named last)
 
-=head2 Requiring files using C<%REQUIRE>
+
+=head3 %LOAD
+
+  %LOAD[file]
+
+or its code equivalent
+
+  $Macro->load_file( $filename );
+
+instatiates any definitions that appear in the file, but ignores any other text
+and produces no output. When we are using embedded processing any file 
+L</%LOAD>ed is treated as if wrapped in delimiters. 
+
+This is equivalent to calling C<macropp -f>.
+
+New defintions of the same macro override old defintions, thus one can first 
+L</%LOAD> a global macro file, and then a local project file that can override
+some of the global macros.
+
+
+=head3 %INCLUDE
+
+  %INCLUDE[file]
+
+or its code equivalent
+
+  $Macro->expand_file( $filename );
+
+instatiates any definitions that appear in the file, expands definitions 
+and sends any other text to the current output filehandle. 
+
+
+=head3 %REQUIRE
 
 We often want our scripts to have access to a bundle of functions that we have
 created or that are in other modules. This can now be achieved by:
 
-    %REQUIRE[/path/to/mylibrary.pl]
+  %REQUIRE[/path/to/mylibrary.pl]
 
 An example library C<macroutil.pl> is provided with examples of usage in
 C<html.macro>.
 
 There is no equivalent object method because if we're writing code we can
-`use' or `require' as needed and if we're writing macros then we use
-C<%REQUIRE>.
+C<use> or c<require> as needed and if we're writing macros then we use
+L</%REQUIRE>.
 
-=head2 Skipping text using C<%CASE> and C<%END_CASE> 
+
+
+=head2 Control Structures
+
+
+=head3 %CASE
+
 
 It is possible to selectively skip parts of the text.
 
@@ -1489,7 +1821,7 @@ We can also skip selectively. Here's an if...then:
     %END_CASE
 
 The condition can be any perl fragment. We can use previously defined
-variables either using the #variable syntax as shown above or using the
+variables either using the C<#variable> syntax as shown above or using the
 exported perl name, thus in this case either C<#OS>, or C<%Var{'OS'}>
 whichever we prefer.
 
@@ -1508,7 +1840,7 @@ The if...then...else structure:
     the eval sees the same code in both cases
     %END_CASE
 
-Although nested C<%CASE>s are not supported we can get the same functionality
+Although nested L</%CASE>s are not supported we can get the same functionality
 (and indeed more versatility because we can use full perl expressions), e.g.:
 
     %DEFINE_VARIABLE TARGET[Linux]
@@ -1523,7 +1855,7 @@ Although nested C<%CASE>s are not supported we can get the same functionality
     More Win32/DOS stuff.
     %END_CASE
 
-Although C<macropp> doesn't support nested C<%CASE>'s we can still represent
+Although C<macropp> doesn't support nested L</%CASE>'s we can still represent
 logic like this:
 
     if cond1 then
@@ -1548,64 +1880,12 @@ By `unrolling' the expression and writing something like this:
 
 In other words we must fully specify the conditions for each case.
 
-We can use any other macro/script command within C<%CASE> commands, e.g.
-C<%DEFINE>s, etc., as well as have any text that will be macro/script expanded
+We can use any other macro/script command within L</%CASE> commands, e.g.
+L</%DEFINE>s, etc., as well as have any text that will be macro/script expanded
 as normal.
 
-=head2 Undefining with C<%UNDEFINE> and C<undefine()>
 
-Macros and scripts may be undefined in files:
-
-    %UNDEFINE *P
-    %UNDEFINE_SCRIPT *DATESTAMP
-    %UNDEFINE_VARIABLE &*!
-
-and in code:
-
-    $Macro->undefine( -macro, '*P' ); 
-    $Macro->undefine( -script, '*DATESTAMP' ); 
-    $Macro->undefine( -variable, '&*!' ); 
-
-All macros, scripts and variables can be undefined:
-
-    %UNDEFINE_ALL
-    %UNDEFINE_ALL_SCRIPT
-    %UNDEFINE_ALL_VARIABLE
-
-    $Macro->undefine_all( -macro );
-    $Macro->undefine_all( -script );
-    $Macro->undefine_all( -variable );
-
-One use of undefining everything is to ensure we get a clean start. We might
-head up our files thus:
-
-    %UNDEFINE_ALL
-    %UNDEFINE_ALL_SCRIPT
-    %UNDEFINE_ALL_VARIABLE
-    %LOAD[mymacros]
-    text goes here
-
-=head2 Listing macros, scripts and variables with C<list()>
-
-We can list the macros, scripts and variables in code with list:
-
-    $Macro->list( -macro );
-
-This will print the macros currently defined to the current file handle - if
-there is one. If used in an array context will provide the list one macro per
-array element:
-
-    @macros = $Macro->list( -macro );
-
-    # Just give us the macro names:
-    @macros = $Macro->list( -macro, -nameonly );
-
-There are equivalents for scripts and variables:
-
-    @scripts   = $Macro->list( -script );
-    @variables = $Macro->list( -variable );
-
-=head2 Commenting
+=head2 Comments
 
 Generally the text files that we process are in formats that support
 commenting, e.g. HTML:
@@ -1617,11 +1897,11 @@ end up in the output files. One simple way of achieving this is to define a
 macro whose body is empty; when its called with any number of parameters (our
 comments), their text is thrown away:
 
-    %DEFINE %%[]
+  %DEFINE %%[]
 
 which is used like this in texts:
 
-    The comment comes %%[Here | [anything] put here will disappear]here!
+  The comment comes %%[Here | [anything] put here will disappear]here!
 
 The output of the above will be:
 
@@ -1637,20 +1917,22 @@ object:
     my $Macro = Text::MacroScript->new( -comment => 1 ); 
     # All other options may be used too of course.
 
-However the easiest way to comment is to use C<%CASE>:
+However the easiest way to comment is to use L</%CASE>:
 
     %CASE[0]
     This unconditionally skips text up until the end marker since the
     condition is always false.
     %END_CASE
 
+
 =head1 IMPORTABLE FUNCTIONS
 
 In version 1.25 I introduced some useful importable functions. These have now
 been removed from the module. Instead I supply a perl library C<macroutil.pl>
 which has these functions (abspath, relpath, today) since Text::MacroScript
-can now `require' in any library file you like using the C<%REQUIRE>
+can now `require' in any library file you like using the L</%REQUIRE>
 directive.
+
 
 =head1 EXAMPLES
 
@@ -1661,18 +1943,33 @@ images up until a specified expiry date using variables.
 
 (Also see DESCRIPTION.)
 
+
 =head1 BUGS
 
 Lousy error reporting for embedded perl in most cases.
+
 
 =head1 AUTHOR
 
 Mark Summerfield. I can be contacted as <summer@perlpress.com> -
 please include the word 'macro' in the subject line.
 
+
+=head1 MAINTAINER
+
+Since 2015, Paulo Custodio. 
+
+This module repository is kept in Github, please feel free to submit issues,
+fork and send pull requests.
+
+    https://github.com/pauloscustodio/Text-MacroScript
+
+
 =head1 COPYRIGHT
 
 Copyright (c) Mark Summerfield 1999-2000. All Rights Reserved.
+
+Copyright (c) Paulo Custodio 2015. All Rights Reserved.
 
 This module may be used/distributed/modified under the LGPL. 
 
