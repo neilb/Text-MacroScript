@@ -92,40 +92,6 @@ is $err, "";
 is_deeply \@res, ["%DEFINE_SCRIPT ADD", 
 				  "%DEFINE_SCRIPT SUB"];
 
-#------------------------------------------------------------------------------
-# list variables
-($out,$err,@res) = capture { void { $ms->list( -variable ); } };
-eq_or_diff $out, norm_nl(<<'END');
-%DEFINE_VARIABLE MONTH [April]
-
-%DEFINE_VARIABLE YEAR [2015]
-
-END
-is $err, "";
-is_deeply \@res, [];
-
-($out,$err,@res) = capture { $ms->list( -variable ); };
-is $out, "";
-is $err, "";
-is_deeply \@res, ["%DEFINE_VARIABLE MONTH [April]\n", 
-				  "%DEFINE_VARIABLE YEAR [2015]\n"];
-
-#------------------------------------------------------------------------------
-# list variables -namesonly
-($out,$err,@res) = capture { void { $ms->list( -variable, -namesonly ); } };
-eq_or_diff $out, norm_nl(<<'END');
-%DEFINE_VARIABLE MONTH
-%DEFINE_VARIABLE YEAR
-END
-is $err, "";
-is_deeply \@res, [];
-
-($out,$err,@res) = capture { $ms->list( -variable, -namesonly ); };
-is $out, "";
-is $err, "";
-is_deeply \@res, ["%DEFINE_VARIABLE MONTH", 
-				  "%DEFINE_VARIABLE YEAR"];
-
 done_testing;
 
 sub norm_nl {

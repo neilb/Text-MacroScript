@@ -320,6 +320,39 @@ sub undefine_all { # Object method.
 
 
 #------------------------------------------------------------------------------
+# Define a new variable or overwrite an existing one
+sub define_variable {
+	my($self, $name, $value) = @_;
+	$self->define(-variable, $name, $value);
+}
+
+
+#------------------------------------------------------------------------------
+# List all the variables to STDOUT or return to array, option -nameonly to list 
+# only name
+sub list_variable {
+	my($self, $namesonly) = @_;
+	$self->list(-variable, $namesonly);
+}
+
+
+#------------------------------------------------------------------------------
+# Undefine a variable
+sub undefine_variable {
+	my($self, $name) = @_;
+	$self->undefine(-variable, $name);
+}
+
+
+#------------------------------------------------------------------------------
+# Undefine all variables
+sub undefine_all_variable {
+	my($self) = @_;
+	$self->undefine_all(-variable);
+}
+
+
+#------------------------------------------------------------------------------
 # load macro definitions from a file
 sub load_file { # Object method.
     my( $self, $file ) = @_;
