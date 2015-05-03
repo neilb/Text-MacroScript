@@ -241,6 +241,8 @@ sub get { # Object method
 # No set - use define instead.
 
 
+#------------------------------------------------------------------------------
+# deprecated method to define -macro, -script or -variable
 sub define { # Object method.
     my( $self, $which, $name, $body ) = @_;
     my $class = ref( $self ) || $self;
@@ -248,7 +250,8 @@ sub define { # Object method.
     $self->_insert_element( uc substr( $which, 1 ), $name, $body );
 }
 
-
+#------------------------------------------------------------------------------
+# deprecated method to undefine -macro, -script or -variable
 sub undefine { # Object method.
     my( $self, $which, $name ) = @_;
     my $class = ref( $self ) || $self;
@@ -260,6 +263,8 @@ sub undefine { # Object method.
 }
 
 
+#------------------------------------------------------------------------------
+# deprecated method to list all -macro, -script or -variable
 sub list { # Object method.
     my( $self, $which, $namesonly ) = @_;
     my $class = ref( $self ) || $self;
@@ -304,6 +309,8 @@ sub list { # Object method.
 }
 
 
+#------------------------------------------------------------------------------
+# deprecated method to undefine all -macro, -script or -variable
 sub undefine_all { # Object method.
     my( $self, $which ) = @_;
     my $class = ref( $self ) || $self;
@@ -357,6 +364,42 @@ sub undefine_all_macro {
 }
 
 
+#------------------------------------------------------------------------------
+# Define a new script or overwrite an existing one
+# $arg_names is reference to list of formal parameters
+sub define_script {
+	my($self, $name, $arg_names, $body) = @_;
+	if (! ref($arg_names)) {
+		$body = $arg_names;
+		$arg_names = [];
+	}
+	$self->define(-script, $name, $body);
+}
+
+
+#------------------------------------------------------------------------------
+# List all the scripts to STDOUT or return to array, option -nameonly to list 
+# only name
+sub list_script {
+	my($self, $namesonly) = @_;
+	$self->list(-script, $namesonly);
+}
+
+
+#------------------------------------------------------------------------------
+# Undefine a script
+sub undefine_script {
+	my($self, $name) = @_;
+	$self->undefine(-script, $name);
+}
+
+
+#------------------------------------------------------------------------------
+# Undefine all scripts
+sub undefine_all_script {
+	my($self) = @_;
+	$self->undefine_all(-script);
+}
 
 
 #------------------------------------------------------------------------------
