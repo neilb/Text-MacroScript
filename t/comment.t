@@ -25,7 +25,7 @@ is $ms->expand("hello%%[this|is|a|comment]world\n"), 	"helloworld\n";
 #------------------------------------------------------------------------------
 # define()
 $ms = new_ok('Text::MacroScript');
-$ms->define( -macro => "%%", "");
+$ms->define_macro("%%", "");
 is $ms->expand("hello%%[this|is|a|comment]world\n"), 	"helloworld\n";
 
 #------------------------------------------------------------------------------
@@ -37,5 +37,17 @@ is $ms->expand("this is\n"),	"";
 is $ms->expand("a comment\n"),	"";
 is $ms->expand("%END_CASE\n"),	"";
 is $ms->expand("world\n"), 		"world\n";
+
+#------------------------------------------------------------------------------
+# -comment and %UNDEFINE_ALL
+$ms = new_ok('Text::MacroScript' => [ -comment => 1 ]);
+is $ms->expand("hello%%[this|is|a|comment]world\n"), 	"helloworld\n";
+$ms->undefine_all_macro;
+is $ms->expand("hello%%[this|is|a|comment]world\n"), 	"helloworld\n";
+
+$ms = new_ok('Text::MacroScript' => [ -comment => 1 ]);
+is $ms->expand("hello%%[this|is|a|comment]world\n"), 	"helloworld\n";
+is $ms->expand("%UNDEFINE_ALL"), "";
+is $ms->expand("hello%%[this|is|a|comment]world\n"), 	"helloworld\n";
 
 done_testing;

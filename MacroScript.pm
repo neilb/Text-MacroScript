@@ -204,7 +204,7 @@ sub new { # Class and object method
     eval {
         local $_;
 
-        $self->define( -macro, '%%', '' ) if $self->{-comment};
+        $self->_define_standard_comment if $self->{-comment};
 
         foreach( @{$self->{-file}} ) {
             $self->load_file( $_ );
@@ -323,6 +323,9 @@ sub undefine_all { # Object method.
     else {
         @{$self->{$which}} = ();
     }
+
+	# redefine comment macro
+	$self->_define_standard_comment if $self->{-comment};
 }
 
 
@@ -432,6 +435,14 @@ sub undefine_variable {
 sub undefine_all_variable {
 	my($self) = @_;
 	$self->undefine_all(-variable);
+}
+
+
+#------------------------------------------------------------------------------
+# define the standard %% comment macro
+sub _define_standard_comment {
+    my($self) = @_;
+    $self->define_macro('%%', '');
 }
 
 
