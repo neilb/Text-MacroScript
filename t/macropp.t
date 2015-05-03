@@ -10,6 +10,8 @@ use Test::Differences;
 use Capture::Tiny 'capture';
 use Path::Tiny;
 
+my($cmd,$out,$err,$res,$test1,$test2);
+
 use_ok 'Text::MacroScript';
 
 my $macropp = "$^X macropp";
@@ -22,12 +24,12 @@ path($macros)->spew(norm_nl(<<END));
 %DEFINE_SCRIPT World[#name]
 END
 
-my $test1 = "test1~";
+$test1 = "test1~";
 path($test1)->spew(norm_nl(<<END));
 Hello World
 END
 
-my $test2 = "test2~";
+$test2 = "test2~";
 path($test2)->spew(norm_nl(<<END));
 xxHello Worldxx
 xyHello Worldyx
@@ -104,9 +106,9 @@ t_macro("-f $macros -e -o xy --closedelim yx $test2",
 # -h --help
 my $VERSION = $Text::MacroScript::VERSION;
 for my $args ("-h", "--help") {
-	my $cmd = "$macropp $args";
+	$cmd = "$macropp $args";
 	ok 1, "- $cmd";
-	my($out,$err,$res) = capture { system $cmd; };
+	($out,$err,$res) = capture { system $cmd; };
 	is $out, "";
 	eq_or_diff $err, norm_nl(<<END);
 
@@ -142,24 +144,24 @@ include
 %DEFINE
 END
 
-my $test2 = "test2~";
+$test2 = "test2~";
 path($test2)->spew(norm_nl(<<END));
 %INCLUDE[$test1]xxHello Worldxx
 %DEFINE
 END
 
-my $cmd = "$macropp $test1";
+$cmd = "$macropp $test1";
 ok 1, " - $cmd";
-my($out,$err,$res) = capture { system $cmd; };
-diag "Bug #23: macropp: report errors on syntax error";
+($out,$err,$res) = capture { system $cmd; };
+diag 'Bug #23: macropp: report errors on syntax error';
 #is $out, "";
 #is $err, "";
 #is $res, 0;
 
-my $cmd = "$macropp $test2";
+$cmd = "$macropp $test2";
 ok 1, " - $cmd";
-my($out,$err,$res) = capture { system $cmd; };
-diag "Bug #23: macropp: report errors on syntax error";
+($out,$err,$res) = capture { system $cmd; };
+diag 'Bug #23: macropp: report errors on syntax error';
 #is $out, "";
 #is $err, "";
 #is $res, 0;
@@ -185,4 +187,3 @@ sub norm_nl {
 	s/\r\n/\n/g;
 	return $_;
 }
-

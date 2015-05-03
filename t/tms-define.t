@@ -30,11 +30,11 @@ is $ms->expand("%DEFINE EVAL [#0]\n"),	"";
 is $ms->expand("Z1\n"),	 				"hel\n";
 is $ms->expand("EVAL[Z1]\n"),			"hel\n";
 is $ms->expand("Z1Z2\n"),	 			"hello\n";
-# Bug #1: expansion depends on size of macro name
+diag 'Bug #1: expansion depends on size of macro name';
 #is $ms->expand("EVAL[Z1Z2]\n"),			"Hallo\n";
 
 #------------------------------------------------------------------------------
-# Bug #1: expansion depends on size of macro name
+diag 'Bug #1: expansion depends on size of macro name';
 $ms = new_ok('Text::MacroScript' => [ 
 				-macro => [ 
 					[ "hello"	=> "Hallo" ],
@@ -94,7 +94,7 @@ is $ms->expand("2*4\n"),			"2star4\n";
 #------------------------------------------------------------------------------
 # macros with arguments
 $ms = new_ok('Text::MacroScript');
-# Bug #3: Cannot catch error "missing parameter or unescaped # in MACRO"
+diag 'Bug #3: Cannot catch error "missing parameter or unescaped # in MACRO"';
 #is $ms->expand("%DEFINE * [#0+#1+#2+#3+#4+#5+#6+#7+#8+#9+#10]\n"),	"";
 #eval {$ms->expand("*\n")};
 #like $@, qr/missing or unescaped \# in MACRO/;
