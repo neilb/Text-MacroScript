@@ -58,45 +58,53 @@ is $ms->expand("SHOW"),
 
 #------------------------------------------------------------------------------
 # list
+# Use YEAR, MONTH to make sure Fix #18: output order of list() not predictable
+# is fixed
+for (1..5) {
+	$ms->undefine_variable("N$_");
+}
+$ms->define_variable(YEAR => 2015);
+$ms->define_variable(MONTH => 'April');
+
 my @output;
 
 @output = $ms->list(-variable, -namesonly);
-is_deeply \@output, ["%DEFINE_VARIABLE N1", 
-					 "%DEFINE_VARIABLE N2"];
+is_deeply \@output, ["%DEFINE_VARIABLE MONTH", 
+					 "%DEFINE_VARIABLE YEAR"];
 
 @output = $ms->list(-variable);
-is_deeply \@output, ["%DEFINE_VARIABLE N1 [1]\n", 
-					 "%DEFINE_VARIABLE N2 [2]\n"];
+is_deeply \@output, ["%DEFINE_VARIABLE MONTH [April]\n", 
+					 "%DEFINE_VARIABLE YEAR [2015]\n"];
 
 ($out,$err,@res) = capture { void { $ms->list(-variable, -namesonly); } };
-eq_or_diff $out, "%DEFINE_VARIABLE N1\n".
-				 "%DEFINE_VARIABLE N2\n";
+eq_or_diff $out, "%DEFINE_VARIABLE MONTH\n".
+				 "%DEFINE_VARIABLE YEAR\n";
 is $err, "";
 is_deeply \@res, [];
 
 ($out,$err,@res) = capture { void { $ms->list(-variable); } };
-eq_or_diff $out, "%DEFINE_VARIABLE N1 [1]\n\n".
-				 "%DEFINE_VARIABLE N2 [2]\n\n";
+eq_or_diff $out, "%DEFINE_VARIABLE MONTH [April]\n\n".
+				 "%DEFINE_VARIABLE YEAR [2015]\n\n";
 is $err, "";
 is_deeply \@res, [];
 
 @output = $ms->list_variable(-namesonly);
-is_deeply \@output, ["%DEFINE_VARIABLE N1", 
-					 "%DEFINE_VARIABLE N2"];
+is_deeply \@output, ["%DEFINE_VARIABLE MONTH", 
+					 "%DEFINE_VARIABLE YEAR"];
 
 @output = $ms->list_variable();
-is_deeply \@output, ["%DEFINE_VARIABLE N1 [1]\n", 
-					 "%DEFINE_VARIABLE N2 [2]\n"];
+is_deeply \@output, ["%DEFINE_VARIABLE MONTH [April]\n", 
+					 "%DEFINE_VARIABLE YEAR [2015]\n"];
 
 ($out,$err,@res) = capture { void { $ms->list_variable(-namesonly); } };
-eq_or_diff $out, "%DEFINE_VARIABLE N1\n".
-				 "%DEFINE_VARIABLE N2\n";
+eq_or_diff $out, "%DEFINE_VARIABLE MONTH\n".
+				 "%DEFINE_VARIABLE YEAR\n";
 is $err, "";
 is_deeply \@res, [];
 
 ($out,$err,@res) = capture { void { $ms->list_variable(); } };
-eq_or_diff $out, "%DEFINE_VARIABLE N1 [1]\n\n".
-				 "%DEFINE_VARIABLE N2 [2]\n\n";
+eq_or_diff $out, "%DEFINE_VARIABLE MONTH [April]\n\n".
+				 "%DEFINE_VARIABLE YEAR [2015]\n\n";
 is $err, "";
 is_deeply \@res, [];
 
