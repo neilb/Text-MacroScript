@@ -238,8 +238,6 @@ sub get { # Object method
     $self->{shift()};
 }
 
-# No set - use define instead.
-
 
 #------------------------------------------------------------------------------
 # deprecated method to define -macro, -script or -variable
