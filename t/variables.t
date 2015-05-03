@@ -135,10 +135,9 @@ for (1..5) {
 }
 is $ms->expand("SHOW"), 
 			   "N1=1=1, N2=2=2, N3=3=3, N4=4=4, N5=5=5.";
-diag 'Issue #6: %UNDEFINE_ALL_VARIABLE does not work';
-#is $ms->expand("%UNDEFINE_ALL_VARIABLE"), "";
-#is $ms->expand("SHOW"), 
-#			   "N1=, N2=, N3=, N4=, N5=.";
+is $ms->expand("%UNDEFINE_ALL_VARIABLE"), "";
+is $ms->expand("SHOW"), 
+			   "N1=, N2=, N3=, N4=, N5=.";
 
 #------------------------------------------------------------------------------
 # compute

@@ -640,9 +640,8 @@ sub expand { # Object method.
         }
         elsif( /^\%UNDEFINE_ALL(?:_(SCRIPT|VARIABLE))?/mso ) {
             # Undefining all macros or scripts
-            my $which = $1 || 'MACRO';
-
-            @{$self->{$which}} = ();
+            my $which = "-".lc($1 || 'MACRO');
+			$self->undefine_all($which);
 
             $_ = '' if $self->{REMOVE};
         }

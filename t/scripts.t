@@ -61,9 +61,8 @@ is $ms->expand("%DEFINE_VARIABLE N3[3]"), "";
 
 is $ms->expand("SHOW\n"),					"1,2,3,1,2,3\n";
 
-diag 'Issue #6: %UNDEFINE_ALL_VARIABLE does not work';
-#is $ms->expand("%UNDEFINE_ALL_VARIABLE"), "";
-#is $ms->expand("SHOW\n"),					"0,0,0,0,0,0\n";
+is $ms->expand("%UNDEFINE_ALL_VARIABLE"), "";
+is $ms->expand("SHOW\n"),					"0,0,0,0,0,0\n";
 
 $ms->define_variable( N1 => 4 );
 $ms->define_variable( N2 => 5 );
