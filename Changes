@@ -1,3 +1,23 @@
+2.04_02	2015-05-03
+
+	New Features
+	* New methods define_script(), list_script(), undefine_script(), undefine_all_script()
+	* New methods define_macro(), list_macro(), undefine_macro(), undefine_all_macro()
+	* New methods define_variable(), list_variable(), undefine_variable(), undefine_all_variable()
+
+	Feature Changes
+	* Require minimum perl 5.10 for extended regular expressions
+	* Use v5.10 syntax in require
+	* Reorganized documentation, added code comments
+
+	Other
+	* Add test for Issue #37: Variables should be expanded in all input text
+	* Use YEAR, MONTH to make sure issue #18 is still OK (output order of list() not predictable)
+	* Add commented tests for bug #23: macropp: report errors on syntax error
+	* In test scripts: output a message when test code is commented out due to open issue
+	* Test scripts
+	* Moved all TODO actions to issues in GitHub
+
 2.04	2015-04-18
 
 	Feature Changes
