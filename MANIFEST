@@ -1,9 +1,9 @@
 Changes
-html.macro
+examples/html.macro
+examples/macroutil.pl
 macrodir
 macropp
 MacroScript.pm
-macroutil.pl
 Makefile.PL
 MANIFEST
 META.yml			Module meta-data (added by MakeMaker)

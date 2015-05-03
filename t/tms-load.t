@@ -70,7 +70,7 @@ is $ms->expand("%INCLUDE[$test1]\n"),
 #------------------------------------------------------------------------------
 # %REQUIRE
 $ms = new_ok('Text::MacroScript');
-is $ms->expand("%REQUIRE[macroutil.pl]\n"), "";
+is $ms->expand("%REQUIRE[examples/macroutil.pl]\n"), "";
 is $ms->expand("%DEFINE_SCRIPT copyright [copyright(#0,#1)]"), "";
 is $ms->expand("copyright['Paulo Custodio'|2015]"), 
 	"<hr />\n".

@@ -11,7 +11,7 @@ menus which should be extracted out but haven't got round to doing so yet.
 
 %END_CASE
 
-%REQUIRE[/home/mark/lib/macroutil.pl]
+%REQUIRE[macroutil.pl]
 
 %DEFINE_VARIABLE MENU_OUROBOURUS_UPDATE     [2000/07/31]
 
