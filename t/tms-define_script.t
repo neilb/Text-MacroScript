@@ -111,5 +111,13 @@ $ms = new_ok('Text::MacroScript' => [
 is $ms->expand("hello ZZZZZ1 ZZZZZ2\n"),"Hallo hel lo\n";
 is $ms->expand("ZZZZZ1ZZZZZ2\n"),		"Hallo\n";
 
+#------------------------------------------------------------------------------
+# expand variables in scripts
+diag 'Issue #37: Variables should be expanded in all input text, not only in macro scripts';
+$ms = new_ok('Text::MacroScript');
+$ms->define_variable(YEAR => 2015);
+$ms->define(-script => SHOW => '"\\#YEAR = #YEAR"');
+#is $ms->expand("SHOW"), "#YEAR = 2015";
+
 
 done_testing;
