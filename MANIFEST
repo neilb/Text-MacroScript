@@ -10,12 +10,11 @@ META.yml			Module meta-data (added by MakeMaker)
 README
 t/macrodir.t
 t/macropp.t
+t/macros.t
 t/macroscript.t
+t/scripts.t
 t/tms-case.t
 t/tms-comment.t
-t/tms-define.t
-t/tms-define_script.t
 t/tms-embedded.t
-t/tms-list.t
 t/tms-load.t
-TODO
+t/variables.t
