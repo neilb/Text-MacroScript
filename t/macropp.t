@@ -153,7 +153,7 @@ END
 $cmd = "$macropp $test1";
 ok 1, " - $cmd";
 ($out,$err,$res) = capture { system $cmd; };
-diag 'Bug #23: macropp: report errors on syntax error';
+diag 'Issue #23: macropp: report errors on syntax error';
 #is $out, "";
 #is $err, "";
 #is $res, 0;
@@ -161,7 +161,7 @@ diag 'Bug #23: macropp: report errors on syntax error';
 $cmd = "$macropp $test2";
 ok 1, " - $cmd";
 ($out,$err,$res) = capture { system $cmd; };
-diag 'Bug #23: macropp: report errors on syntax error';
+diag 'Issue #23: macropp: report errors on syntax error';
 #is $out, "";
 #is $err, "";
 #is $res, 0;

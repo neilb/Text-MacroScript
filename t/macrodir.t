@@ -38,38 +38,38 @@ done_testing();
 sub run_tests {
 	
 	# expand all files, not verbose
-	diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+	diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 	run_test({-args => ""});
 
 	# -v|--verbose
-	diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+	diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 	run_test({-args => "-v"});
 	run_test({-args => "--verbose"});
 
 	# source dir argument
-	diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+	diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 	run_test({-src_dir => "2", -args => "2"});
 	run_test({-src_dir => "2", -args => "-v 2"});
 	run_test({-src_dir => "2", -args => "-v -- 2"});
 	
 	# -d, --dir target dir
-	diag 'Bug #9: macrodir -d: does not replicate source tree in target directory';
-	diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+	diag 'Issue #9: macrodir -d: does not replicate source tree in target directory';
+	diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 	#run_test({-target_dir => $TARGET, -args => "-v -d $TARGET"});
 	#run_test({-target_dir => $TARGET, -args => "-v --dir $TARGET"});
 	
 	# -f, --force
-	diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+	diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 	run_test({-force => 1, -args => "-v -f"});
 	run_test({-force => 1, -args => "-v --force"});
 
 	# -F, --file
-	diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+	diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 	run_test({-macro_file => "newmacros", -args => "-v -F newmacros"});
 	run_test({-macro_file => "newmacros", -args => "-v --file newmacros"});
 	
 	# -p, --prep
-	diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+	diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 	run_test({-args => "-v -p"});
 	run_test({-args => "-v --prep"});
 
@@ -89,7 +89,7 @@ sub run_test {
 	for ($opts->{-args}) {
 		$opts->{-verbose} = /-v\b|--verbose\b/ ? 1 : 0;
 		
-		diag 'Bug #10: macrodir always in embedded mode, ignoring -p option';
+		diag 'Issue #10: macrodir always in embedded mode, ignoring -p option';
 		#$opts->{-embedded} = /-p\b|--prep\b/ ? 1 : 0;
 		$opts->{-embedded} = /-p\b|--prep\b/ ? 0 : 1;
 	}

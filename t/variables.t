@@ -20,8 +20,8 @@ use_ok 'Text::MacroScript';
 # script to SHOW variables
 my @show;
 for (1..5) {
-	diag 'Bug #38: Variables with # syntax not parsed by $Macro->define()';
-	diag 'Bug #39: Undefined #var use causes perl error message without location';
+	diag 'Issue #38: Variables with # syntax not parsed by $Macro->define()';
+	diag 'Issue #39: Undefined #var use causes perl error message without location';
 	#push @show, "\"N$_ = #N$_ = \$Var{N$_}\"";
 	push @show, "\"N$_=\".(defined(\$Var{N$_}) ? \"\$Var{N$_}=\$Var{N$_}\" : '')";
 }
@@ -135,14 +135,14 @@ for (1..5) {
 }
 is $ms->expand("SHOW"), 
 			   "N1=1=1, N2=2=2, N3=3=3, N4=4=4, N5=5=5.";
-diag 'Bug #6: %UNDEFINE_ALL_VARIABLE does not work';
+diag 'Issue #6: %UNDEFINE_ALL_VARIABLE does not work';
 #is $ms->expand("%UNDEFINE_ALL_VARIABLE"), "";
 #is $ms->expand("SHOW"), 
 #			   "N1=, N2=, N3=, N4=, N5=.";
 
 #------------------------------------------------------------------------------
 # compute
-# Enhancement #40: Variables should accept expressions and compute them
+diag 'Issue #40: Variables should accept expressions and compute them';
 #for (1..5) {
 #	$ms->define_variable("N$_", ($_*2)."/2");
 #}

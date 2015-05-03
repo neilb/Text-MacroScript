@@ -39,7 +39,7 @@ is $ms->expand("SHOW\n"),					"1,0,0,1,0,0\n";
 is $ms->expand("%DEFINE_VARIABLE N2[2]"), "";
 is $ms->expand("%DEFINE_VARIABLE N3[3]"), "";
 is $ms->expand("SHOW\n"),					"1,2,3,1,2,3\n";
-diag 'Bug #6: %UNDEFINE_ALL_VARIABLE does not work';
+diag 'Issue #6: %UNDEFINE_ALL_VARIABLE does not work';
 #is $ms->expand("%UNDEFINE_ALL_VARIABLE"), "";
 #is $ms->expand("SHOW\n"),					"0,0,0,0,0,0\n";
 $ms->define( -variable => N1 => 4 );
@@ -55,7 +55,7 @@ is $ms->expand("ADD[1|3]"),	"4";
 $ms->undefine(-script => "ADD");
 is $ms->expand("ADD[1|3]"),	"ADD[1|3]";
 
-# Enhancement #5: Syntax SUM[] should be accepted to call script without parameters
+diag 'Issue #5: Syntax SUM[] should be accepted to call script without parameters';
 #is $ms->expand("SUM[]"),	"0";
 is $ms->expand("SUM"),	"0";
 is $ms->expand("SUM[1]"),	"1";
@@ -93,7 +93,7 @@ is $ms->expand("%DEFINE_SCRIPT * ['\\#0']\n"),"";
 is $ms->expand("2*4\n"),			"2#04\n";
 
 #------------------------------------------------------------------------------
-diag 'Bug #7: expansion depends on size of script name';
+diag 'Issue #7: expansion depends on size of script name';
 $ms = new_ok('Text::MacroScript' => [ 
 				-script => [ 
 					[ "hello"	=> "'Hallo'" ],

@@ -14,7 +14,7 @@ use_ok 'Text::MacroScript';
 #------------------------------------------------------------------------------
 # -embedded
 $ms = new_ok('Text::MacroScript' => [ -embedded => 1 ]);
-# Enhancement #2: expand() does not accept a multi-line text
+diag 'Issue #2: expand() does not accept a multi-line text';
 #is $ms->expand_embedded("hello<:%DEFINE *\nHallo\nWelt\n%END_DEFINE:>world<:*:>\n"),
 #	"helloworldHallo\nWelt\n";
 
