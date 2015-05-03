@@ -320,6 +320,46 @@ sub undefine_all { # Object method.
 
 
 #------------------------------------------------------------------------------
+# Define a new macro or overwrite an existing one
+# $arg_names is reference to list of formal parameters
+sub define_macro {
+	my($self, $name, $arg_names, $body) = @_;
+	if (! ref($arg_names)) {
+		$body = $arg_names;
+		$arg_names = [];
+	}
+	$self->define(-macro, $name, $body);
+}
+
+
+#------------------------------------------------------------------------------
+# List all the macros to STDOUT or return to array, option -nameonly to list 
+# only name
+sub list_macro {
+	my($self, $namesonly) = @_;
+	$self->list(-macro, $namesonly);
+}
+
+
+#------------------------------------------------------------------------------
+# Undefine a macro
+sub undefine_macro {
+	my($self, $name) = @_;
+	$self->undefine(-macro, $name);
+}
+
+
+#------------------------------------------------------------------------------
+# Undefine all macros
+sub undefine_all_macro {
+	my($self) = @_;
+	$self->undefine_all(-macro);
+}
+
+
+
+
+#------------------------------------------------------------------------------
 # Define a new variable or overwrite an existing one
 sub define_variable {
 	my($self, $name, $value) = @_;

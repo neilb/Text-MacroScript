@@ -25,40 +25,6 @@ $ms->define( -variable, YEAR => 2015 );
 $ms->define( -variable, MONTH => 'April' );
 
 #------------------------------------------------------------------------------
-# list macros
-($out,$err,@res) = capture { void { $ms->list( -macro ); } };
-eq_or_diff $out, norm_nl(<<'END');
-%DEFINE N1 [1]
-
-%DEFINE N2 [2]
-
-END
-is $err, "";
-is_deeply \@res, [];
-
-($out,$err,@res) = capture { $ms->list( -macro ); };
-is $out, "";
-is $err, "";
-is_deeply \@res, ["%DEFINE N1 [1]\n", 
-				  "%DEFINE N2 [2]\n"];
-
-#------------------------------------------------------------------------------
-# list macros -namesonly
-($out,$err,@res) = capture { void { $ms->list( -macro, -namesonly ); } };
-eq_or_diff $out, norm_nl(<<'END');
-%DEFINE N1
-%DEFINE N2
-END
-is $err, "";
-is_deeply \@res, [];
-
-($out,$err,@res) = capture { $ms->list( -macro, -namesonly ); };
-is $out, "";
-is $err, "";
-is_deeply \@res, ["%DEFINE N1", 
-				  "%DEFINE N2"];
-
-#------------------------------------------------------------------------------
 # list scripts
 ($out,$err,@res) = capture { void { $ms->list( -script ); } };
 eq_or_diff $out, norm_nl(<<'END');
