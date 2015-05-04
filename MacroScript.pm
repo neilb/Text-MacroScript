@@ -12,26 +12,27 @@ use Symbol ();
 use vars qw( $VERSION );
 $VERSION = '2.04_02'; 
 
+use Object::Tiny::RW 
+	'comment',			# True to create the %%[] comment macro
+	'embedded',			# True for embedded processing
+	'opendelim',		# open delimiter for embedded processing
+	'closedelim',		# close delimiter for embedded processing
+	'MACRO',			# Ordered list to hold the macro definitions 
+	'SCRIPT',			# Ordered list to hold the script definitions 
+	'VARIABLE',			# Hash to hold the users variables
+	
+    # State temporaries used during processing
+	'in_macro',			# Are we in a multi-line macro definition?
+	'in_script',		# Are we in a multi-line script definition?
+	'in_case',			# Are we in a %CASE block? 0, 'SKIP' or 1.
+	'in_embedded',		# Are we in embedded text?
+	'cur_name',			# The name of the multi-line macro or script
+	'cur_define',		# The multi-line macro or script we're building up
+	'line_nr',			# Current line number (for multi-line definitions this is 
+						# always the line number of the %DEFINE line)
+	;
 
-### Object fields
-#       -comment
-#       -file 
-#       -macro 
-#       -script 
-#       -variable
-#       -embedded 
-#       -opendelim 
-#       -closedelim 
-
-### -which values: -variable -script -macro
- 
 ### Private class data and methods. 
-#
-#   _expand_variable                object
-#   _find_element                   object
-#   _insert_element                 object
-#   _remove_element                 object
-
 
 sub _expand_variable { # Private object method.
     my $self  = shift;
@@ -42,7 +43,7 @@ sub _expand_variable { # Private object method.
                 sort { 
                     length( $b ) <=> length( $a ) ||
                             $b   cmp         $a 
-                    } keys %{$self->{VARIABLE}} 
+                    } keys %{$self->VARIABLE} 
 
                 ) {
         s/#\Q$var\E/\$Var{"$var"}/msg;
@@ -147,95 +148,51 @@ DESTROY { # Object method
 #------------------------------------------------------------------------------
 # Create new object, allow -options 
 sub new { # Class and object method
-    my $self  = shift;
-    my $class = ref( $self ) || $self;
+    my($class, %opts) = @_;
+	my $self = $class->SUPER::new(
+		line_nr 	=> 1,
+		MACRO		=> [],
+		SCRIPT		=> [],
+		VARIABLE	=> {},
+	);
+	
+	# parse options: -comment
+	if ($opts{-comment}) {
+        $self->_define_standard_comment;
+		$self->comment(1);
+	}
+	delete $opts{-comment};
+	
+	# parse options: -embedded
+	if ($opts{-embedded} || defined($opts{-opendelim})) {
+		$self->embedded(1);
+		$self->opendelim($opts{-opendelim} // "<:");
+		$self->closedelim($opts{-closedelim} // $opts{-opendelim} // ":>");
+	}
+	delete @opts{qw( -embedded -opendelim -closedelim)};
 
-    # We create a new object from scratch whether called as a class or object
-    # method.
-    $self = { 
-        -comment    => 0,     # Create the %%[] comment macro?
-        -file       => [],    # Read macros and scripts from these on creation
-        -macro      => [],    # Array of macros    in the form [[name=>body],...]
-        -script     => [],    # Array of scripts   in the form [[name=>body],...]
-        -variable   => [],    # Array of variables in the form [[name=>value],...]
-        -embedded   => 0,     # If true will create default delims if not given
-        -opendelim  => undef, # Delimiters used if we are working on embedded
-        -closedelim => undef, # macros
-        @_ 
-        };
-
-    @{$self->{MACRO}}    = (); # Ordered list to hold the macro definitions 
-    @{$self->{SCRIPT}}   = (); # Ordered list to hold the script definitions 
-    %{$self->{VARIABLE}} = (); # Hash to hold the users variables
-
-    $self->{REMOVE}      = 1;  # Remove definitions from the output; only an
-                                # option for debugging purposes
-
-    # `State' temporaries used during processing
-    $self->{IN_MACRO}    = 0;  # Are we in a multi-line macro definition?
-    $self->{IN_SCRIPT}   = 0;  # Are we in a multi-line script definition?
-    $self->{IN_CASE}     = 0;  # Are we in a %CASE block? 0, 'SKIP' or 1.
-    $self->{IN_EMBEDDED} = 0;  # Are we in embedded text?
-    $self->{DEFINE}      = ''; # The multi-line macro or script we're building up
-    $self->{NAME}        = ''; # The name of the multi-line macro or script
-    $self->{LINO}        = 1;  # Current line number (for multi-line
-                                # definitions this is always the line number
-                                # of the %DEFINE line)
-    $self->{OPEN_LEN}    = 0; 
-    $self->{CLOSE_LEN}   = 0; 
-
-    if( $self->{-embedded} or defined $self->{-opendelim} ) {
-        # We want embedded, but may want default delimiters.
-        $self->{-opendelim}  = "<:" unless $self->{-opendelim};
-        # If the user has just given an opendelim then use it as closedelim
-        # too.
-        $self->{-closedelim} = $self->{-opendelim} 
-        if not $self->{-closedelim} and $self->{-opendelim} ne "<:";
-
-        $self->{-closedelim} = ":>" unless $self->{-closedelim}; 
-        # We process embedded if we have two delimiters.
-        $self->{-embedded}   = 1;
-        $self->{OPEN_LEN}    = length $self->{-opendelim}; 
-        $self->{CLOSE_LEN}   = length $self->{-closedelim}; 
-    }
-    
-    bless $self, $class;   # Bless early so we can call methods
-    
-    eval {
-        local $_;
-
-        $self->_define_standard_comment if $self->{-comment};
-
-        foreach( @{$self->{-file}} ) {
-            $self->load_file( $_ );
+	# parse options: -file
+	if ($opts{-file}) {
+        foreach my $file (@{$opts{-file}}) {
+            $self->load_file($file);
         }
-
-        foreach( @{$self->{-variable}} ) {
-            my( $name, $body ) = @{$_};
-            $self->define( -variable, $name, $body );
-        }
-
-        foreach( @{$self->{-macro}} ) {
-            my( $name, $body ) = @{$_};
-            $self->define( -macro, $name, $body );
-        }
-
-        foreach( @{$self->{-script}} ) {
-            my( $name, $body ) = @{$_};
-            $self->define( -script, $name, $body );
-        }
-    };
-    croak $@ if $@;
-
+	}
+	delete $opts{-file};
+	
+	# parse options: -variable, -macro, -script
+	for my $which (qw( -variable -macro -script )) {
+		if ($opts{$which}) {
+			foreach (@{$opts{$which}}) {
+				my($name, $body) = @$_;
+				$self->define($which, $name, $body);
+			}
+		}
+		delete $opts{$which};
+	}
+	
+	croak "Invalid options ".join(",", keys %opts) if %opts;
+		
     $self;
-}
-
-
-sub get { # Object method
-    my $self  = shift;
-    my $class = ref( $self ) || $self;
-
-    $self->{shift()};
 }
 
 
@@ -277,8 +234,8 @@ sub list { # Object method.
     my $array;
 
     if( $which eq 'VARIABLE' ) {
-        $array = [ map { [ $_, $self->{VARIABLE}{$_} ] } 
-                    sort keys %{$self->{VARIABLE}} ];
+        $array = [ map { [ $_, $self->VARIABLE->{$_} ] } 
+                    sort keys %{$self->VARIABLE} ];
     }
     else {
         $array = $self->{$which};
@@ -323,7 +280,7 @@ sub undefine_all { # Object method.
     }
 
 	# redefine comment macro
-	$self->_define_standard_comment if $self->{-comment};
+	$self->_define_standard_comment if $self->comment;
 }
 
 
@@ -452,17 +409,17 @@ sub load_file { # Object method.
 
     # Treat loaded files as if wrapped in delimiters (only affects embedded
     # processing).
-    my $in_embedded = $self->{IN_EMBEDDED}; 
-    $self->{IN_EMBEDDED} = 1; 
+    my $in_embedded = $self->in_embedded; 
+    $self->in_embedded(1); 
 
     $self->expand_file( $file, -noprint );
 
-    $self->{IN_EMBEDDED} = $in_embedded; 
+    $self->in_embedded($in_embedded); 
 }
 
 
 #------------------------------------------------------------------------------
-# parses the given file with expand() or expand_embedded() depending on -embedded
+# parses the given file with expand() or expand_embedded() depending on embedded()
 # Usage: $macro->expand_file( name, body )
 # In an array context will return the file, e.g.
 # @expanded = $macro->expand_file( name, body );
@@ -490,7 +447,7 @@ sub expand_file { # Object method.
         open $fh, $file or croak "failed to open $file: $!";
 
         while( <$fh> ) {
-            my $line = $self->{-embedded} ? 
+            my $line = $self->embedded ? 
                             $self->expand_embedded( $_, $file ) :
                             $self->expand( $_, $file );
 
@@ -506,8 +463,8 @@ sub expand_file { # Object method.
 
         close $fh or croak "failed to close $file: $!";
 
-	if( $self->{IN_MACRO} or $self->{IN_SCRIPT} ) {
-	    my $which = $self->{IN_MACRO} ? 'DEFINE' : 'DEFINE_SCRIPT';
+	if( $self->in_macro || $self->in_script ) {
+	    my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
 	    croak "runaway \%$which to end of file"
 	}
 
@@ -528,27 +485,27 @@ sub expand_embedded { # Object method.
 
     my $line = '';
 
-    if( not $self->{IN_EMBEDDED} and /^$self->{-opendelim}$/o ) {
-        $self->{IN_EMBEDDED} = 1;
+    if( ! $self->in_embedded && /^$self->{opendelim}$/o ) {
+        $self->in_embedded(1);
     } 
-    elsif( $self->{IN_EMBEDDED} and /^$self->{-closedelim}$/o ) {
-        $self->{IN_EMBEDDED} = 0;
+    elsif( $self->in_embedded && /^$self->{closedelim}$/o ) {
+        $self->in_embedded(0);
     }
-    elsif( not $self->{IN_EMBEDDED} ) {
-        my $pos = index( $_, $self->{-opendelim} );
+    elsif( ! $self->in_embedded ) {
+        my $pos = index( $_, $self->opendelim );
         if( $pos > -1 ) {
             $line = substr( $_, 0, $pos ) if $pos > 0;
-            my $start = $pos + $self->{OPEN_LEN};
-            my $end   = index( $_, $self->{-closedelim}, $start );
+            my $start = $pos + length($self->opendelim);
+            my $end   = index( $_, $self->closedelim, $start );
             if( $end > -1 ) {
                 $line .= $self->expand( 
                     substr( $_, $start, $end - $start ), $file );
                 $line .= $self->expand_embedded( 
-                            substr( $_, $end + $self->{CLOSE_LEN} ), $file );
+                            substr( $_, $end + length($self->closedelim) ), $file );
             }
             else {
                 $line .= $self->expand( substr( $_, $start ), $file );
-                $self->{IN_EMBEDDED} = 1;
+                $self->in_embedded(1);
             }
         }
         else {
@@ -556,12 +513,12 @@ sub expand_embedded { # Object method.
         }
     }
     else {
-        my $end = index( $_, $self->{-closedelim} );
+        my $end = index( $_, $self->closedelim );
         if( $end > -1 ) {
             $line = $self->expand( substr( $_, 0, $end ), $file );
-            $self->{IN_EMBEDDED} = 0;
+            $self->in_embedded(0);
             $line .= $self->expand_embedded( 
-                        substr( $_, $end + $self->{CLOSE_LEN} ), $file );
+                        substr( $_, $end + length($self->closedelim) ), $file );
         }
         else {
             $line = $self->expand( $_, $file );
@@ -580,17 +537,17 @@ sub expand { # Object method.
     local $_  = shift;
     my $file  = (shift || '-');
 
-    $self->{LINO} = $. || 1 unless $self->{IN_MACRO} or $self->{IN_SCRIPT};
-    my $where     = "at $file line $self->{LINO}";
+    $self->line_nr($. || 1) unless ($self->in_macro || $self->in_script);
+    my $where     = "at $file line ".$self->line_nr;
 
     eval {
-        if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso or 
-            ( $self->{IN_CASE} eq 'SKIP' ) ) {
+        if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso || 
+            ( ($self->in_case || '') eq 'SKIP' ) ) {
 
             croak "runaway \%DEFINE $where to line $."
-            if $self->{IN_MACRO};
+            if $self->in_macro;
             croak "runaway \%DEFINE_SCRIPT $where to line $."
-            if $self->{IN_SCRIPT};
+            if $self->in_script;
 
             if( defined $1 and $1 eq 'CASE' ) {
                 croak "no condition for CASE $where" unless defined $2;
@@ -598,45 +555,51 @@ sub expand { # Object method.
                 my $eval    = $self->_expand_variable( $2 );
                 my $result;
                 eval {
-                    my %Var = %{$self->{VARIABLE}};
+                    my %Var = %{$self->VARIABLE};
                     local $_;
                     $result = eval $eval;
-                    %{$self->{VARIABLE}} = %Var;
+                    %{$self->VARIABLE} = %Var;
                 };
                 croak "evaluation of CASE $eval failed $where: $@" if $@;
 
-                $self->{IN_CASE} = $result ? 1 : 'SKIP';
+                $self->in_case($result ? 1 : 'SKIP');
             }
             elsif( defined $1 and $1 eq 'END_CASE' ) {
-                $self->{IN_CASE} = 0;
+                $self->in_case(0);
             }
 
-            $_ = '' if $self->{REMOVE};
+            $_ = '';
         }
-        elsif( ( $self->{IN_MACRO} or $self->{IN_SCRIPT} ) and /^\%END_DEFINE/mso ) {
+        elsif( ( $self->in_macro || $self->in_script ) && /^\%END_DEFINE/mso ) {
             # End of a multi-line macro or script
-            $self->{DEFINE} = $self->_expand_variable( $self->{DEFINE} );
+            $self->cur_define( $self->_expand_variable( $self->cur_define ) );
 
-            my $which = $self->{IN_MACRO} ? 'MACRO' : 'SCRIPT';
+			if ($self->in_macro) {
+				$self->in_macro(0);
+				$self->_insert_element('MACRO', $self->cur_name, $self->cur_define );
+			}
+			else {
+				$self->in_script(0);
+				$self->_insert_element('SCRIPT', $self->cur_name, $self->cur_define );
+			}
 
-            $self->{"IN_$which"} = 0;
-            $self->_insert_element( $which, $self->{NAME}, $self->{DEFINE} );
-            $self->{NAME} = $self->{DEFINE} = '';
-
-            $_ = '' if $self->{REMOVE};
+            $self->cur_name('');
+			$self->cur_define('');
+			
+            $_ = '';
         }
-        elsif( $self->{IN_MACRO} or $self->{IN_SCRIPT} ) {
+        elsif( $self->in_macro || $self->in_script ) {
             # Accumulating the body of a multi-line macro or script
-            my $which = $self->{IN_MACRO} ? 'DEFINE' : 'DEFINE_SCRIPT';
+            my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
             croak "runaway \%$which $where to line $."
             if /^\%
                 (?:(?:UNDEFINE(?:_ALL)|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
                 LOAD | INCLUDE | (?:END_)CASE
                /msox;
 
-            $self->{DEFINE} .= $_;
+            $self->{cur_define} .= $_;
 
-            $_ = '' if $self->{REMOVE};
+            $_ = '';
         }
         elsif( /^\%UNDEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)/mso ) {
             # Undefining a macro, script or variable
@@ -645,14 +608,14 @@ sub expand { # Object method.
             carp "Cannot undefine non-existent $which $2 $where" 
             unless $self->_remove_element( $which, $2 ); 
      
-            $_ = '' if $self->{REMOVE};
+            $_ = '';
         }
         elsif( /^\%UNDEFINE_ALL(?:_(SCRIPT|VARIABLE))?/mso ) {
             # Undefining all macros or scripts
             my $which = "-".lc($1 || 'MACRO');
 			$self->undefine_all($which);
 
-            $_ = '' if $self->{REMOVE};
+            $_ = '';
         }
         elsif( /^\%DEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)\s*\[(.*?)\]/mso ) {
             # Defining a single-line macro, script or variable
@@ -660,28 +623,32 @@ sub expand { # Object method.
 
             $self->_insert_element( $which, $2, $self->_expand_variable( $3 || '' ) );
 
-            $_ = '' if $self->{REMOVE};
+            $_ = '';
         }
         elsif( /^\%DEFINE(?:_(SCRIPT))?\s+([^][\s]+)/mso ) {
             # Preparing to define a multi-line macro or script (we don't permit
             # multi-line variables)
-            my $which = defined $1 ? 'SCRIPT' : 'MACRO';
-            $self->{NAME}        = $2;
-            $self->{DEFINE}      = '';
-            $self->{"IN_$which"} = 1;
+            $self->cur_name($2);
+            $self->cur_define('');
+			if (defined $1) {
+				$self->in_script(1);
+			}
+			else {
+				$self->in_macro(1);
+			}
 
-            $_ = '' if $self->{REMOVE};
+            $_ = '';
         }
         elsif( /^\%(LOAD|INCLUDE)\s*\[(.+?)\]/mso ) {
             # Save state in local stack frame (i.e. recursion is taking care of
             # stacking for us)
-            my $in_macro    = $self->{IN_MACRO};   # Should never be true
-            my $in_script   = $self->{IN_SCRIPT};  # Should never be true
-            my $in_case     = $self->{IN_CASE};    # Should never be true
-            my $define      = $self->{DEFINE};
-            my $name        = $self->{NAME};
-            my $lino        = $self->{LINO};
-            my $in_embedded = $self->{IN_EMBEDDED};
+            my $in_macro    = $self->in_macro;   # Should never be true
+            my $in_script   = $self->in_script;  # Should never be true
+            my $in_case     = $self->in_case;    # Should never be true
+            my $in_embedded = $self->in_embedded;
+            my $name        = $self->cur_name;
+            my $define      = $self->cur_define;
+            my $line_nr     = $self->line_nr;
 
             my @lines = ();
             
@@ -691,9 +658,9 @@ sub expand { # Object method.
                 # file then we assume we are still in the embedded text since
                 # we're loading macros, scripts etc.
                 carp "Should be embedded when LOADing $2" 
-                if $self->{-embedded} and not $self->{IN_EMBEDDED};
+                if ($self->embedded && ! $self->in_embedded);
 
-                # $self->{IN_EMBEDDED} = 1; # Should be 1 anyway - this is done
+                # $self->in_embedded(1); Should be 1 anyway - this is done
 
                 # inside load_file().
                 # This is a macro/scripts file; instantiates macros and scripts,
@@ -705,9 +672,9 @@ sub expand { # Object method.
                 # then we assume that we are not in embedded text at the start of that
                 # file, i.e. we look freshly for an opening delimiter. 
                 carp "Should be embedded when INCLUDINGing $2" 
-                if $self->{-embedded} and not $self->{IN_EMBEDDED};
+                if ($self->embedded && ! $self->in_embedded);
 
-                $self->{IN_EMBEDDED} = 0; # Should be 1, but we want it off now. 
+                $self->in_embedded(0); # Should be 1, but we want it off now. 
 
                 # This is a normal file that may contain macros/scripts - the
                 # macros and scripts are instantiated and any text is returned
@@ -716,13 +683,13 @@ sub expand { # Object method.
             }
         
             # Restore state
-            $self->{IN_MACRO}    = $in_macro;
-            $self->{IN_SCRIPT}   = $in_script;
-            $self->{IN_CASE}     = $in_case;
-            $self->{DEFINE}      = $define;
-            $self->{NAME}        = $name;
-            $self->{LINO}        = $lino;
-            $self->{IN_EMBEDDED} = $in_embedded;
+            $self->in_macro($in_macro);
+            $self->in_script($in_script);
+            $self->in_case($in_case);
+            $self->in_embedded($in_embedded);
+            $self->cur_name($name);
+            $self->cur_define($define);
+            $self->line_nr($line_nr);
 
             # Replace string with the outcome of the load (empty) or include 
             $_ = join '', @lines;
@@ -734,11 +701,11 @@ sub expand { # Object method.
             };
             carp "Failed to require `$file': $@" if $@;
 
-            $_ = '' if $self->{REMOVE};
+            $_ = '';
         }
         else {
             # This array is already ordered by length then by ASCII.
-            foreach my $script ( @{$self->{SCRIPT}} ) {
+            foreach my $script ( @{$self->SCRIPT} ) {
                 my( $name, $orig_body ) = @{$script};
                 # We substitute wherever found, including in the middle of 'words'
                 # or whatever (but we can always create macro names like *MYMACRO
@@ -782,10 +749,10 @@ sub expand { # Object method.
                     my $result = '';
                     eval {
                         my @Param = @param; # Give (local)  access to params
-                        my %Var   = %{$self->{VARIABLE}};
+                        my %Var   = %{$self->VARIABLE};
                         local $_;
                         $result   = eval $body;
-                        %{$self->{VARIABLE}} = %Var;
+                        %{$self->VARIABLE} = %Var;
                     };
                     croak "evaluation of SCRIPT $name failed $where: $@" 
                     if $@;
@@ -802,7 +769,7 @@ sub expand { # Object method.
                  }gmsex; 
             }
 
-            foreach my $macro ( @{$self->{MACRO}} ) {
+            foreach my $macro ( @{$self->MACRO} ) {
                 my( $name, $body ) = @{$macro};
 
                 s{

@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use ExtUtils::MakeMaker ;
+use ExtUtils::MakeMaker;
 require v5.10;
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
@@ -23,6 +23,7 @@ WriteMakefile(
 		'Path::Tiny' => 0.068,
 		'Capture::Tiny' => 0.22,
 		'Test::Differences' => 0.61,
+		'Object::Tiny::RW' => 1.07,
 	},
 	'EXE_FILES'	   => [
 		'macropp',
