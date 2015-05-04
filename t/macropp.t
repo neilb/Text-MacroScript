@@ -14,7 +14,7 @@ my($cmd,$out,$err,$res,$test1,$test2);
 
 use_ok 'Text::MacroScript';
 
-my $macropp = "$^X macropp";
+my $macropp = "$^X -Iblib/lib macropp";
 
 my $macros = "test_macros~";
 path($macros)->spew(norm_nl(<<END));
