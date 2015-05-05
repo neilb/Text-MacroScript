@@ -1,4 +1,10 @@
-2.04_02	2015-05-03
+2.05	2015-05-05
+
+	Bug Fixes
+	* When calling scripts in tests, make sure to use the blib/lib directory
+	* Fix #42: %UNDEFINE_ALL removes comment macro
+	* Fix #6: %UNDEFINE_ALL_VARIABLE does not work
+	* Fix #24: macroutil.pl is an example but is installed at Text::macroutil.pl
 
 	New Features
 	* New methods define_script(), list_script(), undefine_script(), undefine_all_script()
@@ -11,6 +17,7 @@
 	* Reorganized documentation, added code comments
 
 	Other
+	* Use Object::Tiny::RW to create object and access attributes
 	* Add test for Issue #37: Variables should be expanded in all input text
 	* Use YEAR, MONTH to make sure issue #18 is still OK (output order of list() not predictable)
 	* Add commented tests for bug #23: macropp: report errors on syntax error
