@@ -414,8 +414,7 @@ sub load_file { # Object method.
 # @expanded = $macro->expand_file( name, body );
 # In a void context will print to the current filehandle
 sub expand_file { # Object method.
-    my( $self, $file, $noprint ) = @_;
-    my $class = ref( $self ) || $self;
+    my($self, $file, $noprint) = @_;
 
     # We need this because eval creates a scalar context.
     my $wantarray = wantarray;
@@ -432,13 +431,15 @@ sub expand_file { # Object method.
         local $_;
 
         open my $fh, $file or croak "failed to open $file: $!";
-
+		my $line_nr;
+		
         while( <$fh> ) {
+			$line_nr++;
             my $line = $self->embedded ? 
-                            $self->expand_embedded( $_, $file ) :
-                            $self->expand( $_, $file );
+                            $self->expand_embedded( $_, $file, $line_nr ) :
+                            $self->expand( $_, $file, $line_nr );
 
-            next unless defined $line and $line; 
+            next unless defined($line) && $line ne ''; 
 
             if( $wantarray ) {
                 push @lines, $line;
@@ -450,25 +451,23 @@ sub expand_file { # Object method.
 
         close $fh or croak "failed to close $file: $!";
 
-	if( $self->in_macro || $self->in_script ) {
-	    my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-	    croak "runaway \%$which to end of file"
-	}
+		if( $self->in_macro || $self->in_script ) {
+			my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
+			croak "runaway \%$which to end of file"
+		}
 
     };
     croak $@ if $@;
 
-    @lines if $wantarray and not $noprint;
+    @lines if $wantarray && ! $noprint;
 }
 
 
 #------------------------------------------------------------------------------
 # similar to expand(), but only expands text between the open and close delimiters
 sub expand_embedded { # Object method.
-    my $self  = shift;
-    my $class = ref( $self ) || $self;
-    local $_  = shift;
-    my $file  = (shift || '-');
+	my($self, $text, $file, $line_nr) = @_;
+    local $_ = $text;
 
     my $line = '';
 
@@ -486,12 +485,14 @@ sub expand_embedded { # Object method.
             my $end   = index( $_, $self->closedelim, $start );
             if( $end > -1 ) {
                 $line .= $self->expand( 
-                    substr( $_, $start, $end - $start ), $file );
+									substr( $_, $start, $end - $start ), 
+									$file, $line_nr );
                 $line .= $self->expand_embedded( 
-                            substr( $_, $end + length($self->closedelim) ), $file );
+									substr( $_, $end + length($self->closedelim) ), 
+									$file, $line_nr );
             }
             else {
-                $line .= $self->expand( substr( $_, $start ), $file );
+                $line .= $self->expand( substr( $_, $start ), $file, $line_nr );
                 $self->in_embedded(1);
             }
         }
@@ -502,13 +503,16 @@ sub expand_embedded { # Object method.
     else {
         my $end = index( $_, $self->closedelim );
         if( $end > -1 ) {
-            $line = $self->expand( substr( $_, 0, $end ), $file );
+            $line = $self->expand( 
+								substr( $_, 0, $end ), 
+								$file, $line_nr );
             $self->in_embedded(0);
             $line .= $self->expand_embedded( 
-                        substr( $_, $end + length($self->closedelim) ), $file );
+								substr( $_, $end + length($self->closedelim) ), 
+								$file, $line_nr );
         }
         else {
-            $line = $self->expand( $_, $file );
+            $line = $self->expand( $_, $file, $line_nr );
         }
     }
 
@@ -517,23 +521,24 @@ sub expand_embedded { # Object method.
 
 
 #------------------------------------------------------------------------------
-# parse and expand passed string; filename is used for error messages
+# parse and expand passed string; file and line_nr are used for error messages
 sub expand { # Object method.
-    my $self  = shift;
-    my $class = ref( $self ) || $self;
-    local $_  = shift;
-    my $file  = (shift || '-');
-
-    $self->line_nr($. || 1) unless ($self->in_macro || $self->in_script);
-    my $where     = "at $file line ".$self->line_nr;
-
+	my($self, $text, $file, $line_nr) = @_;
+    local $_ = $text;
+	
+    $file //= '-';
+	$line_nr ||= 1;
+    $self->line_nr($line_nr) unless ($self->in_macro || $self->in_script);
+    my $where = "at $file line ".$self->line_nr;
+	my $where_to = "$where to line $line_nr";
+	
     eval {
         if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso || 
             ( ($self->in_case || '') eq 'SKIP' ) ) {
 
-            croak "runaway \%DEFINE $where to line $."
+            croak "runaway \%DEFINE $where_to"
             if $self->in_macro;
-            croak "runaway \%DEFINE_SCRIPT $where to line $."
+            croak "runaway \%DEFINE_SCRIPT $where_to"
             if $self->in_script;
 
             if( defined $1 and $1 eq 'CASE' ) {
@@ -578,7 +583,7 @@ sub expand { # Object method.
         elsif( $self->in_macro || $self->in_script ) {
             # Accumulating the body of a multi-line macro or script
             my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-            croak "runaway \%$which $where to line $."
+            croak "runaway \%$which $where_to"
             if /^\%
                 (?:(?:UNDEFINE(?:_ALL)|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
                 LOAD | INCLUDE | (?:END_)CASE
@@ -812,10 +817,10 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
         print $Macro->expand( $_ ) if $_;
     }
 
-    # Canonical use (the filename improves error messages):
+    # Canonical use (the filename and line number improves error messages):
     my $Macro = Text::MacroScript->new;
     while( <> ) {
-        print $Macro->expand( $_, $ARGV ) if $_;
+        print $Macro->expand( $_, $ARGV, $. ) if $_;
     }
 
     # new() for embedded macro processing
@@ -825,7 +830,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     # or
     my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' );
     while( <> ) {
-        print $Macro->expand_embedded( $_, $ARGV ) if $_;
+        print $Macro->expand_embedded( $_, $ARGV, $. ) if $_;
     }
 
     # Create a macro object and create initial macros/scripts from the file(s)
@@ -904,12 +909,12 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     # expand()
 
     $expanded = $Macro->expand( $unexpanded );
-    $expanded = $Macro->expand( $unexpanded, $filename );
+    $expanded = $Macro->expand( $unexpanded, $filename, $line_nr );
 
     # expand_embedded()
 
     $expanded = $Macro->expand_embedded( $unexpanded );
-    $expanded = $Macro->expand_embedded( $unexpanded, $filename );
+    $expanded = $Macro->expand_embedded( $unexpanded, $filename, $line_nr );
 
 
 This bundle also includes the C<macropp> and C<macrodir> scripts which allows us
@@ -1246,14 +1251,15 @@ See also L</%UNDEFINE_ALL_VARIABLE>.
 =head3 expand
 
   $text = $Macro->expand( $in );
-  $text = $Macro->expand( $in, $filename );
+  $text = $Macro->expand( $in, $filename, $line_nr );
 
 Expands the given C<$in> input and returns the expanded text. The C<$in> 
 is either a text line or an interator that returns a sequence of text 
 lines. 
 
-The C<$filename> is optional and defaults to C<"-">. It is used in error 
-messages to locate the error. 
+The C<$filename> is optional and defaults to C<"-">. The <$line_nr> is
+optional and defaults to C<1>. They are used in error messages to locate 
+the error. 
 
 The expansion processes any macro definitions and expands any macro 
 calls found in the input text. C<expand()> buffers internally all the 
@@ -1264,7 +1270,7 @@ for each line of a multi-line L</%DEFINE>.
 =head3 expand_embedded
 
   $text = $Macro->expand_embedded( $in );
-  $text = $Macro->expand_embedded( $in, $filename );
+  $text = $Macro->expand_embedded( $in, $filename, $line_nr );
 
 Similar to C<expand()>, but only expands text between the open and close 
 delimiters (see C<-opendelim> and C<-closedelim>).
