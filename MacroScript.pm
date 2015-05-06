@@ -35,7 +35,6 @@ use Object::Tiny::RW
 
 sub _expand_variable { # Private object method.
     my $self  = shift;
-    my $class = ref( $self ) || $self;
     local $_  = (shift || '');
 
     foreach my $var (  
@@ -56,7 +55,6 @@ sub _expand_variable { # Private object method.
 # Algorithms with Perl (with the errata).
 sub _find_element { # Private object method.
     my( $self, $array_name, $target ) = @_;
-    my $class = ref( $self ) || $self;
 
     my $target_len    = length $target;
 
@@ -91,7 +89,6 @@ sub _find_element { # Private object method.
 
 sub _insert_element { # Private object method.
     my( $self, $array_name, $name, $body ) = @_;
-    my $class = ref( $self ) || $self;
 
     if( $array_name eq 'VARIABLE' ) {
         $self->{$array_name}{$name} = $body;
@@ -114,7 +111,6 @@ sub _insert_element { # Private object method.
 
 sub _remove_element { # Private object method.
     my( $self, $array_name, $name ) = @_;
-    my $class = ref( $self ) || $self;
 
     my $element = undef;
 
@@ -199,7 +195,6 @@ sub new { # Class and object method
 # deprecated method to define -macro, -script or -variable
 sub define { # Object method.
     my( $self, $which, $name, $body ) = @_;
-    my $class = ref( $self ) || $self;
 
     $self->_insert_element( uc substr( $which, 1 ), $name, $body );
 }
@@ -208,10 +203,8 @@ sub define { # Object method.
 # deprecated method to undefine -macro, -script or -variable
 sub undefine { # Object method.
     my( $self, $which, $name ) = @_;
-    my $class = ref( $self ) || $self;
 
     $which = uc substr( $which, 1 );
-
     carp "No $which called $name exists" unless 
     $self->_remove_element( $which, $name ); 
 }
@@ -221,7 +214,6 @@ sub undefine { # Object method.
 # deprecated method to list all -macro, -script or -variable
 sub list { # Object method.
     my( $self, $which, $namesonly ) = @_;
-    my $class = ref( $self ) || $self;
 
     my @lines;
     local $_;
@@ -267,7 +259,6 @@ sub list { # Object method.
 # deprecated method to undefine all -macro, -script or -variable
 sub undefine_all { # Object method.
     my( $self, $which ) = @_;
-    my $class = ref( $self ) || $self;
 
     $which = uc substr( $which, 1 );
 
@@ -404,7 +395,6 @@ sub _define_standard_comment {
 # load macro definitions from a file
 sub load_file { # Object method.
     my( $self, $file ) = @_;
-    my $class = ref( $self ) || $self;
 
     # Treat loaded files as if wrapped in delimiters (only affects embedded
     # processing).
@@ -974,8 +964,8 @@ delimiters of C<E<lt>:> and C<:E<gt>> throughout.
 
 =head3 new
 
-  $self = $class->new();
-  $self = $class->new( %opts );
+  $self = Text::MacroScript->new();
+  $self = Text::MacroScript->new( %opts );
 
 Create a new C<Text::MacroScript> object, initialized with the supplied 
 options. By default creates an object for macro processing. 
