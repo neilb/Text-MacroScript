@@ -7,7 +7,6 @@ use warnings;
 
 use Carp qw( carp croak );
 use Path::Tiny;
-use Symbol ();
 
 use vars qw( $VERSION );
 $VERSION = '2.05'; 
@@ -442,9 +441,7 @@ sub expand_file { # Object method.
 
         local $_;
 
-        my $fh = Symbol::gensym;
-
-        open $fh, $file or croak "failed to open $file: $!";
+        open my $fh, $file or croak "failed to open $file: $!";
 
         while( <$fh> ) {
             my $line = $self->embedded ? 
