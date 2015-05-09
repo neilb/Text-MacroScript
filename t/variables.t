@@ -9,12 +9,13 @@ use Capture::Tiny 'capture';
 use Test::Differences;
 use Test::More;
 
+use_ok 'Text::MacroScript';
+require_ok 't/mytests.pl';
+
 my $ms;
 my($out,$err,@res);
 
 sub void(&) { $_[0]->(); () }
-
-use_ok 'Text::MacroScript';
 
 #------------------------------------------------------------------------------
 # script to SHOW variables

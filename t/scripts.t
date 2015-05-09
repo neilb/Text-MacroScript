@@ -12,9 +12,10 @@ use Test::More;
 my $ms;
 my($out,$err,@res);
 
-sub void(&) { $_[0]->(); () }
-
 use_ok 'Text::MacroScript';
+require_ok 't/mytests.pl';
+
+sub void(&) { $_[0]->(); () }
 
 #------------------------------------------------------------------------------
 # define

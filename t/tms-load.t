@@ -11,13 +11,12 @@ use POSIX 'strftime';
 use Test::Differences;
 use Test::More;
 
+use_ok 'Text::MacroScript';
+require_ok 't/mytests.pl';
+
 my $ms;
 my $test1 = "test~";
 my($out,$err,@res);
-
-sub void(&) { $_[0]->(); () }
-
-use_ok 'Text::MacroScript';
 
 path($test1)->spew(norm_nl(<<'END'));
 Test text with hello
@@ -70,27 +69,3 @@ is $ms->expand("copyright['Paulo Custodio'|2015]"),
 ok unlink($test1);
 
 done_testing;
-
-
-sub norm_nl {
-	local($_) = @_;
-	s/\r\n/\n/g;
-	return $_;
-}
-
-#------------------------------------------------------------------------------
-# check $@ for the given error message
-sub check_error {
-	my($line_nr, $eval, $expected) = @_;
-	my $where = "at line $line_nr";
-	
-	ok defined($eval), "error defined $where";
-	$eval //= "";
-	
-	$expected =~ s/__LOC__/at $0 line $line_nr/g;
-	for ($eval, $expected) {
-		s/\\/\//g;
-	}
-	
-	eq_or_diff $eval, $expected, "error ok $where";
-}

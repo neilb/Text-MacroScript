@@ -10,11 +10,12 @@ use Path::Tiny;
 use Test::Differences;
 use Test::More;
 
+use_ok 'Text::MacroScript';
+require_ok 't/mytests.pl';
+
 my $ms;
 my $fh;
 my($out,$err,@res);
-
-use_ok 'Text::MacroScript';
 
 # capture $! for file not found and permission denied
 ok ! open($fh, "NOFILE");
@@ -38,21 +39,3 @@ eval { $ms->expand_file("testdir~"); };
 check_error(__LINE__-1, $@, "failed to open testdir~: $permission_denied __LOC__.\n");
 
 done_testing;
-
-
-#------------------------------------------------------------------------------
-# check $@ for the given error message
-sub check_error {
-	my($line_nr, $eval, $expected) = @_;
-	my $where = "at line $line_nr";
-	
-	ok defined($eval), "error defined $where";
-	$eval //= "";
-	
-	$expected =~ s/__LOC__/at $0 line $line_nr/g;
-	for ($eval, $expected) {
-		s/\\/\//g;
-	}
-	
-	eq_or_diff $eval, $expected, "error ok $where";
-}

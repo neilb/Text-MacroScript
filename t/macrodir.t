@@ -13,6 +13,7 @@ use Time::HiRes 'usleep';
 use Path::Tiny;
 
 use_ok 'Text::MacroScript';
+require_ok 't/mytests.pl';
 
 my $MACRODIR  = "$^X -I../../blib/lib ../../macrodir";
 my @PRONOUNS  = ("my", "your", "his", "her");
@@ -256,10 +257,4 @@ path. (See html.macro example file for usage and Text::MacroScript.pm and
 macropp documentation.)
 END
 	is $res, 0;
-}
-
-sub norm_nl {
-	local($_) = @_;
-	s/\r\n/\n/g;
-	return $_;
 }

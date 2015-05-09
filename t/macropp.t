@@ -13,6 +13,7 @@ use Path::Tiny;
 my($cmd,$out,$err,$res,$test1,$test2);
 
 use_ok 'Text::MacroScript';
+require_ok 't/mytests.pl';
 
 my $macropp = "$^X -Iblib/lib macropp";
 
@@ -180,10 +181,4 @@ sub t_macro {
 	is $out, $output;
 	is $err, "";
 	is $res, 0;
-}
-
-sub norm_nl {
-	local($_) = @_;
-	s/\r\n/\n/g;
-	return $_;
 }
