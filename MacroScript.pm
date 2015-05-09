@@ -422,10 +422,12 @@ sub expand_file { # Object method.
     my @lines;
 
 	croak "Missing filename"            unless     $file; 
-	croak "File '$file' does not exist" unless  -e $file;
-
+	
 	substr( $file, 0, 1 ) = ( $ENV{HOME} or $ENV{LOGDIR} or (getpwuid( $> ))[7] ) 
 	if substr( $file, 0, 1 ) eq '~';
+	
+	croak "File '$file' does not exist" unless  -e $file;
+    
 
 	local $_;
 
@@ -452,7 +454,7 @@ sub expand_file { # Object method.
 
 	if( $self->in_macro || $self->in_script ) {
 		my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-        croak "runaway \%$which from line ".$self->line_nr." to end of file"
+		croak "runaway \%$which from line ".$self->line_nr." to end of file"
 	}
 
     @lines if $wantarray && ! $noprint;

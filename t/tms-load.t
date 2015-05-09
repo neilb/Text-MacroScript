@@ -5,10 +5,11 @@
 
 use strict;
 use warnings;
-use Test::More;
 use Capture::Tiny 'capture';
 use Path::Tiny;
 use POSIX 'strftime';
+use Test::Differences;
+use Test::More;
 
 my $ms;
 my $test1 = "test~";
@@ -23,6 +24,11 @@ Test text with hello
 %DEFINE hello [world]
 Test text with hello
 END
+
+#------------------------------------------------------------------------------
+# new()
+eval { Text::MacroScript->new(-no=>0,-such=>0,-option=>0); }; 
+check_error(__LINE__-1, $@, "Invalid options -such,-no,-option __LOC__.\n");
 
 #------------------------------------------------------------------------------
 # -file
@@ -42,23 +48,6 @@ $ms = new_ok('Text::MacroScript');
 is $ms->expand("hello"), "hello";
 $ms->load_file($test1);
 is $ms->expand("hello"), "world";
-
-#------------------------------------------------------------------------------
-# expand_file
-$ms = new_ok('Text::MacroScript');
-@res = $ms->expand_file($test1);
-is_deeply \@res, [
-	"Test text with hello\n",
-	"Test text with world\n",
-];
-
-$ms = new_ok('Text::MacroScript');
-($out,$err,@res) = capture { void { $ms->expand_file($test1); } };
-is $out, 
-	"Test text with hello\n".
-	"Test text with world\n";
-is $err, "";
-is_deeply \@res, [];
 
 #------------------------------------------------------------------------------
 # %INCLUDE
@@ -87,4 +76,21 @@ sub norm_nl {
 	local($_) = @_;
 	s/\r\n/\n/g;
 	return $_;
+}
+
+#------------------------------------------------------------------------------
+# check $@ for the given error message
+sub check_error {
+	my($line_nr, $eval, $expected) = @_;
+	my $where = "at line $line_nr";
+	
+	ok defined($eval), "error defined $where";
+	$eval //= "";
+	
+	$expected =~ s/__LOC__/at $0 line $line_nr/g;
+	for ($eval, $expected) {
+		s/\\/\//g;
+	}
+	
+	eq_or_diff $eval, $expected, "error ok $where";
 }
