@@ -421,7 +421,6 @@ sub expand_file { # Object method.
 
     my @lines;
 
-    eval {
         croak "missing filename"            unless     $file; 
         croak "file `$file' does not exist" unless  -e $file;
 
@@ -455,9 +454,6 @@ sub expand_file { # Object method.
 			my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
 			croak "runaway \%$which to end of file"
 		}
-
-    };
-    croak $@ if $@;
 
     @lines if $wantarray && ! $noprint;
 }
