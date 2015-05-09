@@ -421,39 +421,39 @@ sub expand_file { # Object method.
 
     my @lines;
 
-        croak "missing filename"            unless     $file; 
-        croak "file `$file' does not exist" unless  -e $file;
+	croak "missing filename"            unless     $file; 
+	croak "file `$file' does not exist" unless  -e $file;
 
-        substr( $file, 0, 1 ) = ( $ENV{HOME} or $ENV{LOGDIR} or (getpwuid( $> ))[7] ) 
-        if substr( $file, 0, 1 ) eq '~';
+	substr( $file, 0, 1 ) = ( $ENV{HOME} or $ENV{LOGDIR} or (getpwuid( $> ))[7] ) 
+	if substr( $file, 0, 1 ) eq '~';
 
-        local $_;
+	local $_;
 
-        open my $fh, $file or croak "failed to open $file: $!";
-		my $line_nr;
-		
-        while( <$fh> ) {
-			$line_nr++;
-            my $line = $self->embedded ? 
-                            $self->expand_embedded( $_, $file, $line_nr ) :
-                            $self->expand( $_, $file, $line_nr );
+	open my $fh, $file or croak "failed to open $file: $!";
+	my $line_nr;
+	
+	while( <$fh> ) {
+		$line_nr++;
+		my $line = $self->embedded ? 
+						$self->expand_embedded( $_, $file, $line_nr ) :
+						$self->expand( $_, $file, $line_nr );
 
-            next unless defined($line) && $line ne ''; 
+		next unless defined($line) && $line ne ''; 
 
-            if( $wantarray ) {
-                push @lines, $line;
-            }
-            else {
-                print $line unless $noprint;
-            }
-        }
-
-        close $fh or croak "failed to close $file: $!";
-
-		if( $self->in_macro || $self->in_script ) {
-			my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-			croak "runaway \%$which to end of file"
+		if( $wantarray ) {
+			push @lines, $line;
 		}
+		else {
+			print $line unless $noprint;
+		}
+	}
+
+	close $fh or croak "failed to close $file: $!";
+
+	if( $self->in_macro || $self->in_script ) {
+		my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
+		croak "runaway \%$which to end of file"
+	}
 
     @lines if $wantarray && ! $noprint;
 }
