@@ -431,7 +431,7 @@ sub expand_file { # Object method.
 
 	local $_;
 
-	open my $fh, $file or croak "failed to open $file: $!";
+	open my $fh, $file or croak "Open '$file' failed: $!";
 	my $line_nr;
 	
 	while( <$fh> ) {
@@ -450,11 +450,11 @@ sub expand_file { # Object method.
 		}
 	}
 
-	close $fh or croak "failed to close $file: $!";
+	close $fh or croak "Close '$file' failed: $!";
 
 	if( $self->in_macro || $self->in_script ) {
 		my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-		croak "runaway \%$which from line ".$self->line_nr." to end of file"
+		croak "Runaway \%$which from line ".$self->line_nr." to end of file"
 	}
 
     @lines if $wantarray && ! $noprint;

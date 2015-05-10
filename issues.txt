@@ -1,0 +1,85 @@
+Off-line copy of open issues from https://github.com/pauloscustodio/Text-MacroScript/issues
+
+		expand_embedded() should be removed enhancement
+#45 opened 2 minutes ago by pauloscustodio 
+ 0
+		expand_file(): tilde (~) for home directory does not work in windows bug
+#44 opened 2 days ago by pauloscustodio 
+ 0
+		expand_file() dies with double indication of file name bug
+#43 opened 2 days ago by pauloscustodio 
+ 0
+		Macro/script arguments do not nest bug
+#41 opened 8 days ago by pauloscustodio 
+ 0
+		Variables should accept expressions and compute them enhancement
+#40 opened 8 days ago by pauloscustodio 
+ 0
+		Undefined #var use causes perl error message without location bug
+#39 opened 8 days ago by pauloscustodio 
+ 0
+		Variables with # syntax not parsed by $Macro->define() bug
+#38 opened 8 days ago by pauloscustodio 
+ 0
+		Variables should be expanded in all input text, not only in macro scripts enhancement
+#37 opened 8 days ago by pauloscustodio 
+ 0
+		Module to eliminate comments enhancement
+#36 opened 9 days ago by pauloscustodio 
+ 0
+		Module to avoid macro expansions inside comments enhancement
+#35 opened 9 days ago by pauloscustodio 
+ 0
+		Module to avoid macro expansions inside strings enhancement
+#34 opened 9 days ago by pauloscustodio 
+ 0
+		Implement modules for less-used features enhancement
+#33 opened 9 days ago by pauloscustodio 
+ 0
+		Implement nested if-elsif-endif enhancement
+#32 opened 9 days ago by pauloscustodio 
+ 0
+		Implement a list iterating construct enhancement
+#31 opened 9 days ago by pauloscustodio 
+ 0
+		Implement a repeating construct enhancement
+#30 opened 9 days ago by pauloscustodio 
+ 0
+		#varname syntax should be accepted in both scripts and macros bug
+#28 opened 12 days ago by pauloscustodio 
+ 0
+		undefine should not carp on undefined object bug
+#27 opened 12 days ago by pauloscustodio 
+ 0
+		macropp: report errors on syntax error bug
+#23 opened 20 days ago by pauloscustodio 
+ 0
+		Use pod2usage as suggested in Getopt::Long instead enhancement
+#17 opened 25 days ago by pauloscustodio 
+ 0
+		Option --file can only be used once enhancement
+#16 opened 25 days ago by pauloscustodio 
+ 0
+		macrodir always in embedded mode, ignoring -p option bug
+#10 opened 29 days ago by pauloscustodio 
+ 0
+		macrodir -d: does not replicate source tree in target directory bug
+#9 opened on 11 Apr by pauloscustodio 
+ 1
+		expansion depends on size of script name bug
+#7 opened on 6 Apr by pauloscustodio 
+ 0
+		Syntax SUM[] should be accepted to call script without parameters enhancement
+#5 opened on 6 Apr by pauloscustodio 
+ 0
+		undefine_all() should carp if no option is given enhancement
+#4 opened on 6 Apr by pauloscustodio 
+
+		Cannot catch error "missing parameter or unescaped # in MACRO" bug
+#3 opened on 5 Apr by pauloscustodio 
+ 0
+		expand() does not accept a multi-line text enhancement
+#2 opened on 5 Apr by pauloscustodio 
+ 0
+		Bug: expansion depends on size of macro name bug
+#1 opened on 5 Apr by pauloscustodio 

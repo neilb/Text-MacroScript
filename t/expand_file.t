@@ -38,7 +38,7 @@ check_error(__LINE__-1, $@, "File 'NOFILE' does not exist __LOC__.\n");
 
 path("testdir~")->mkpath;
 eval { $ms->expand_file("testdir~"); };
-check_error(__LINE__-1, $@, "failed to open testdir~: $permission_denied __LOC__.\n");
+check_error(__LINE__-1, $@, "Open 'testdir~' failed: $permission_denied __LOC__.\n");
 path("testdir~")->remove_tree;
 
 for my $file ("~/testmacroscript.tmp~", "testmacroscript.tmp~") {
@@ -68,13 +68,13 @@ my $file = "testmacroscript.tmp~";
 path($file)->spew("\n\n%DEFINE xx\nyy\nzz\n");
 $ms = new_ok('Text::MacroScript');
 eval { @res = $ms->expand_file($file); };
-check_error(__LINE__-1, $@, "runaway %DEFINE from line 3 to end of file __LOC__.\n");
+check_error(__LINE__-1, $@, "Runaway %DEFINE from line 3 to end of file __LOC__.\n");
 path($file)->remove;
 
 path($file)->spew("\n\n%DEFINE_SCRIPT xx\nyy\nzz\n");
 $ms = new_ok('Text::MacroScript');
 eval { @res = $ms->expand_file($file); };
-check_error(__LINE__-1, $@, "runaway %DEFINE_SCRIPT from line 3 to end of file __LOC__.\n");
+check_error(__LINE__-1, $@, "Runaway %DEFINE_SCRIPT from line 3 to end of file __LOC__.\n");
 path($file)->remove;
 
 done_testing;

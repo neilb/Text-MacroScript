@@ -36,6 +36,6 @@ check_error(__LINE__-1, $@, "File 'NOFILE' does not exist __LOC__.\n");
 
 path("testdir~")->mkpath;
 eval { $ms->expand_file("testdir~"); };
-check_error(__LINE__-1, $@, "failed to open testdir~: $permission_denied __LOC__.\n");
+check_error(__LINE__-1, $@, "Open 'testdir~' failed: $permission_denied __LOC__.\n");
 
 done_testing;
