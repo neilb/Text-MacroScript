@@ -21,6 +21,7 @@ my $ms;
 my $fh;
 my($out,$err,@res);
 
+#------------------------------------------------------------------------------
 # capture $! for file not found and permission denied
 ok ! open($fh, "NOFILE");
 my $file_not_found = $!;
@@ -28,8 +29,12 @@ my $file_not_found = $!;
 ok ! open($fh, ".");
 my $permission_denied = $!;
 
+#------------------------------------------------------------------------------
+# create object
 $ms = new_ok('Text::MacroScript');
 
+#------------------------------------------------------------------------------
+# open file failed
 eval { $ms->expand_file; };
 check_error(__LINE__-1, $@, "Missing filename __LOC__.\n");
 
@@ -41,6 +46,8 @@ eval { $ms->expand_file("testdir~"); };
 check_error(__LINE__-1, $@, "Open 'testdir~' failed: $permission_denied __LOC__.\n");
 path("testdir~")->remove_tree;
 
+#------------------------------------------------------------------------------
+# open file in ~
 for my $file ("~/testmacroscript.tmp~", "testmacroscript.tmp~") {
 	$ms = new_ok('Text::MacroScript');
 	path($file)->spew("hello\nworld\n");
@@ -63,6 +70,8 @@ for my $file ("~/testmacroscript.tmp~", "testmacroscript.tmp~") {
 	path($file)->remove;
 }
 
+#------------------------------------------------------------------------------
+# error messages: unclosed %DEFINE
 my $file = "testmacroscript.tmp~";
 
 path($file)->spew("\n\n%DEFINE xx\nyy\nzz\n");
