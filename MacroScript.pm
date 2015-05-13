@@ -528,15 +528,13 @@ sub expand { # Object method.
 	$line_nr ||= 1;
     $self->line_nr($line_nr) unless ($self->in_macro || $self->in_script);
     my $where = "at $file line ".$self->line_nr;
-	my $where_to = "$where to line $line_nr";
+	my $where_to = "from line ".$self->line_nr." to line $line_nr";
 	
 	if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso || 
 		( ($self->in_case || '') eq 'SKIP' ) ) {
 
-		croak "runaway \%DEFINE $where_to"
-		if $self->in_macro;
-		croak "runaway \%DEFINE_SCRIPT $where_to"
-		if $self->in_script;
+		croak "Runaway \%DEFINE $where_to" if $self->in_macro;
+		croak "Runaway \%DEFINE_SCRIPT $where_to" if $self->in_script;
 
 		if( defined $1 and $1 eq 'CASE' ) {
 			croak "no condition for CASE $where" unless defined $2;

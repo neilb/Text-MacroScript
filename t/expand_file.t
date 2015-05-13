@@ -80,10 +80,25 @@ eval { @res = $ms->expand_file($file); };
 check_error(__LINE__-1, $@, "Runaway %DEFINE from line 3 to end of file __LOC__.\n");
 path($file)->remove;
 
+#------------------------------------------------------------------------------
+# error messages: unclosed %DEFINE_SCRIPT
 path($file)->spew("\n\n%DEFINE_SCRIPT xx\nyy\nzz\n");
 $ms = new_ok('Text::MacroScript');
 eval { @res = $ms->expand_file($file); };
 check_error(__LINE__-1, $@, "Runaway %DEFINE_SCRIPT from line 3 to end of file __LOC__.\n");
 path($file)->remove;
+
+#------------------------------------------------------------------------------
+# error messages: %CASE inside %DEFINE...
+for my $define ('%DEFINE', '%DEFINE_SCRIPT') {
+	for my $case ('%CASE[0]', '%CASE[1]', '%END_CASE') {
+		path($file)->spew("\n\n$define xx\nyy\nzz\n$case");
+		diag path($file)->lines;
+		$ms = new_ok('Text::MacroScript');
+		eval { @res = $ms->expand_file($file); };
+		check_error(__LINE__-1, $@, "Runaway $define from line 3 to line 6 __LOC__.\n");
+		path($file)->remove;
+	}
+}
 
 done_testing;
