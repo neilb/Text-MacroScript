@@ -530,262 +530,262 @@ sub expand { # Object method.
     my $where = "at $file line ".$self->line_nr;
 	my $where_to = "$where to line $line_nr";
 	
-        if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso || 
-            ( ($self->in_case || '') eq 'SKIP' ) ) {
+	if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso || 
+		( ($self->in_case || '') eq 'SKIP' ) ) {
 
-            croak "runaway \%DEFINE $where_to"
-            if $self->in_macro;
-            croak "runaway \%DEFINE_SCRIPT $where_to"
-            if $self->in_script;
+		croak "runaway \%DEFINE $where_to"
+		if $self->in_macro;
+		croak "runaway \%DEFINE_SCRIPT $where_to"
+		if $self->in_script;
 
-            if( defined $1 and $1 eq 'CASE' ) {
-                croak "no condition for CASE $where" unless defined $2;
+		if( defined $1 and $1 eq 'CASE' ) {
+			croak "no condition for CASE $where" unless defined $2;
 
-                my $eval    = $self->_expand_variable( $2 );
-                my $result;
-                eval {
-                    my %Var = %{$self->VARIABLE};
-                    local $_;
-                    $result = eval $eval;
-                    %{$self->VARIABLE} = %Var;
-                };
-                croak "evaluation of CASE $eval failed $where: $@" if $@;
+			my $eval    = $self->_expand_variable( $2 );
+			my $result;
+			eval {
+				my %Var = %{$self->VARIABLE};
+				local $_;
+				$result = eval $eval;
+				%{$self->VARIABLE} = %Var;
+			};
+			croak "evaluation of CASE $eval failed $where: $@" if $@;
 
-                $self->in_case($result ? 1 : 'SKIP');
-            }
-            elsif( defined $1 and $1 eq 'END_CASE' ) {
-                $self->in_case(0);
-            }
+			$self->in_case($result ? 1 : 'SKIP');
+		}
+		elsif( defined $1 and $1 eq 'END_CASE' ) {
+			$self->in_case(0);
+		}
 
-            $_ = '';
-        }
-        elsif( ( $self->in_macro || $self->in_script ) && /^\%END_DEFINE/mso ) {
-            # End of a multi-line macro or script
-            $self->cur_define( $self->_expand_variable( $self->cur_define ) );
+		$_ = '';
+	}
+	elsif( ( $self->in_macro || $self->in_script ) && /^\%END_DEFINE/mso ) {
+		# End of a multi-line macro or script
+		$self->cur_define( $self->_expand_variable( $self->cur_define ) );
 
-			if ($self->in_macro) {
-				$self->in_macro(0);
-				$self->_insert_element('MACRO', $self->cur_name, $self->cur_define );
-			}
-			else {
-				$self->in_script(0);
-				$self->_insert_element('SCRIPT', $self->cur_name, $self->cur_define );
-			}
+		if ($self->in_macro) {
+			$self->in_macro(0);
+			$self->_insert_element('MACRO', $self->cur_name, $self->cur_define );
+		}
+		else {
+			$self->in_script(0);
+			$self->_insert_element('SCRIPT', $self->cur_name, $self->cur_define );
+		}
 
-            $self->cur_name('');
-			$self->cur_define('');
-			
-            $_ = '';
-        }
-        elsif( $self->in_macro || $self->in_script ) {
-            # Accumulating the body of a multi-line macro or script
-            my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-            croak "runaway \%$which $where_to"
-            if /^\%
-                (?:(?:UNDEFINE(?:_ALL)|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
-                LOAD | INCLUDE | (?:END_)CASE
-               /msox;
+		$self->cur_name('');
+		$self->cur_define('');
+		
+		$_ = '';
+	}
+	elsif( $self->in_macro || $self->in_script ) {
+		# Accumulating the body of a multi-line macro or script
+		my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
+		croak "runaway \%$which $where_to"
+		if /^\%
+			(?:(?:UNDEFINE(?:_ALL)|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
+			LOAD | INCLUDE | (?:END_)CASE
+		   /msox;
 
-            $self->{cur_define} .= $_;
+		$self->{cur_define} .= $_;
 
-            $_ = '';
-        }
-        elsif( /^\%UNDEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)/mso ) {
-            # Undefining a macro, script or variable
-            my $which = $1 || 'MACRO';
+		$_ = '';
+	}
+	elsif( /^\%UNDEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)/mso ) {
+		# Undefining a macro, script or variable
+		my $which = $1 || 'MACRO';
 
-            carp "Cannot undefine non-existent $which $2 $where" 
-            unless $self->_remove_element( $which, $2 ); 
-     
-            $_ = '';
-        }
-        elsif( /^\%UNDEFINE_ALL(?:_(SCRIPT|VARIABLE))?/mso ) {
-            # Undefining all macros or scripts
-            my $which = "-".lc($1 || 'MACRO');
-			$self->undefine_all($which);
+		carp "Cannot undefine non-existent $which $2 $where" 
+		unless $self->_remove_element( $which, $2 ); 
+ 
+		$_ = '';
+	}
+	elsif( /^\%UNDEFINE_ALL(?:_(SCRIPT|VARIABLE))?/mso ) {
+		# Undefining all macros or scripts
+		my $which = "-".lc($1 || 'MACRO');
+		$self->undefine_all($which);
 
-            $_ = '';
-        }
-        elsif( /^\%DEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)\s*\[(.*?)\]/mso ) {
-            # Defining a single-line macro, script or variable
-            my $which = $1 || 'MACRO';
+		$_ = '';
+	}
+	elsif( /^\%DEFINE(?:_(SCRIPT|VARIABLE))?\s+([^][\s]+)\s*\[(.*?)\]/mso ) {
+		# Defining a single-line macro, script or variable
+		my $which = $1 || 'MACRO';
 
-            $self->_insert_element( $which, $2, $self->_expand_variable( $3 || '' ) );
+		$self->_insert_element( $which, $2, $self->_expand_variable( $3 || '' ) );
 
-            $_ = '';
-        }
-        elsif( /^\%DEFINE(?:_(SCRIPT))?\s+([^][\s]+)/mso ) {
-            # Preparing to define a multi-line macro or script (we don't permit
-            # multi-line variables)
-            $self->cur_name($2);
-            $self->cur_define('');
-			if (defined $1) {
-				$self->in_script(1);
-			}
-			else {
-				$self->in_macro(1);
-			}
+		$_ = '';
+	}
+	elsif( /^\%DEFINE(?:_(SCRIPT))?\s+([^][\s]+)/mso ) {
+		# Preparing to define a multi-line macro or script (we don't permit
+		# multi-line variables)
+		$self->cur_name($2);
+		$self->cur_define('');
+		if (defined $1) {
+			$self->in_script(1);
+		}
+		else {
+			$self->in_macro(1);
+		}
 
-            $_ = '';
-        }
-        elsif( /^\%(LOAD|INCLUDE)\s*\[(.+?)\]/mso ) {
-            # Save state in local stack frame (i.e. recursion is taking care of
-            # stacking for us)
-            my $in_macro    = $self->in_macro;   # Should never be true
-            my $in_script   = $self->in_script;  # Should never be true
-            my $in_case     = $self->in_case;    # Should never be true
-            my $in_embedded = $self->in_embedded;
-            my $name        = $self->cur_name;
-            my $define      = $self->cur_define;
-            my $line_nr     = $self->line_nr;
+		$_ = '';
+	}
+	elsif( /^\%(LOAD|INCLUDE)\s*\[(.+?)\]/mso ) {
+		# Save state in local stack frame (i.e. recursion is taking care of
+		# stacking for us)
+		my $in_macro    = $self->in_macro;   # Should never be true
+		my $in_script   = $self->in_script;  # Should never be true
+		my $in_case     = $self->in_case;    # Should never be true
+		my $in_embedded = $self->in_embedded;
+		my $name        = $self->cur_name;
+		my $define      = $self->cur_define;
+		my $line_nr     = $self->line_nr;
 
-            my @lines = ();
-            
-            # Load in new stuff
-            if( $1 eq 'LOAD' ) {
-                # If we are doing embedded processing and we are loading a new
-                # file then we assume we are still in the embedded text since
-                # we're loading macros, scripts etc.
-                carp "Should be embedded when LOADing $2" 
-                if ($self->embedded && ! $self->in_embedded);
+		my @lines = ();
+		
+		# Load in new stuff
+		if( $1 eq 'LOAD' ) {
+			# If we are doing embedded processing and we are loading a new
+			# file then we assume we are still in the embedded text since
+			# we're loading macros, scripts etc.
+			carp "Should be embedded when LOADing $2" 
+			if ($self->embedded && ! $self->in_embedded);
 
-                # $self->in_embedded(1); Should be 1 anyway - this is done
+			# $self->in_embedded(1); Should be 1 anyway - this is done
 
-                # inside load_file().
-                # This is a macro/scripts file; instantiates macros and scripts,
-                # ignores everything else.
-                $self->load_file( $2 );
-            }
-            else {
-                # If we are doing embedded processing and we are including a new file
-                # then we assume that we are not in embedded text at the start of that
-                # file, i.e. we look freshly for an opening delimiter. 
-                carp "Should be embedded when INCLUDINGing $2" 
-                if ($self->embedded && ! $self->in_embedded);
+			# inside load_file().
+			# This is a macro/scripts file; instantiates macros and scripts,
+			# ignores everything else.
+			$self->load_file( $2 );
+		}
+		else {
+			# If we are doing embedded processing and we are including a new file
+			# then we assume that we are not in embedded text at the start of that
+			# file, i.e. we look freshly for an opening delimiter. 
+			carp "Should be embedded when INCLUDINGing $2" 
+			if ($self->embedded && ! $self->in_embedded);
 
-                $self->in_embedded(0); # Should be 1, but we want it off now. 
+			$self->in_embedded(0); # Should be 1, but we want it off now. 
 
-                # This is a normal file that may contain macros/scripts - the
-                # macros and scripts are instantiated and any text is returned
-                # with all expansions applied
-                @lines = $self->expand_file( $2 );
-            }
-        
-            # Restore state
-            $self->in_macro($in_macro);
-            $self->in_script($in_script);
-            $self->in_case($in_case);
-            $self->in_embedded($in_embedded);
-            $self->cur_name($name);
-            $self->cur_define($define);
-            $self->line_nr($line_nr);
+			# This is a normal file that may contain macros/scripts - the
+			# macros and scripts are instantiated and any text is returned
+			# with all expansions applied
+			@lines = $self->expand_file( $2 );
+		}
+	
+		# Restore state
+		$self->in_macro($in_macro);
+		$self->in_script($in_script);
+		$self->in_case($in_case);
+		$self->in_embedded($in_embedded);
+		$self->cur_name($name);
+		$self->cur_define($define);
+		$self->line_nr($line_nr);
 
-            # Replace string with the outcome of the load (empty) or include 
-            $_ = join '', @lines;
-        }
-        elsif( /^\%REQUIRE\s*\[(.+?)\]/mso ) {
-            my $file = $1;
-            eval {
-                require $file;
-            };
-            carp "Failed to require `$file': $@" if $@;
+		# Replace string with the outcome of the load (empty) or include 
+		$_ = join '', @lines;
+	}
+	elsif( /^\%REQUIRE\s*\[(.+?)\]/mso ) {
+		my $file = $1;
+		eval {
+			require $file;
+		};
+		carp "Failed to require `$file': $@" if $@;
 
-            $_ = '';
-        }
-        else {
-            # This array is already ordered by length then by ASCII.
-            foreach my $script ( @{$self->SCRIPT} ) {
-                my( $name, $orig_body ) = @{$script};
-                # We substitute wherever found, including in the middle of 'words'
-                # or whatever (but we can always create macro names like *MYMACRO
-                # which are unlikely to occur in words). 
-                # Macro names shouldn't include ] and can't include [.
-                s{
-                    \Q$name\E
-                    (?:\[(.+?)\])?  
-                 }{
-                    # Get any parameters
-                    my @param = split /\|/, $1 if defined $1;
-                    # We get $body fresh every time since we could have the same
-                    # macro or script occur more than once in a line but of course
-                    # with different parameters.
-                    my $body  = $orig_body;
-                    # Substitute any parameters in the script's body; we go from
-                    # largest index to smallest to ensure that we substitute #13
-                    # before #1!
-                    if( $body =~ /#\d/mso ) {
+		$_ = '';
+	}
+	else {
+		# This array is already ordered by length then by ASCII.
+		foreach my $script ( @{$self->SCRIPT} ) {
+			my( $name, $orig_body ) = @{$script};
+			# We substitute wherever found, including in the middle of 'words'
+			# or whatever (but we can always create macro names like *MYMACRO
+			# which are unlikely to occur in words). 
+			# Macro names shouldn't include ] and can't include [.
+			s{
+				\Q$name\E
+				(?:\[(.+?)\])?  
+			 }{
+				# Get any parameters
+				my @param = split /\|/, $1 if defined $1;
+				# We get $body fresh every time since we could have the same
+				# macro or script occur more than once in a line but of course
+				# with different parameters.
+				my $body  = $orig_body;
+				# Substitute any parameters in the script's body; we go from
+				# largest index to smallest to ensure that we substitute #13
+				# before #1!
+				if( $body =~ /#\d/mso ) {
 
-                        $body =~ s/\\#/\x0/msgo; # Hide escaped #s
+					$body =~ s/\\#/\x0/msgo; # Hide escaped #s
 
-                        # Warnings don't seem to work correctly here so we switch
-                        # them off and do them manually.
-                        local $^W = 0;
+					# Warnings don't seem to work correctly here so we switch
+					# them off and do them manually.
+					local $^W = 0;
 
-                        for( my $i = $#param; $i >= 0; $i-- ) {
-                            $body =~ s/#$i/$param[$i]/msg;
-                        }
-                        carp "missing parameter or unescaped # in SCRIPT " .
-                             "$name $body $where"
-                        if ( $#param > 9 and $body =~ /#\d\d\D/mso ) or 
-                                           ( $body =~ /#\d\D/mso );
+					for( my $i = $#param; $i >= 0; $i-- ) {
+						$body =~ s/#$i/$param[$i]/msg;
+					}
+					carp "missing parameter or unescaped # in SCRIPT " .
+						 "$name $body $where"
+					if ( $#param > 9 and $body =~ /#\d\d\D/mso ) or 
+									   ( $body =~ /#\d\D/mso );
 
-                        $body =~ s/\x0/#/msgo; # Unhide escaped #s
-                        # Extra parameters, i.e. those given in the text but not
-                        # used by the macro or script are ignored and do not
-                        # appear in the output.
-                    }
-                    # Evaluate the script 
-                    my $result = '';
-                    eval {
-                        my @Param = @param; # Give (local)  access to params
-                        my %Var   = %{$self->VARIABLE};
-                        local $_;
-                        $result   = eval $body;
-                        %{$self->VARIABLE} = %Var;
-                    };
-                    croak "evaluation of SCRIPT $name failed $where: $@" 
-                    if $@;
-                    # This carp does't work - its supposed to catch a failed eval
-                    # and give an error message - instead perl doesn't set $@ but
-                    # outputs its own error message immediately instead. Although
-                    # we can switch off perl's message using local $^W = 0, doing
-                    # so means that the error goes by silently, so I've left the
-                    # default behaviour so at least we know we've got an error.
-                    # Please let me know how to fix this!
+					$body =~ s/\x0/#/msgo; # Unhide escaped #s
+					# Extra parameters, i.e. those given in the text but not
+					# used by the macro or script are ignored and do not
+					# appear in the output.
+				}
+				# Evaluate the script 
+				my $result = '';
+				eval {
+					my @Param = @param; # Give (local)  access to params
+					my %Var   = %{$self->VARIABLE};
+					local $_;
+					$result   = eval $body;
+					%{$self->VARIABLE} = %Var;
+				};
+				croak "evaluation of SCRIPT $name failed $where: $@" 
+				if $@;
+				# This carp does't work - its supposed to catch a failed eval
+				# and give an error message - instead perl doesn't set $@ but
+				# outputs its own error message immediately instead. Although
+				# we can switch off perl's message using local $^W = 0, doing
+				# so means that the error goes by silently, so I've left the
+				# default behaviour so at least we know we've got an error.
+				# Please let me know how to fix this!
 
-                    # Return the result of the evaluation as the replacement string
-                    $result;
-                 }gmsex; 
-            }
+				# Return the result of the evaluation as the replacement string
+				$result;
+			 }gmsex; 
+		}
 
-            foreach my $macro ( @{$self->MACRO} ) {
-                my( $name, $body ) = @{$macro};
+		foreach my $macro ( @{$self->MACRO} ) {
+			my( $name, $body ) = @{$macro};
 
-                s{
-                    \Q$name\E
-                    (?:\[(.+?)\])?  
-                 }{
-                    my @param = split /\|/, $1 if defined $1;
-                    {
-                        $body =~ s/\\#/\x0/msgo; # Hide escaped #s
+			s{
+				\Q$name\E
+				(?:\[(.+?)\])?  
+			 }{
+				my @param = split /\|/, $1 if defined $1;
+				{
+					$body =~ s/\\#/\x0/msgo; # Hide escaped #s
 
-                        local $^W = 0;
+					local $^W = 0;
 
-                        for( my $i = $#param; $i >= 0; $i-- ) {
-                            $body =~ s/#$i/$param[$i]/msg;
-                        }
+					for( my $i = $#param; $i >= 0; $i-- ) {
+						$body =~ s/#$i/$param[$i]/msg;
+					}
 
-                        carp "missing parameter or unescaped # in MACRO " .
-                             "$name $body $where"
-                        if ( $#param > 9 and $body =~ /#\d\d\D/mso ) or 
-                                           ( $body =~ /#\d\D/mso );
+					carp "missing parameter or unescaped # in MACRO " .
+						 "$name $body $where"
+					if ( $#param > 9 and $body =~ /#\d\d\D/mso ) or 
+									   ( $body =~ /#\d\D/mso );
 
-                        $body =~ s/\x0/#/msgo; # Unhide escaped #s
-                    }
-                    $body;
-                 }gmsex; 
-            }
-        }
+					$body =~ s/\x0/#/msgo; # Unhide escaped #s
+				}
+				$body;
+			 }gmsex; 
+		}
+	}
 
     $_;
 }
