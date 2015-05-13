@@ -530,7 +530,6 @@ sub expand { # Object method.
     my $where = "at $file line ".$self->line_nr;
 	my $where_to = "$where to line $line_nr";
 	
-    eval {
         if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso || 
             ( ($self->in_case || '') eq 'SKIP' ) ) {
 
@@ -787,8 +786,6 @@ sub expand { # Object method.
                  }gmsex; 
             }
         }
-    };
-    croak $@ if $@;
 
     $_;
 }
