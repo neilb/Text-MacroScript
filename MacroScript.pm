@@ -454,7 +454,7 @@ sub expand_file { # Object method.
 
 	if( $self->in_macro || $self->in_script ) {
 		my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-		croak "Runaway \%$which from line ".$self->line_nr." to end of file"
+		croak "Runaway \%$which from $file line ".$self->line_nr." to end of file"
 	}
 
     @lines if $wantarray && ! $noprint;
@@ -528,7 +528,7 @@ sub expand { # Object method.
 	$line_nr ||= 1;
     $self->line_nr($line_nr) unless ($self->in_macro || $self->in_script);
     my $where = "at $file line ".$self->line_nr;
-	my $where_to = "from line ".$self->line_nr." to line $line_nr";
+	my $where_to = "from $file line ".$self->line_nr." to line $line_nr";
 	
 	if( /^\%((?:END_)?CASE)(?:\s*\[(.*?)\])?/mso || 
 		( ($self->in_case || '') eq 'SKIP' ) ) {
@@ -537,7 +537,7 @@ sub expand { # Object method.
 		croak "Runaway \%DEFINE_SCRIPT $where_to" if $self->in_script;
 
 		if( defined $1 and $1 eq 'CASE' ) {
-			croak "no condition for CASE $where" unless defined $2;
+			croak "Missing \%CASE condition $where" unless defined $2;
 
 			my $eval    = $self->_expand_variable( $2 );
 			my $result;
@@ -547,7 +547,7 @@ sub expand { # Object method.
 				$result = eval $eval;
 				%{$self->VARIABLE} = %Var;
 			};
-			croak "evaluation of CASE $eval failed $where: $@" if $@;
+			croak "Evaluation of %CASE [$eval] failed $where: $@" if $@;
 
 			$self->in_case($result ? 1 : 'SKIP');
 		}

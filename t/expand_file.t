@@ -77,7 +77,7 @@ my $file = "testmacroscript.tmp~";
 path($file)->spew("\n\n%DEFINE xx\nyy\nzz\n");
 $ms = new_ok('Text::MacroScript');
 eval { @res = $ms->expand_file($file); };
-check_error(__LINE__-1, $@, "Runaway %DEFINE from line 3 to end of file __LOC__.\n");
+check_error(__LINE__-1, $@, "Runaway %DEFINE from $file line 3 to end of file __LOC__.\n");
 path($file)->remove;
 
 #------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ path($file)->remove;
 path($file)->spew("\n\n%DEFINE_SCRIPT xx\nyy\nzz\n");
 $ms = new_ok('Text::MacroScript');
 eval { @res = $ms->expand_file($file); };
-check_error(__LINE__-1, $@, "Runaway %DEFINE_SCRIPT from line 3 to end of file __LOC__.\n");
+check_error(__LINE__-1, $@, "Runaway %DEFINE_SCRIPT from $file line 3 to end of file __LOC__.\n");
 path($file)->remove;
 
 #------------------------------------------------------------------------------
@@ -96,9 +96,27 @@ for my $define ('%DEFINE', '%DEFINE_SCRIPT') {
 		diag path($file)->lines;
 		$ms = new_ok('Text::MacroScript');
 		eval { @res = $ms->expand_file($file); };
-		check_error(__LINE__-1, $@, "Runaway $define from line 3 to line 6 __LOC__.\n");
+		check_error(__LINE__-1, $@, "Runaway $define from $file line 3 to line 6 __LOC__.\n");
 		path($file)->remove;
 	}
 }
+
+#------------------------------------------------------------------------------
+# error messages: no %CASE argument
+path($file)->spew("\n\n%CASE 1\nyy\nzz\n");
+$ms = new_ok('Text::MacroScript');
+eval { @res = $ms->expand_file($file); };
+check_error(__LINE__-1, $@, "Missing \%CASE condition at $file line 3 __LOC__.\n");
+path($file)->remove;
+
+#------------------------------------------------------------------------------
+# error messages: %CASE eval failed
+diag 'Issue #46: Syntax error in %CASE expression is not caught'; 
+#path($file)->spew("\n\n%CASE[1+]\nyy\nzz\n");
+#$ms = new_ok('Text::MacroScript');
+#eval { @res = $ms->expand_file($file); };
+#check_error(__LINE__-1, $@, "Evaluation of %CASE [1+] failed at $file line 3 __LOC__.\n");
+#path($file)->remove;
+
 
 done_testing;
