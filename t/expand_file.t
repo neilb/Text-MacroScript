@@ -127,12 +127,6 @@ for my $define (qw( DEFINE DEFINE_SCRIPT )) {
 					  DEFINE DEFINE_SCRIPT DEFINE_VARIABLE
 					  LOAD INCLUDE 
 					  CASE END_CASE )) {
-		if ($stmt eq 'UNDEFINE' || 
-		    $stmt eq 'UNDEFINE_VARIABLE' || 
-			$stmt eq 'UNDEFINE_SCRIPT' ) {
-			diag "Issue #46: %UNDEFINE[|_VARIABLE|_SCRIPT] within %DEFINE[|_SCRIPT] not detected as runaway %DEFINE[|_SCRIPT]";
-			next;
-		}
 		path($file)->spew("\n\n%$define xx\nyy\nzz\n%$stmt");
 		diag path($file)->lines;
 		$ms = new_ok('Text::MacroScript');

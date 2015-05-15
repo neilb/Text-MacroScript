@@ -1,3 +1,6 @@
+#47 %UNDEFINE[|_VARIABLE|_SCRIPT] within %DEFINE[|_SCRIPT] not detected as runaway %DEFINE[|_SCRIPT]
+ 
+
 Off-line copy of open issues from https://github.com/pauloscustodio/Text-MacroScript/issues
 
 		expand_embedded() should be removed enhancement

@@ -580,7 +580,7 @@ sub expand { # Object method.
 		my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
 		croak "Runaway \%$which $where_to"
 		if /^\%
-			(?:(?:UNDEFINE(?:_ALL)|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
+			(?:(?:UNDEFINE(?:_ALL)?|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
 			LOAD | INCLUDE | (?:END_)CASE
 		   /msox;
 
