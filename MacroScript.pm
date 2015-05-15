@@ -578,7 +578,7 @@ sub expand { # Object method.
 	elsif( $self->in_macro || $self->in_script ) {
 		# Accumulating the body of a multi-line macro or script
 		my $which = $self->in_macro ? 'DEFINE' : 'DEFINE_SCRIPT';
-		croak "runaway \%$which $where_to"
+		croak "Runaway \%$which $where_to"
 		if /^\%
 			(?:(?:UNDEFINE(?:_ALL)|DEFINE)(?:_SCRIPT|_VARIABLE)?) |
 			LOAD | INCLUDE | (?:END_)CASE
