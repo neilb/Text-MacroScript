@@ -1,4 +1,5 @@
 #47 %UNDEFINE[|_VARIABLE|_SCRIPT] within %DEFINE[|_SCRIPT] not detected as runaway %DEFINE[|_SCRIPT]
+#48 eval error when evaluating a SCRIPT is not caught and Perl error message is output
  
 
 Off-line copy of open issues from https://github.com/pauloscustodio/Text-MacroScript/issues

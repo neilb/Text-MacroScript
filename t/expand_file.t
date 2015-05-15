@@ -136,4 +136,16 @@ for my $define (qw( DEFINE DEFINE_SCRIPT )) {
 	}
 }
 
+#------------------------------------------------------------------------------
+# error messages: evaluation error within script
+diag "Issue #47 eval error when evaluating a SCRIPT is not caught and Perl error message is output";
+#path($file)->spew(<<'END');
+#%DEFINE_SCRIPT xx ["]
+#xx
+#END
+#$ms = new_ok('Text::MacroScript');
+#eval { @res = $ms->expand_file($file); };
+#check_error(__LINE__-1, $@, "Evaluation of SCRIPT xx failed at $file line 2 __LOC__.\n");
+#path($file)->remove;
+
 done_testing;

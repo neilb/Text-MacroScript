@@ -741,7 +741,7 @@ sub expand { # Object method.
 					$result   = eval $body;
 					%{$self->VARIABLE} = %Var;
 				};
-				croak "evaluation of SCRIPT $name failed $where: $@" 
+				croak "Evaluation of SCRIPT $name failed $where: $@" 
 				if $@;
 				# This carp does't work - its supposed to catch a failed eval
 				# and give an error message - instead perl doesn't set $@ but
