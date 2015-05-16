@@ -33,4 +33,24 @@ sub norm_nl {
 	return $_;
 }
 
+#------------------------------------------------------------------------------
+# run a command, capture exit value, stdout and stderr and check
+sub t_capture {
+	my($line_nr, $sub, $exp_out, $exp_err, $exp_ret) = @_;
+	
+	my $where = "[line ".(caller)[2]."]";
+	
+	my($out,$err,$ret) = capture { $sub->() };
+
+	$exp_err =~ s/__LOC__/at $0 line $line_nr/g;
+	for ($err, $exp_err) {
+		s/\\/\//g;
+	}
+	
+	eq_or_diff $out, $exp_out, "check stdout $where";
+	eq_or_diff $err, $exp_err, "check stderr $where";
+	is !!$ret, !!$exp_ret, "check exit value $where";
+}
+
+
 1;

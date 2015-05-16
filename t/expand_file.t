@@ -148,4 +148,21 @@ diag "Issue #47 eval error when evaluating a SCRIPT is not caught and Perl error
 #check_error(__LINE__-1, $@, "Evaluation of SCRIPT xx failed at $file line 2 __LOC__.\n");
 #path($file)->remove;
 
+#------------------------------------------------------------------------------
+# error messages: undefine non-existent item
+path($file)->spew(<<'END');
+%UNDEFINE          x1
+%UNDEFINE_SCRIPT   x2
+%UNDEFINE_VARIABLE x3
+END
+$ms = new_ok('Text::MacroScript');
+t_capture( __LINE__, sub { void { $ms->expand_file($file) } }, "", <<ERR, 0 );
+Cannot undefine non-existent MACRO x1 at $file line 1 __LOC__.
+Cannot undefine non-existent SCRIPT x2 at $file line 2 __LOC__.
+Cannot undefine non-existent VARIABLE x3 at $file line 3 __LOC__.
+ERR
+path($file)->remove;
+
+
+
 done_testing;
