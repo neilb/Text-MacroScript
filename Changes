@@ -1,3 +1,20 @@
+2.06	2015-05-16
+
+	Bug Fixes
+	* Fix #43: expand_file() dies with double indication of file name
+	* Fix #47: %UNDEFINE[|_VARIABLE|_SCRIPT] within %DEFINE[|_SCRIPT] not detected as runaway %DEFINE[|_SCRIPT]
+
+	Feature Changes
+	* expand and expand_embedded now get the line number as argument
+	* Error messages: starting capital letter, tell where runaway ... started
+
+	Other
+	* Add tests for error messages
+	* Rename test scripts, remove errors.t as all tests are somewhere else
+	* Factor test functions into t/mytests.pl
+	* "my $class = ref( $self ) || $self;" not needed
+	* No need to call Symbol::gensym, use open(my $fh, ...) instead.
+
 2.05	2015-05-05
 
 	Bug Fixes
