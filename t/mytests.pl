@@ -53,5 +53,13 @@ sub t_capture {
 	is !!$ret, !!$exp_ret, "check exit value $where";
 }
 
+#------------------------------------------------------------------------------
+# write out a test file, output it with note for easier test failure detection
+sub t_spew {
+	my($file, @lines) = @_;
+	path($file)->spew(@lines);
+	note "File $file:";
+	note path($file)->lines;
+}
 
 1;
