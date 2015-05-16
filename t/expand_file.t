@@ -156,13 +156,18 @@ path($file)->spew(<<'END');
 %UNDEFINE_VARIABLE x3
 END
 $ms = new_ok('Text::MacroScript');
-t_capture( __LINE__, sub { void { $ms->expand_file($file) } }, "", <<ERR, 0 );
+t_capture(__LINE__, sub { void { $ms->expand_file($file) } }, "", <<ERR, 0 );
 Cannot undefine non-existent MACRO x1 at $file line 1 __LOC__.
 Cannot undefine non-existent SCRIPT x2 at $file line 2 __LOC__.
 Cannot undefine non-existent VARIABLE x3 at $file line 3 __LOC__.
 ERR
 path($file)->remove;
 
+for my $which (qw( macro script variable )) {
+	t_capture(__LINE__, sub { $ms->undefine("-$which", "x1") }, "", 
+			  "Cannot undefine non-existent ".uc($which)." x1 __LOC__.\n",
+			  1 );
+}
 
 
 done_testing;

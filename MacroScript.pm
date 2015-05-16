@@ -205,7 +205,7 @@ sub undefine { # Object method.
     my( $self, $which, $name ) = @_;
 
     $which = uc substr( $which, 1 );
-    carp "No $which called $name exists" unless 
+    carp "Cannot undefine non-existent $which $name" unless 
     $self->_remove_element( $which, $name ); 
 }
 
