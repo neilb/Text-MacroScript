@@ -182,5 +182,32 @@ ERR
 path($file.".1")->remove;
 path($file)->remove;
 
+#------------------------------------------------------------------------------
+# error messages: missing parameter
+path($file)->spew("%DEFINE_SCRIPT xx [\"#0#1\"]\nxx\nxx[a]\nxx[a|b]\n");
+$ms = new_ok('Text::MacroScript');
+t_capture(__LINE__, sub { void { $ms->expand_file($file) } }, <<OUT, <<ERR, 0 );
+#0#1
+a#1
+ab
+OUT
+Missing parameter or unescaped # in SCRIPT xx "#0#1" at $file line 2 __LOC__.
+Missing parameter or unescaped # in SCRIPT xx "a#1" at $file line 3 __LOC__.
+ERR
+path($file)->remove;
+
+diag 'Issue #49: Missing parameter or unescaped # in MACRO not reported for all missing parameters';
+#Missing parameter or unescaped # in MACRO xx a#1 at $file line 3 __LOC__.
+path($file)->spew("%DEFINE xx [#0#1]\nxx\nxx[a]\nxx[a|b]\n");
+$ms = new_ok('Text::MacroScript');
+t_capture(__LINE__, sub { void { $ms->expand_file($file) } }, <<OUT, <<ERR, 0 );
+#0#1
+a#1
+ab
+OUT
+Missing parameter or unescaped # in MACRO xx #0#1 at $file line 2 __LOC__.
+ERR
+path($file)->remove;
+
 
 done_testing;

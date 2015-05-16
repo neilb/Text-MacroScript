@@ -722,7 +722,7 @@ sub expand { # Object method.
 					for( my $i = $#param; $i >= 0; $i-- ) {
 						$body =~ s/#$i/$param[$i]/msg;
 					}
-					carp "missing parameter or unescaped # in SCRIPT " .
+					carp "Missing parameter or unescaped # in SCRIPT " .
 						 "$name $body $where"
 					if ( $#param > 9 and $body =~ /#\d\d\D/mso ) or 
 									   ( $body =~ /#\d\D/mso );
@@ -773,7 +773,7 @@ sub expand { # Object method.
 						$body =~ s/#$i/$param[$i]/msg;
 					}
 
-					carp "missing parameter or unescaped # in MACRO " .
+					carp "Missing parameter or unescaped # in MACRO " .
 						 "$name $body $where"
 					if ( $#param > 9 and $body =~ /#\d\d\D/mso ) or 
 									   ( $body =~ /#\d\D/mso );
