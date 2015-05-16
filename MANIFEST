@@ -10,7 +10,6 @@ META.yml			Module meta-data (added by MakeMaker)
 README
 t/case.t
 t/comment.t
-t/embedded.t
 t/expand_file.t
 t/macrodir.t
 t/macropp.t

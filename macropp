@@ -31,14 +31,7 @@ if( $Opt{'macro'} or $Opt{'script'} or $Opt{'variable'} ) {
 } 
 else { 
     while( <> ) {
-        # Adding $ARGV (i.e. filename) is optional, but helps with error
-        # messages.
-        if( $Opt{'embedded'} ) { 
-            print $Macro->expand_embedded( $_, $ARGV ) if $_ ; 
-        } 
-        else { 
-            print $Macro->expand( $_, $ARGV ) if $_ ; 
-        } 
+		print $Macro->expand( $_, $ARGV, $. ); 
     } 
 }
 

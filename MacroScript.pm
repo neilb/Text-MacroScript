@@ -408,7 +408,7 @@ sub load_file { # Object method.
 
 
 #------------------------------------------------------------------------------
-# parses the given file with expand() or expand_embedded() depending on embedded()
+# parses the given file with expand() 
 # Usage: $macro->expand_file( name, body )
 # In an array context will return the file, e.g.
 # @expanded = $macro->expand_file( name, body );
@@ -436,11 +436,8 @@ sub expand_file { # Object method.
 	
 	while( <$fh> ) {
 		$line_nr++;
-		my $line = $self->embedded ? 
-						$self->expand_embedded( $_, $file, $line_nr ) :
-						$self->expand( $_, $file, $line_nr );
-
-		next unless defined($line) && $line ne ''; 
+		my $line = $self->expand( $_, $file, $line_nr );
+		next unless defined($line) && $line ne '';
 
 		if( $wantarray ) {
 			push @lines, $line;
@@ -462,8 +459,8 @@ sub expand_file { # Object method.
 
 
 #------------------------------------------------------------------------------
-# similar to expand(), but only expands text between the open and close delimiters
-sub expand_embedded { # Object method.
+# similar to _expand(), but only expands text between the open and close delimiters
+sub _expand_embedded { # Object method.
 	my($self, $text, $file, $line_nr) = @_;
     local $_ = $text;
 
@@ -482,15 +479,15 @@ sub expand_embedded { # Object method.
             my $start = $pos + length($self->opendelim);
             my $end   = index( $_, $self->closedelim, $start );
             if( $end > -1 ) {
-                $line .= $self->expand( 
+                $line .= $self->_expand( 
 									substr( $_, $start, $end - $start ), 
 									$file, $line_nr );
-                $line .= $self->expand_embedded( 
+                $line .= $self->_expand_embedded( 
 									substr( $_, $end + length($self->closedelim) ), 
 									$file, $line_nr );
             }
             else {
-                $line .= $self->expand( substr( $_, $start ), $file, $line_nr );
+                $line .= $self->_expand( substr( $_, $start ), $file, $line_nr );
                 $self->in_embedded(1);
             }
         }
@@ -501,16 +498,16 @@ sub expand_embedded { # Object method.
     else {
         my $end = index( $_, $self->closedelim );
         if( $end > -1 ) {
-            $line = $self->expand( 
+            $line = $self->_expand( 
 								substr( $_, 0, $end ), 
 								$file, $line_nr );
             $self->in_embedded(0);
-            $line .= $self->expand_embedded( 
+            $line .= $self->_expand_embedded( 
 								substr( $_, $end + length($self->closedelim) ), 
 								$file, $line_nr );
         }
         else {
-            $line = $self->expand( $_, $file, $line_nr );
+            $line = $self->_expand( $_, $file, $line_nr );
         }
     }
 
@@ -520,13 +517,10 @@ sub expand_embedded { # Object method.
 
 #------------------------------------------------------------------------------
 # parse and expand passed string; file and line_nr are used for error messages
-sub expand { # Object method.
+sub _expand { # Object method.
 	my($self, $text, $file, $line_nr) = @_;
     local $_ = $text;
 	
-    $file //= '-';
-	$line_nr ||= 1;
-    $self->line_nr($line_nr) unless ($self->in_macro || $self->in_script);
     my $where = "at $file line ".$self->line_nr;
 	my $where_to = "from $file line ".$self->line_nr." to line $line_nr";
 	
@@ -788,6 +782,22 @@ sub expand { # Object method.
     $_;
 }
 
+#------------------------------------------------------------------------------
+# choose either _expand or _expand_embedded
+sub expand {
+	my($self, $text, $file, $line_nr) = @_;
+	
+    $file //= '-';
+	$line_nr ||= 1;
+    $self->line_nr($line_nr) unless ($self->in_macro || $self->in_script);
+
+	if ($self->embedded) {
+		return $self->_expand_embedded($text, $file, $line_nr);
+	}
+	else {
+		return $self->_expand($text, $file, $line_nr);
+	}
+}
 
 1;
 
@@ -823,7 +833,7 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
     # or
     my $Macro = Text::MacroScript->new( -opendelim => '[[', -closedelim => ']]' );
     while( <> ) {
-        print $Macro->expand_embedded( $_, $ARGV, $. ) if $_;
+        print $Macro->expand( $_, $ARGV, $. ) if $_;
     }
 
     # Create a macro object and create initial macros/scripts from the file(s)
@@ -892,23 +902,13 @@ Text::MacroScript - A macro pre-processor with embedded perl capability
 
     $Macro->load_file( $filename );
 
-    # expand_file() - calls expand_embedded() if we are doing embedded
-    # processing otherwise calls expand().
-
+    # expand_file() - calls expand() for each input line.
     $Macro->expand_file( $filename );
     @expanded = $Macro->expand_file( $filename );
     
-    
     # expand()
-
     $expanded = $Macro->expand( $unexpanded );
     $expanded = $Macro->expand( $unexpanded, $filename, $line_nr );
-
-    # expand_embedded()
-
-    $expanded = $Macro->expand_embedded( $unexpanded );
-    $expanded = $Macro->expand_embedded( $unexpanded, $filename, $line_nr );
-
 
 This bundle also includes the C<macropp> and C<macrodir> scripts which allows us
 to expand macros without having to use/understand C<Text::MacroScript>,
@@ -1260,17 +1260,6 @@ lines required for a multi-line definition, i.e. it can be called once
 for each line of a multi-line L</%DEFINE>. 
 
 
-=head3 expand_embedded
-
-  $text = $Macro->expand_embedded( $in );
-  $text = $Macro->expand_embedded( $in, $filename, $line_nr );
-
-Similar to C<expand()>, but only expands text between the open and close 
-delimiters (see C<-opendelim> and C<-closedelim>).
-
-All the other text is copied verbatin to the output.
-
-
 =head3 load_file
 
   $Macro->load_file( $filename );
@@ -1287,8 +1276,7 @@ When called in C<void> context, sends output to the current output
 filehandle. When called in C<ARRAY> context, returns the list of 
 expaned lines. 
 
-Calls C<expand_embedded()> on each line if doing embedded processing 
-(C<-embedded>), or C<expand()> otherwise. 
+Calls C<expand()> on each line of the file. 
 
 See also L</%INCLUDE>. 
 

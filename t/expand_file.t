@@ -239,7 +239,4 @@ END
 	path($file)->remove;
 }
 
-
-
-
 done_testing;
