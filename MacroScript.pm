@@ -686,7 +686,7 @@ sub expand { # Object method.
 		eval {
 			require $file;
 		};
-		carp "Failed to require `$file': $@" if $@;
+		carp "Failed to require $file: $@" if $@;
 
 		$_ = '';
 	}

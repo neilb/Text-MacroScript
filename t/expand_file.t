@@ -169,5 +169,18 @@ for my $which (qw( macro script variable )) {
 			  1 );
 }
 
+#------------------------------------------------------------------------------
+# error messages: %REQUIRE
+path($file.".1")->spew("1+;\n");
+path($file)->spew("%REQUIRE[$file.1]\n");
+$ms = new_ok('Text::MacroScript');
+t_capture(__LINE__, sub { void { $ms->expand_file($file) } }, "", <<ERR, 0 );
+Failed to require $file.1: syntax error at $file.1 line 1, near "+;"
+Compilation failed in require at blib/lib/Text/MacroScript.pm line 687, <\$fh> line 1.
+ __LOC__.
+ERR
+path($file.".1")->remove;
+path($file)->remove;
+
 
 done_testing;

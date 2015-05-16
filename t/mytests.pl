@@ -45,6 +45,7 @@ sub t_capture {
 	$exp_err =~ s/__LOC__/at $0 line $line_nr/g;
 	for ($err, $exp_err) {
 		s/\\/\//g;
+		s/\S+(Text\/MacroScript\.pm line) \d+/$1 99/g;
 	}
 	
 	eq_or_diff $out, $exp_out, "check stdout $where";
