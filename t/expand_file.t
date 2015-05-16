@@ -207,5 +207,39 @@ Missing parameter or unescaped # in MACRO xx #0#1 at $file line 2 __LOC__.
 ERR
 path($file)->remove;
 
+#------------------------------------------------------------------------------
+# test embedded
+for ([ [ -embedded => 1 ], 							"<:", ":>" ],
+     [ [ -opendelim => "<<", -closedelim => ">>" ], "<<", ">>" ],
+     [ [ -opendelim => "!!" ], 						"!!", "!!" ],
+	) {
+	my($args, $OPEN, $CLOSE) = @$_;
+	my @args = @$args;
+	note "@args $OPEN $CLOSE";
+	
+	$ms = new_ok('Text::MacroScript' => [ @args ]);
+	t_spew($file, <<END);
+hello ${OPEN}%DEFINE hello
+Hallo
+%END_DEFINE${CLOSE}world ${OPEN}%DEFINE world
+Welt
+%END_DEFINE${CLOSE}${OPEN}hello world${CLOSE}
+END
+	@res = $ms->expand_file($file);
+	is_deeply \@res, ["hello ", "world ", "Hallo\n Welt\n\n"];
+	path($file)->remove;
+
+	$ms = new_ok('Text::MacroScript' => [ @args ]);
+	t_spew($file, <<END);
+hello ${OPEN}%DEFINE hello [Hallo]${CLOSE}world${OPEN}%DEFINE world [Welt]${CLOSE}
+${OPEN}hello world${CLOSE}
+END
+	@res = $ms->expand_file($file);
+	is_deeply \@res, ["hello world\n", "Hallo Welt\n"];
+	path($file)->remove;
+}
+
+
+
 
 done_testing;
