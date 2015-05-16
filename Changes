@@ -2,6 +2,7 @@ Revision history for Perl module Text::MacroScript
 
 2.07    2015-05-??
     Other
+    * Added the github repo to the dist metadata
     * Added the min perl version (5.010) in the dist metadata
     * Added the license as LGPL (GNU Lesser General Public License, Version 2.1)
       in the dist metadata.
