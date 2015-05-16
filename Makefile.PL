@@ -3,6 +3,13 @@ use warnings;
 use ExtUtils::MakeMaker;
 require v5.10;
 
+my $mm_ver = $ExtUtils::MakeMaker::VERSION;
+if ($mm_ver =~ /_/) {
+    # developer release
+    $mm_ver = eval $mm_ver;
+    die $@ if $@;
+}
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
@@ -30,4 +37,10 @@ WriteMakefile(
 		'macrodir',
 	],
     'dist'         => { COMPRESS => "gzip -9", SUFFIX => "gz" }
+
+    ($mm_ver >= 6.48
+        ? (MIN_PERL_VERSION => 5.01)
+        : ()
+    ),
+
 ) ;
