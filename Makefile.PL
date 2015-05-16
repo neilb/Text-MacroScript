@@ -36,11 +36,13 @@ WriteMakefile(
 		'macropp',
 		'macrodir',
 	],
-    'dist'         => { COMPRESS => "gzip -9", SUFFIX => "gz" }
+    'dist'         => { COMPRESS => "gzip -9", SUFFIX => "gz" },
 
     ($mm_ver >= 6.48
         ? (MIN_PERL_VERSION => 5.01)
         : ()
     ),
+
+    ($mm_ver >= 6.31 ? (LICENSE => 'lgpl_2_1') : ()),
 
 ) ;
